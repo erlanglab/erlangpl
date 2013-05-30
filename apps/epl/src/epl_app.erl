@@ -11,9 +11,6 @@
 %% Application callbacks
 -export([start/2, stop/1]).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I), {I, {I, start_link, []}, permanent, 5000, worker, [I]}).
-
 %% ===================================================================
 %% Application callbacks
 %% ===================================================================
@@ -43,7 +40,7 @@ start(_StartType, _StartArgs) ->
     {ok, Pid} = epl_sup:start_link(),
 
     %% add all EPL handlers to the supervision tree
-    run5(Pid),
+    run5(),
 
     %% return top supervisor Pid to application controller
     {ok, Pid}.
@@ -153,7 +150,7 @@ run4() ->
                       end,
     load_files_into_ets(PrivFiles).
 
-run5(SupPid) ->
+run5() ->
     %% Find modules that end with _EPL
     %% by convention such modules implement EPL handlers
     LoadedModules = code:all_loaded(),
@@ -166,15 +163,19 @@ run5(SupPid) ->
                           end
                   end,
     HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
-    _Pids = [{ok, _} = supervisor:start_child(SupPid, ?CHILD(M))
+    _Pids = [{ok, _} = epl_sup:start_child(M)
              || M <- HandlerModules],
 
     %% TODO: add following debug printouts, if verbosity flag set
     %% io:format("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
-    CowboyModules = [{"/"++atom_to_list(Mod), Mod, []} || Mod <- HandlerModules],
+    CowboyModules =
+        lists:flatten(
+          [[{"/"++atom_to_list(Mod), Mod, []},
+            {"/"++atom_to_list(Mod)++"/[...]", epl_static, Mod}]
+           || Mod <- HandlerModules]),
     Dispatch = cowboy_router:compile(
                  [{'_', CowboyModules ++
-                       [{"/[...]", epl_static, []}]}
+                       [{"/[...]", epl_static, epl}]}
                  ]),
     {ok, _} = cowboy:start_http(http, 100, [{port, 8000}],
                                 [{env, [{dispatch, Dispatch}]}]).
