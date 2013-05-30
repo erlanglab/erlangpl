@@ -11,6 +11,13 @@
 %% Application callbacks
 -export([start/2, stop/1]).
 
+-define(CONSOLE(Str, Args), io:format(Str, Args)).
+
+-define(DEBUG(Str, Args), log(debug, Str, Args)).
+-define(INFO(Str, Args), log(info, Str, Args)).
+-define(WARN(Str, Args), log(warn, Str, Args)).
+-define(ERROR(Str, Args), log(error, Str, Args)).
+
 %% ===================================================================
 %% Application callbacks
 %% ===================================================================
@@ -18,9 +25,16 @@
 start(_StartType, _StartArgs) ->
     %% Parse and return command line arguments
     Args = run1(),
-    %% TODO: add following debug printouts, if verbosity flag set
-    %% io:format("Plain args: ~p~n", [init:get_plain_arguments()]),
-    %% io:format("Args: ~p~n", [Args]),
+
+    %% epl_priv ets table is used to store all epl settings
+    ets:new(epl_priv, [named_table, {read_concurrency,true}]),
+
+    log_level(Args),
+
+    show_version(Args),
+
+    ?DEBUG("Plain args: ~p~n", [init:get_plain_arguments()]),
+    ?DEBUG("Args: ~p~n", [Args]),
 
     %% Check if 'node' argument has been passed
     Node = run2(Args),
@@ -29,7 +43,6 @@ start(_StartType, _StartArgs) ->
     NodeSettings = run3(Node, Args),
 
     %% settings and static files are kept in epl_priv ets table
-    ets:new(epl_priv, [named_table, {read_concurrency,true}]),
     ets:insert(epl_priv, {node, Node}),
     ets:insert(epl_priv, {node_settings, NodeSettings}),
 
@@ -65,7 +78,7 @@ run1() ->
             Args = filter_flags(NonOptArgs, []),
             Options ++ Args;
         {error, {Reason, Data}} ->
-            log(error, "~s ~p", [Reason, Data]),
+            ?ERROR("~s ~p", [Reason, Data]),
             help()
     end.
 
@@ -73,8 +86,8 @@ run1() ->
 run2(Args) ->
     case proplists:lookup(node, Args) of
         none ->
-            log(error, "provide node name, e.g. --node mynode@127.0.0.1"),
-            help();
+            ?ERROR("provide node name, e.g. --node mynode@127.0.0.1", []),
+            halt(1, [{flush, true}]);
         {node, NodeStr} ->
             list_to_atom(NodeStr)
     end.
@@ -133,7 +146,7 @@ run3(Node, Args) ->
             %% net_kernel:disconnect(Node),
             NodeSettings
     after 5000 ->
-            log(error, "timed out when collecting settings"
+            ?ERROR("timed out when collecting settings"
                 " of remote node ~p", [Node]),
             halt(1, [{flush, true}])
     end.
@@ -163,11 +176,11 @@ run5() ->
                           end
                   end,
     HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
-    _Pids = [{ok, _} = epl_sup:start_child(M)
-             || M <- HandlerModules],
+    Pids = [{ok, _} = epl_sup:start_child(M)
+            || M <- HandlerModules],
 
-    %% TODO: add following debug printouts, if verbosity flag set
-    %% io:format("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
+    ?INFO("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
+
     CowboyModules =
         lists:flatten(
           [[{"/"++atom_to_list(Mod), Mod, []},
@@ -197,6 +210,16 @@ option_spec_list() ->
                                            "erlangpl@127.0.0.1"}
     ].
 
+%% show version information and halt
+show_version(Args) ->
+    case lists:member(version, Args) of
+        false ->
+            ok;
+        true ->
+            {ok, Vsn} = application:get_key(epl, vsn),
+            ?CONSOLE("Erlang Performance Lab ~s\n", [Vsn])
+    end.
+
 filter_flags([], Commands) ->
     lists:reverse(Commands);
 filter_flags([Item | Rest], Commands) ->
@@ -207,7 +230,7 @@ filter_flags([Item | Rest], Commands) ->
             Key = list_to_atom(KeyStr),
             filter_flags(Rest, [{Key, Value}|Commands]);
         Other ->
-            log(warning, "Ignoring command line argument: ~p\n", [Other]),
+            ?WARN("Ignoring command line argument: ~p\n", [Other]),
             filter_flags(Rest, Commands)
     end.
 
@@ -255,22 +278,57 @@ load_files_into_ets(Files) ->
                       Skip when Skip == <<".beam">>; Skip == <<".app">> ->
                           ok;
                       _ ->
-                          %% TODO: add following debug printouts
-                          %% io:format("~p~n", [File]),
+                          ?DEBUG("Loading: ~s~n", [File]),
                           true = ets:insert(epl_priv, {File, Bin})
                   end
           end,
     lists:foreach(Fun, Files).
 
-log(error, Str) ->
-    log(error, Str, []);
-log(warning, Str) ->
-    log(warning, Str, []).
+log(Level, Str, Args) ->
+    [{log_level, LogLevel}] = ets:lookup(epl_priv, log_level),
+    case should_log(LogLevel, Level) of
+        true ->
+            io:format(log_prefix(Level) ++ Str, Args);
+        false ->
+            ok
+    end.
 
-log(error, Str, List) ->
-    io:format(lists:flatten(["ERROR: ", Str, "~n~n"]), List);
-log(warning, Str, List) ->
-    io:format(lists:flatten(["WARNING: ", Str, "~n~n"]), List).
+%% set log level based on getopt option
+log_level(Options) ->
+    Verbose = case proplists:get_all_values(verbose, Options) of
+                  [] ->
+                      0;
+                  Verbosities ->
+                      lists:last(Verbosities)
+              end,
+    set_log_level(Verbose).
+
+set_log_level(Verbose) when is_list(Verbose) ->
+    set_log_level(list_to_integer(Verbose));
+set_log_level(Verbose) when is_integer(Verbose) ->
+    LogLevel = case Verbose of
+                   0 -> error;
+                   1 -> warn;
+                   2 -> info;
+                   3 -> debug
+               end,
+
+    true = ets:insert(epl_priv, {log_level, LogLevel}).
+
+should_log(debug, _)     -> true;
+should_log(info, debug)  -> false;
+should_log(info, _)      -> true;
+should_log(warn, debug)  -> false;
+should_log(warn, info)   -> false;
+should_log(warn, _)      -> true;
+should_log(error, error) -> true;
+should_log(error, _)     -> false;
+should_log(_, _)         -> false.
+
+log_prefix(debug) -> "DEBUG: ";
+log_prefix(info)  -> "INFO:  ";
+log_prefix(warn)  -> "WARN:  ";
+log_prefix(error) -> "ERROR: ".
 
 start_distributed(Args) ->
     application:set_env(kernel, dist_auto_connect, never),
@@ -293,7 +351,7 @@ start_distributed(Args) ->
             %% apparently the node is already alive
             {ok, Pid};
         Error ->
-            log(error, "failed to start Erlang distributed ~p", [Error]),
+            ?ERROR("failed to start Erlang distributed ~p", [Error]),
             halt(1, [{flush, true}])
     end.
 
@@ -311,6 +369,6 @@ connect_node(Node) ->
             ok = net_kernel:allow([node()]),
             true;
         false ->
-            log(error, "failed to connect to remote node ~p", [Node]),
+            ?ERROR("failed to connect to remote node ~p", [Node]),
             halt(1, [{flush, true}])
     end.
