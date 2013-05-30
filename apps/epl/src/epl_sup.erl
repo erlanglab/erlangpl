@@ -16,7 +16,7 @@
 -export([init/1]).
 
 %% Helper macro for declaring children of supervisor
--define(CHILD(I, A), {I, {I, start_link, A, permanent, 5000, worker, [I]}}).
+-define(CHILD(I, A), {I, {I, start_link, A}, permanent, 5000, worker, [I]}).
 
 %% ===================================================================
 %% API functions

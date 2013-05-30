@@ -52,6 +52,9 @@ start(_StartType, _StartArgs) ->
     %% Start top supervisor
     {ok, Pid} = epl_sup:start_link(),
 
+    %% load plugins
+    plugins(Args),
+
     %% add all EPL handlers to the supervision tree
     run5(),
 
@@ -176,7 +179,7 @@ run5() ->
                           end
                   end,
     HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
-    Pids = [{ok, _} = epl_sup:start_child(M)
+    Pids = [{ok, _} = epl_sup:start_child(M, [ets:lookup(epl_priv, node)])
             || M <- HandlerModules],
 
     ?INFO("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
@@ -202,6 +205,7 @@ option_spec_list() ->
      %% {Name, ShortOpt, LongOpt, ArgSpec, HelpMsg}
      {node,    $n, "node",      string,    "Monitored node name"},
      {cookie,  $c, "cookie",    string,    "Overwrite ~/.erlang.cookie"},
+     {plugin,  $p, "plugin",    string,    "Path to plugins"},
      {help,    $h, "help",      undefined, "Show the program options"},
      {verbose, $v, "verbose",   integer,   "Verbosity level (-v, -vv, -vvv)"},
      {version, $V, "version",   undefined, "Show version information"},
@@ -371,4 +375,51 @@ connect_node(Node) ->
         false ->
             ?ERROR("failed to connect to remote node ~p", [Node]),
             halt(1, [{flush, true}])
+    end.
+
+plugins(Args) ->
+    PluginPaths = proplists:get_all_values(plugin, Args),
+    ?DEBUG("Plugins ~p~n", [PluginPaths]),
+    ok = scan_plugins(PluginPaths).
+
+scan_plugins([Plugin | Rest]) ->
+    %% Load .beam files into code server
+    %% or start an application if .app file exists
+    EbinFiles = filelib:wildcard(Plugin ++ "/ebin/*"),
+    Fun = fun(File) ->
+                  load_plugin(File, filename:extension(File))
+          end,
+    lists:foreach(Fun, EbinFiles),
+
+    %% Load all files from priv directory to ets
+    PrivPrefix = filename:join([filename:basename(Plugin), "priv"]),
+    PrivPrefix = filelib:fold_files(filename:join([Plugin, "priv"]), "", true,
+                                    fun load_plugin_priv/2, PrivPrefix),
+
+    scan_plugins(Rest);
+scan_plugins([]) ->
+    ok.
+
+load_plugin(File, ".beam") ->
+    Module = filename:rootname(filename:basename(File)),
+    ?DEBUG("Loading plugin beam: ~s~n", [Module]),
+    {module, _} = code:load_file(list_to_atom(Module));
+load_plugin(File, ".app") ->
+    ?DEBUG("Adding path ~s~n", [filename:dirname(File)]),
+    true = code:add_path(filename:dirname(File)),
+    App = filename:basename(File, ".app"),
+    ?INFO("Starting plugin app: ~s~n", [App]),
+    ok = application:start(list_to_atom(App)).
+
+load_plugin_priv(File, PrivPrefix) ->
+    case filelib:is_dir(File) of
+        false ->
+            ReOpts = [{return, list}, {parts, 2}],
+            [_, FileName] = re:split(File, PrivPrefix, ReOpts),
+            ?DEBUG("Loading plugin priv file: ~s~n", [FileName]),
+            true = ets:insert(epl_priv, {filename:join([PrivPrefix, FileName]),
+                                         file_contents(File)}),
+            PrivPrefix;
+        true ->
+            PrivPrefix
     end.
