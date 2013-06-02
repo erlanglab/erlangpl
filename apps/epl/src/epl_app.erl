@@ -53,10 +53,10 @@ start(_StartType, _StartArgs) ->
     {ok, Pid} = epl_sup:start_link(),
 
     %% load plugins
-    plugins(Args),
+    PluginApps = plugins(Args),
 
     %% add all EPL handlers to the supervision tree
-    run5(),
+    run5(PluginApps),
 
     %% return top supervisor Pid to application controller
     {ok, Pid}.
@@ -166,7 +166,7 @@ run4() ->
                       end,
     load_files_into_ets(PrivFiles).
 
-run5() ->
+run5(PluginApps) ->
     %% Find modules that end with _EPL
     %% by convention such modules implement EPL handlers
     LoadedModules = code:all_loaded(),
@@ -178,20 +178,25 @@ run5() ->
                               nomatch   -> Acc
                           end
                   end,
+
     HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
     Pids = [{ok, _} = epl_sup:start_child(M, [ets:lookup(epl_priv, node)])
             || M <- HandlerModules],
 
     ?INFO("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
 
-    CowboyModules =
-        lists:flatten(
-          [[{"/"++atom_to_list(Mod), Mod, []},
-            {"/"++atom_to_list(Mod)++"/[...]", epl_static, Mod}]
-           || Mod <- HandlerModules]),
+    PluginModules =
+          [{"/"++atom_to_list(Mod), Mod, []} || Mod <- HandlerModules],
+
+    PrivFiles = [{"/"++App++"/[...]", epl_static, App}
+                 || App <- PluginApps],
+
+    ?DEBUG("Cowboy dispatch plugin modules: ~p~n", [PluginModules]),
+    ?DEBUG("Cowboy dispatch plugin priv: ~p~n", [PrivFiles]),
+
     Dispatch = cowboy_router:compile(
-                 [{'_', CowboyModules ++
-                       [{"/[...]", epl_static, epl}]}
+                 [{'_', PluginModules ++ PrivFiles ++
+                       [{"/[...]", epl_static, "epl"}]}
                  ]),
     {ok, _} = cowboy:start_http(http, 100, [{port, 8000}],
                                 [{env, [{dispatch, Dispatch}]}]).
@@ -282,6 +287,7 @@ load_files_into_ets(Files) ->
                       Skip when Skip == <<".beam">>; Skip == <<".app">> ->
                           ok;
                       _ ->
+
                           ?DEBUG("Loading: ~s~n", [File]),
                           true = ets:insert(epl_priv, {File, Bin})
                   end
@@ -380,46 +386,55 @@ connect_node(Node) ->
 plugins(Args) ->
     PluginPaths = proplists:get_all_values(plugin, Args),
     ?DEBUG("Plugins ~p~n", [PluginPaths]),
-    ok = scan_plugins(PluginPaths).
+    scan_plugins(PluginPaths, []).
 
-scan_plugins([Plugin | Rest]) ->
-    %% Load .beam files into code server
-    %% or start an application if .app file exists
+scan_plugins([Plugin | Rest], PluginApps) ->
+    %% start an application if .app file exists
+    %% TODO: What if there is no .app file? Shall we load .beam anyway?
     EbinFiles = filelib:wildcard(Plugin ++ "/ebin/*"),
-    Fun = fun(File) ->
-                  load_plugin(File, filename:extension(File))
+    Fun = fun(File, App) ->
+                  case filename:extension(File) of
+                      ".app" ->
+                          AppName = filename:basename(File, ".app"),
+                          AppPath = filename:dirname(File),
+                          load_plugin(AppName, AppPath),
+                          AppName;
+                      ".beam" ->
+                          Module = filename:rootname(filename:basename(File)),
+                          ?DEBUG("Loading plugin beam: ~s~n", [Module]),
+                          {module, _} = code:load_file(list_to_atom(Module)),
+                          App
+                  end
           end,
-    lists:foreach(Fun, EbinFiles),
+    AppName = lists:foldl(Fun, undefined, EbinFiles),
+
+    scan_plugins(Rest, [AppName|PluginApps]);
+scan_plugins([], PluginApps) ->
+    PluginApps.
+
+load_plugin(AppName, AppPath) ->
+    ?DEBUG("Adding path ~s~n", [AppPath]),
+    true = code:add_path(AppPath),
 
     %% Load all files from priv directory to ets
-    PrivPrefix = filename:join([filename:basename(Plugin), "priv"]),
-    PrivPrefix = filelib:fold_files(filename:join([Plugin, "priv"]), "", true,
-                                    fun load_plugin_priv/2, PrivPrefix),
+    PluginPrivDir = filename:join([AppPath, "../priv"]),
+    filelib:fold_files(PluginPrivDir, "", true,
+                       fun load_plugin_priv/2, list_to_binary(AppName)),
 
-    scan_plugins(Rest);
-scan_plugins([]) ->
-    ok.
+    ?INFO("Starting plugin app: ~s~n", [AppName]),
+    ok = application:load(list_to_atom(AppName)),
+    ok = application:start(list_to_atom(AppName)),
 
-load_plugin(File, ".beam") ->
-    Module = filename:rootname(filename:basename(File)),
-    ?DEBUG("Loading plugin beam: ~s~n", [Module]),
-    {module, _} = code:load_file(list_to_atom(Module));
-load_plugin(File, ".app") ->
-    ?DEBUG("Adding path ~s~n", [filename:dirname(File)]),
-    true = code:add_path(filename:dirname(File)),
-    App = filename:basename(File, ".app"),
-    ?INFO("Starting plugin app: ~s~n", [App]),
-    ok = application:start(list_to_atom(App)).
+    AppName.
 
-load_plugin_priv(File, PrivPrefix) ->
+load_plugin_priv(File, App) ->
     case filelib:is_dir(File) of
         false ->
-            ReOpts = [{return, list}, {parts, 2}],
-            [_, FileName] = re:split(File, PrivPrefix, ReOpts),
-            ?DEBUG("Loading plugin priv file: ~s~n", [FileName]),
-            true = ets:insert(epl_priv, {filename:join([PrivPrefix, FileName]),
-                                         file_contents(File)}),
-            PrivPrefix;
+            [_, FileName] = re:split(File, "/priv/", []),
+            FilePath = << App/binary, "/priv/", FileName/binary >>,
+            ?DEBUG("Loading plugin priv file: ~s~n", [FilePath]),
+            true = ets:insert(epl_priv, {FilePath, file_contents(File)}),
+            App;
         true ->
-            PrivPrefix
+            App
     end.
