@@ -56,7 +56,7 @@ start(_StartType, _StartArgs) ->
     PluginApps = plugins(Args),
 
     %% add all EPL handlers to the supervision tree
-    run5(PluginApps),
+    run5(PluginApps, Args),
 
     %% return top supervisor Pid to application controller
     {ok, Pid}.
@@ -166,7 +166,7 @@ run4() ->
                       end,
     load_files_into_ets(PrivFiles).
 
-run5(PluginApps) ->
+run5(PluginApps, Args) ->
     %% Find modules that end with _EPL
     %% by convention such modules implement EPL handlers
     LoadedModules = code:all_loaded(),
@@ -198,7 +198,14 @@ run5(PluginApps) ->
                  [{'_', PluginModules ++ PrivFiles ++
                        [{"/[...]", epl_static, "epl"}]}
                  ]),
-    {ok, _} = cowboy:start_http(http, 100, [{port, 8000}],
+
+    Port = case proplists:lookup(port, Args) of
+               none -> 8000;
+               {port, N} when is_list(N) -> list_to_integer(N);
+               {port, N} when is_integer(N) -> N
+           end,
+
+    {ok, _} = cowboy:start_http(http, 100, [{port, Port}],
                                 [{env, [{dispatch, Dispatch}]}]).
 
 help() ->
@@ -213,6 +220,7 @@ option_spec_list() ->
      {plugin,  $p, "plugin",    string,    "Path to plugins"},
      {help,    $h, "help",      undefined, "Show the program options"},
      {verbose, $v, "verbose",   integer,   "Verbosity level (-v, -vv, -vvv)"},
+     {port,    $P, "port",      integer,   "HTTP and WS port number"},
      {version, $V, "version",   undefined, "Show version information"},
      {sname,   $s, "sname",     string,    "Start with a shortname"},
      {name,    $l, "name",      string,    "Start with a longname, default "
@@ -287,7 +295,6 @@ load_files_into_ets(Files) ->
                       Skip when Skip == <<".beam">>; Skip == <<".app">> ->
                           ok;
                       _ ->
-
                           ?DEBUG("Loading: ~s~n", [File]),
                           true = ets:insert(epl_priv, {File, Bin})
                   end
