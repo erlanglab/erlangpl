@@ -1,0 +1,243 @@
+%%
+%% %CopyrightBegin%
+%%
+%% Copyright Michal Slaski 2013. All Rights Reserved.
+%%
+%% %CopyrightEnd%
+%%
+-module(epl_tracer).
+-behaviour(gen_server).
+
+%% API
+-export([start_link/1,
+         subscribe/0,
+         subscribe/1,
+         unsubscribe/0,
+         unsubscribe/1]).
+
+%% gen_server callbacks
+-export([init/1,
+         handle_call/3,
+         handle_cast/2,
+         handle_info/2,
+         terminate/2,
+         code_change/3]).
+
+-record(state, {subscribers = [],
+                ref,
+                remote_pid,
+                timeout = 0}).
+
+-define(POLL, 5000).
+
+%% ===================================================================
+%% API functions
+%% ===================================================================
+start_link(Node) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, Node, []).
+
+subscribe() ->
+    subscribe(self()).
+
+subscribe(Pid) ->
+    gen_server:call(?MODULE, {subscribe, Pid}).
+
+unsubscribe() ->
+    unsubscribe(self()).
+
+unsubscribe(Pid) ->
+    gen_server:call(?MODULE, {unsubscribe, Pid}).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+init(Node) ->
+    RemoteFunStr =
+        "fun (F, Ref, false) ->
+                 %% create neccessary tables
+                 EtsOptions = [named_table, ordered_set, private],
+                 epl_receive   = ets:new(epl_receive,   EtsOptions),
+                 epl_send      = ets:new(epl_send,      EtsOptions),
+                 epl_send_self = ets:new(epl_send_self, EtsOptions),
+                 epl_spawn     = ets:new(epl_spawn,     EtsOptions),
+                 epl_exit      = ets:new(epl_exit,      EtsOptions),
+                 epl_trace     = ets:new(epl_trace, [named_table,bag,private]),
+
+                 %% turn on tracer for all processes
+                 %% but turn it off for the tracing process
+                 TraceFlags = [send, 'receive', procs, timestamp],
+                 erlang:trace(all, true, TraceFlags),
+                 %% 1 = erlang:trace(self(), false, TraceFlags),
+                 F(F, Ref, []);
+            (F, Ref, Trace) ->
+                 TracePid = case Trace of
+                                 [] -> undefined;
+                                 [_] -> hd(Trace)
+                             end,
+                 receive
+                     {trace_ts, Pid, 'receive', Msg, _TS} ->
+                         %% we count received messages and their sizes
+                         Size = erts_debug:flat_size(Msg),
+                         case ets:lookup(epl_receive, Pid) of
+                             [] -> ets:insert(epl_receive, {Pid, 1, Size});
+                             _  -> ets:update_counter(epl_receive,
+                                                      Pid, [{2, 1}, {3, Size}])
+                         end;
+                     {trace_ts, Pid1, send, _Msg, Pid2, _TS}
+                       when Pid1 < Pid2 ->
+                         %% we have one key for each Pid pair
+                         %% the smaller Pid is first element of the key
+                         case ets:lookup(epl_send, {Pid1, Pid2}) of
+                             [] -> ets:insert(epl_send, {{Pid1, Pid2}, 1, 0});
+                             _  -> ets:update_counter(epl_send,
+                                                      {Pid1, Pid2}, {2, 1})
+                         end;
+                     {trace_ts, Pid1, send, _Msg, Pid2, _TS}
+                       when Pid1 > Pid2 ->
+                         %% we have one key for each Pid pair
+                         %% the smaller Pid is first element of the key
+                         case ets:lookup(epl_send, {Pid2, Pid1}) of
+                             [] -> ets:insert(epl_send, {{Pid2, Pid1}, 0, 1});
+                             _  -> ets:update_counter(epl_send,
+                                                      {Pid2, Pid1}, {3, 1})
+                         end;
+                     {trace_ts, Pid, send, _Msg, Pid, _TS} ->
+                         %% sending to yourself? It is a special case...
+                         case ets:lookup(epl_send_self, Pid) of
+                             [] -> ets:insert(epl_send_self, {Pid, 1});
+                             _  -> ets:update_counter(epl_send_self, Pid, 1)
+                         end;
+                     {trace_ts, _, spawn, Pid, MFA, TS} ->
+                         ets:insert(epl_spawn, {Pid, MFA, TS});
+                     {trace_ts, Pid, exit, Reason, TS} ->
+                         ets:insert(epl_exit, {Pid, Reason, TS});
+                     %% ignore trace messages that we don't use
+                     {trace_ts, TracePid, send_to_non_existing_process,_,_,_}
+                       = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, TracePid, register, _, _} = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, TracePid, unregister, _, _} = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, TracePid, link, _, _} = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, TracePid, unlink, _, _} = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, TracePid, getting_linked, _, _} = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, TracePid, getting_unlinked, _, _} = T ->
+                         ets:insert(epl_trace, T);
+                     {trace_ts, _, _, _, _} ->
+                         ok;
+                     {trace_ts, _, _, _, _, _} ->
+                         ok;
+                     {Ref, Pid, List} when is_list(List) ->
+                         %% received list of commands to execute
+                         Proplist = [{Key, catch apply(Fun, Args)}
+                                 || {Key, Fun, Args} <- List],
+                         Pid ! {Ref, Proplist};
+                     M ->
+                         %% if we receive an unknown message
+                         %% we stop tracing and exit
+                         erlang:trace(all, false, []),
+                         exit(unknown_msg, M)
+                 end,
+                 %% call recursively and wait for the next message to arrive
+                 F(F, Ref, Trace)
+         end.",
+
+    {ok, Tokens, _} = erl_scan:string(RemoteFunStr),
+    {ok, [Form]} = erl_parse:parse_exprs(Tokens),
+    {value, RemoteFun, _} = rpc:call(Node, erl_eval, expr, [Form, []]),
+
+    Ref = make_ref(),
+    RemotePid = spawn_link(Node, erlang, apply, [RemoteFun,
+                                                 [RemoteFun, Ref, false]]),
+
+    {ok, #state{ref = Ref, remote_pid = RemotePid}, ?POLL}.
+
+handle_cast(Request, _State) ->
+    exit({not_implemented, Request}).
+
+handle_call({subscribe, Pid}, _From, State = #state{subscribers = Subs}) ->
+    {reply, ok, State#state{subscribers = [Pid|Subs]}, ?POLL};
+handle_call({unsubscribe, Pid}, _From, State = #state{subscribers = Subs}) ->
+    {reply, ok, State#state{subscribers = lists:delete(Pid, Subs)}, ?POLL};
+handle_call(Request, _From, _State) ->
+    exit({not_implemented, Request}).
+
+
+handle_info(timeout, #state{remote_pid = Pid, timeout = 10}) ->
+    {stop, {max_timeout, node(Pid)}};
+handle_info(timeout,
+            State = #state{ref = Ref, remote_pid = RPid, subscribers = Subs}) ->
+    GetCountersList =
+        [{process_count, fun erlang:system_info/1, [process_count]},
+         {memory_total,  fun erlang:memory/1, [total]},
+         {spawn,         fun ets:tab2list/1, [epl_spawn]},
+         {spawn_,        fun ets:delete_all_objects/1, [epl_spawn]},
+         {exit,          fun ets:tab2list/1, [epl_exit]},
+         {exit_,         fun ets:delete_all_objects/1, [epl_exit]},
+         {send,          fun ets:tab2list/1, [epl_send]},
+         {send_,         fun ets:delete_all_objects/1, [epl_send]},
+         {send_self,     fun ets:tab2list/1, [epl_send_self]},
+         {send_self_,    fun ets:delete_all_objects/1, [epl_send_self]},
+         {'receive',     fun ets:tab2list/1, [epl_receive]},
+         {receive_,      fun ets:delete_all_objects/1, [epl_receive]},
+         {trace,         fun ets:tab2list/1, [epl_trace]},
+         {trace_,        fun ets:delete_all_objects/1, [epl_trace]}
+        ],
+
+    RPid ! {Ref, self(), GetCountersList},
+
+    receive
+        {Ref, Proplist} when is_list(Proplist) ->
+            %% assert all ets tables were cleared
+            EtsTables = [spawn_, exit_, send_, send_self_, receive_, trace_],
+            [{Key, true} = lists:keyfind(Key, 1, Proplist)
+             || Key <- EtsTables],
+
+            %% remove unwanted properties
+            Proplist1 = lists:foldl(fun(Key, L) ->
+                                            lists:keydelete(Key, 1, L)
+                                    end,
+                                    Proplist,
+                                    EtsTables),
+
+
+            %% [{process_count,34},
+            %%  {memory_total,5969496},
+            %%  {spawned,
+            %%   [{<5984.597.0>, {erlang,apply,[#Fun<erl_eval.20.82930912>,[]]}},
+            %%    {<5984.598.0>, {erlang,apply,[#Fun<shell.3.20862592>,[]]}},
+            %%    {<5984.599.0>, {erlang,apply,[#Fun<erl_eval.20.82930912>,[]]}}
+            %%   ]},
+            %%  {exited,
+            %%   [{<5984.607.0>, {ok, [{call,1, {atom,1,spawn}, [{'fun',1,
+            %%            {clauses, [{clause,1,[],[],[{atom,1,ok}]}]}}]}], 2}},
+            %%    {<5984.614.0>,normal},
+            %%    {<5984.646.0>,{badarith,[{erlang,'/',[1,0],[]}]}}
+            %%   ]},
+            %%  {sent,[{{#Port<5984.431>,<5984.28.0>},0,8},
+            %%         {{<5984.28.0>,<5984.30.0>},2,6}]},
+            %%  {sent_self,[]},
+            %%  {received,[{<5984.28.0>,8,314},
+            %%             {<5984.30.0>,2,24}]}]
+
+            TS = os:timestamp(),
+            [Pid ! {data, TS, Proplist1} || Pid <- Subs],
+
+            {noreply, State, ?POLL}
+    after 5000 ->
+            %% TODO: use EPL ?ERROR macro
+            ?ERROR("timed out while collecting data from node~n", []),
+            {noreply, State#state{timeout = State#state.timeout + 1}, ?POLL}
+    end;
+handle_info(Info, _State) ->
+    exit({not_implemented, Info}).
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.

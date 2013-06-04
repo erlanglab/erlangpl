@@ -52,6 +52,9 @@ start(_StartType, _StartArgs) ->
     %% Start top supervisor
     {ok, Pid} = epl_sup:start_link(),
 
+    %% Start EPL tracer on remote node
+    {ok, _} = epl_sup:start_child(epl_tracer, [Node]),
+
     %% load plugins
     PluginApps = plugins(Args),
 
@@ -415,6 +418,8 @@ scan_plugins([Plugin | Rest], PluginApps) ->
           end,
     AppName = lists:foldl(Fun, undefined, EbinFiles),
 
+    ok = application:start(list_to_atom(AppName)),
+
     scan_plugins(Rest, [AppName|PluginApps]);
 scan_plugins([], PluginApps) ->
     PluginApps.
@@ -430,7 +435,6 @@ load_plugin(AppName, AppPath) ->
 
     ?INFO("Starting plugin app: ~s~n", [AppName]),
     ok = application:load(list_to_atom(AppName)),
-    ok = application:start(list_to_atom(AppName)),
 
     AppName.
 
