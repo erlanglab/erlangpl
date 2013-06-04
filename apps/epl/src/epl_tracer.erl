@@ -8,6 +8,8 @@
 -module(epl_tracer).
 -behaviour(gen_server).
 
+-include_lib("epl/include/epl.hrl").
+
 %% API
 -export([start_link/1,
          subscribe/0,
@@ -64,10 +66,8 @@ init(Node) ->
                  epl_trace     = ets:new(epl_trace, [named_table,bag,private]),
 
                  %% turn on tracer for all processes
-                 %% but turn it off for the tracing process
                  TraceFlags = [send, 'receive', procs, timestamp],
                  erlang:trace(all, true, TraceFlags),
-                 %% 1 = erlang:trace(self(), false, TraceFlags),
                  F(F, Ref, []);
             (F, Ref, Trace) ->
                  TracePid = case Trace of

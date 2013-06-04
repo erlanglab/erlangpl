@@ -8,15 +8,10 @@
 -module(epl_app).
 -behaviour(application).
 
+-include_lib("epl/include/epl.hrl").
+
 %% Application callbacks
 -export([start/2, stop/1]).
-
--define(CONSOLE(Str, Args), io:format(Str, Args)).
-
--define(DEBUG(Str, Args), log(debug, Str, Args)).
--define(INFO(Str, Args), log(info, Str, Args)).
--define(WARN(Str, Args), log(warn, Str, Args)).
--define(ERROR(Str, Args), log(error, Str, Args)).
 
 %% ===================================================================
 %% Application callbacks
@@ -304,14 +299,6 @@ load_files_into_ets(Files) ->
           end,
     lists:foreach(Fun, Files).
 
-log(Level, Str, Args) ->
-    [{log_level, LogLevel}] = ets:lookup(epl_priv, log_level),
-    case should_log(LogLevel, Level) of
-        true ->
-            io:format(log_prefix(Level) ++ Str, Args);
-        false ->
-            ok
-    end.
 
 %% set log level based on getopt option
 log_level(Options) ->
@@ -334,21 +321,6 @@ set_log_level(Verbose) when is_integer(Verbose) ->
                end,
 
     true = ets:insert(epl_priv, {log_level, LogLevel}).
-
-should_log(debug, _)     -> true;
-should_log(info, debug)  -> false;
-should_log(info, _)      -> true;
-should_log(warn, debug)  -> false;
-should_log(warn, info)   -> false;
-should_log(warn, _)      -> true;
-should_log(error, error) -> true;
-should_log(error, _)     -> false;
-should_log(_, _)         -> false.
-
-log_prefix(debug) -> "DEBUG: ";
-log_prefix(info)  -> "INFO:  ";
-log_prefix(warn)  -> "WARN:  ";
-log_prefix(error) -> "ERROR: ".
 
 start_distributed(Args) ->
     application:set_env(kernel, dist_auto_connect, never),
