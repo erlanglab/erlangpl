@@ -224,12 +224,11 @@ handle_info(timeout,
             %%  {received,[{<5984.28.0>,8,314},
             %%             {<5984.30.0>,2,24}]}]
 
-            TS = os:timestamp(),
-            [Pid ! {data, TS, Proplist1} || Pid <- Subs],
+            Key = {node(RPid), os:timestamp()},
+            [Pid ! {data, Key, Proplist1} || Pid <- Subs],
 
             {noreply, State, ?POLL}
     after 5000 ->
-            %% TODO: use EPL ?ERROR macro
             ?ERROR("timed out while collecting data from node~n", []),
             {noreply, State#state{timeout = State#state.timeout + 1}, ?POLL}
     end;

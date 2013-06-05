@@ -13,8 +13,10 @@
          subscribe/1,
          unsubscribe/0,
          unsubscribe/1,
+         to_bin/1,
          encode_to_json/1,
-         log/3
+         log/3,
+         timestamp/1
         ]).
 
 lookup(Key) ->
@@ -64,6 +66,9 @@ encode(_Key, I, Obj) ->
     Obj.
 
 to_bin(I) when is_atom(I) -> list_to_binary(atom_to_list(I));
+to_bin(I) when is_integer(I) -> list_to_binary(integer_to_list(I));
+to_bin(I) when is_pid(I) -> list_to_binary(pid_to_list(I));
+to_bin(I) when is_port(I) -> list_to_binary(erlang:port_to_list(I));
 to_bin(I) when is_list(I) -> list_to_binary(I);
 to_bin(I) when is_binary(I) -> I.
 
@@ -90,3 +95,14 @@ log_prefix(debug) -> "DEBUG: ";
 log_prefix(info)  -> "INFO:  ";
 log_prefix(warn)  -> "WARN:  ";
 log_prefix(error) -> "ERROR: ".
+
+timestamp(TS) ->
+    {{Y,M,D},{H,Mi,S}} = calendar:now_to_local_time(TS),
+    DT = [integer_to_list(Y),
+          io_lib:format("~.2.0w",[M]),
+          io_lib:format("~.2.0w",[D]),
+          $_,
+          io_lib:format("~.2.0w",[H]),
+          io_lib:format("~.2.0w",[Mi]),
+          io_lib:format("~.2.0w",[S])],
+    to_bin(DT).
