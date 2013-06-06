@@ -15,7 +15,8 @@
          subscribe/0,
          subscribe/1,
          unsubscribe/0,
-         unsubscribe/1]).
+         unsubscribe/1,
+         trace_pid/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -50,12 +51,15 @@ unsubscribe() ->
 unsubscribe(Pid) ->
     gen_server:call(?MODULE, {unsubscribe, Pid}).
 
+trace_pid(Pid) ->
+    gen_server:call(?MODULE, {trace_pid, Pid}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
 init(Node) ->
     RemoteFunStr =
-        "fun (F, Ref, false) ->
+        "fun (F, Ref, init) ->
                  %% create neccessary tables
                  EtsOptions = [named_table, ordered_set, private],
                  epl_receive   = ets:new(epl_receive,   EtsOptions),
@@ -68,12 +72,8 @@ init(Node) ->
                  %% turn on tracer for all processes
                  TraceFlags = [send, 'receive', procs, timestamp],
                  erlang:trace(all, true, TraceFlags),
-                 F(F, Ref, []);
+                 F(F, Ref, undefined);
             (F, Ref, Trace) ->
-                 TracePid = case Trace of
-                                 [] -> undefined;
-                                 [_] -> hd(Trace)
-                             end,
                  receive
                      {trace_ts, Pid, 'receive', Msg, _TS} ->
                          %% we count received messages and their sizes
@@ -82,7 +82,8 @@ init(Node) ->
                              [] -> ets:insert(epl_receive, {Pid, 1, Size});
                              _  -> ets:update_counter(epl_receive,
                                                       Pid, [{2, 1}, {3, Size}])
-                         end;
+                         end,
+                         F(F, Ref, Trace);
                      {trace_ts, Pid1, send, _Msg, Pid2, _TS}
                        when Pid1 < Pid2 ->
                          %% we have one key for each Pid pair
@@ -91,7 +92,8 @@ init(Node) ->
                              [] -> ets:insert(epl_send, {{Pid1, Pid2}, 1, 0});
                              _  -> ets:update_counter(epl_send,
                                                       {Pid1, Pid2}, {2, 1})
-                         end;
+                         end,
+                         F(F, Ref, Trace);
                      {trace_ts, Pid1, send, _Msg, Pid2, _TS}
                        when Pid1 > Pid2 ->
                          %% we have one key for each Pid pair
@@ -100,50 +102,62 @@ init(Node) ->
                              [] -> ets:insert(epl_send, {{Pid2, Pid1}, 0, 1});
                              _  -> ets:update_counter(epl_send,
                                                       {Pid2, Pid1}, {3, 1})
-                         end;
+                         end,
+                         F(F, Ref, Trace);
                      {trace_ts, Pid, send, _Msg, Pid, _TS} ->
                          %% sending to yourself? It is a special case...
                          case ets:lookup(epl_send_self, Pid) of
                              [] -> ets:insert(epl_send_self, {Pid, 1});
                              _  -> ets:update_counter(epl_send_self, Pid, 1)
-                         end;
+                         end,
+                         F(F, Ref, Trace);
                      {trace_ts, _, spawn, Pid, MFA, TS} ->
-                         ets:insert(epl_spawn, {Pid, MFA, TS});
+                         ets:insert(epl_spawn, {Pid, MFA, TS}),
+                         F(F, Ref, Trace);
                      {trace_ts, Pid, exit, Reason, TS} ->
-                         ets:insert(epl_exit, {Pid, Reason, TS});
+                         ets:insert(epl_exit, {Pid, Reason, TS}),
+                         F(F, Ref, Trace);
                      %% ignore trace messages that we don't use
-                     {trace_ts, TracePid, send_to_non_existing_process,_,_,_}
+                     {trace_ts, Trace, send_to_non_existing_process,_,_,_}
                        = T ->
-                         ets:insert(epl_trace, T);
-                     {trace_ts, TracePid, register, _, _} = T ->
-                         ets:insert(epl_trace, T);
-                     {trace_ts, TracePid, unregister, _, _} = T ->
-                         ets:insert(epl_trace, T);
-                     {trace_ts, TracePid, link, _, _} = T ->
-                         ets:insert(epl_trace, T);
-                     {trace_ts, TracePid, unlink, _, _} = T ->
-                         ets:insert(epl_trace, T);
-                     {trace_ts, TracePid, getting_linked, _, _} = T ->
-                         ets:insert(epl_trace, T);
-                     {trace_ts, TracePid, getting_unlinked, _, _} = T ->
-                         ets:insert(epl_trace, T);
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
+                     {trace_ts, Trace, register, _, _} = T ->
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
+                     {trace_ts, Trace, unregister, _, _} = T ->
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
+                     {trace_ts, Trace, link, _, _} = T ->
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
+                     {trace_ts, Trace, unlink, _, _} = T ->
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
+                     {trace_ts, Trace, getting_linked, _, _} = T ->
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
+                     {trace_ts, Trace, getting_unlinked, _, _} = T ->
+                         ets:insert(epl_trace, T),
+                         F(F, Ref, Trace);
                      {trace_ts, _, _, _, _} ->
-                         ok;
+                         F(F, Ref, Trace);
                      {trace_ts, _, _, _, _, _} ->
-                         ok;
+                         F(F, Ref, Trace);
+                     {Ref, Pid, {trace_pid, NewTrace}} when is_pid(NewTrace) ->
+                         F(F, Ref, NewTrace);
                      {Ref, Pid, List} when is_list(List) ->
                          %% received list of commands to execute
                          Proplist = [{Key, catch apply(Fun, Args)}
                                  || {Key, Fun, Args} <- List],
-                         Pid ! {Ref, Proplist};
+                         Pid ! {Ref, Proplist},
+                         F(F, Ref, Trace);
                      M ->
                          %% if we receive an unknown message
                          %% we stop tracing and exit
                          erlang:trace(all, false, []),
                          exit(unknown_msg, M)
-                 end,
-                 %% call recursively and wait for the next message to arrive
-                 F(F, Ref, Trace)
+                 end
          end.",
 
     {ok, Tokens, _} = erl_scan:string(RemoteFunStr),
@@ -152,7 +166,7 @@ init(Node) ->
 
     Ref = make_ref(),
     RemotePid = spawn_link(Node, erlang, apply, [RemoteFun,
-                                                 [RemoteFun, Ref, false]]),
+                                                 [RemoteFun, Ref, init]]),
 
     {ok, #state{ref = Ref, remote_pid = RemotePid}, ?POLL}.
 
@@ -163,6 +177,9 @@ handle_call({subscribe, Pid}, _From, State = #state{subscribers = Subs}) ->
     {reply, ok, State#state{subscribers = [Pid|Subs]}, ?POLL};
 handle_call({unsubscribe, Pid}, _From, State = #state{subscribers = Subs}) ->
     {reply, ok, State#state{subscribers = lists:delete(Pid, Subs)}, ?POLL};
+handle_call({trace_pid, Pid}, _, State = #state{ref=Ref, remote_pid=RPid}) ->
+    RPid ! {Ref, self(), {trace_pid, Pid}},
+    {reply, ok, State};
 handle_call(Request, _From, _State) ->
     exit({not_implemented, Request}).
 
