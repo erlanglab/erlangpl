@@ -79,7 +79,7 @@ run1() ->
             Args = filter_flags(NonOptArgs, []),
             Options ++ Args;
         {error, {Reason, Data}} ->
-            ?ERROR("~s ~p", [Reason, Data]),
+            ?ERROR("~s ~p~n", [Reason, Data]),
             help()
     end.
 
@@ -87,8 +87,8 @@ run1() ->
 run2(Args) ->
     case proplists:lookup(node, Args) of
         none ->
-            ?ERROR("provide node name, e.g. --node mynode@127.0.0.1", []),
-            halt(1, [{flush, true}]);
+            ?ERROR("provide node name, e.g. --node mynode@127.0.0.1~n", []),
+            help();
         {node, NodeStr} ->
             list_to_atom(NodeStr)
     end.
@@ -148,7 +148,7 @@ run3(Node, Args) ->
             NodeSettings
     after 5000 ->
             ?ERROR("timed out when collecting settings"
-                " of remote node ~p", [Node]),
+                " of remote node ~p~n", [Node]),
             halt(1, [{flush, true}])
     end.
 
@@ -178,7 +178,7 @@ run5(PluginApps, Args) ->
                   end,
 
     HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
-    Pids = [{ok, _} = epl_sup:start_child(M, [ets:lookup(epl_priv, node)])
+    Pids = [{ok, _} = epl_sup:start_child(M, [epl:lookup(node)])
             || M <- HandlerModules],
 
     ?INFO("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
@@ -343,7 +343,7 @@ start_distributed(Args) ->
             %% apparently the node is already alive
             {ok, Pid};
         Error ->
-            ?ERROR("failed to start Erlang distributed ~p", [Error]),
+            ?ERROR("failed to start Erlang distributed ~p~n", [Error]),
             halt(1, [{flush, true}])
     end.
 
@@ -361,13 +361,13 @@ connect_node(Node) ->
             ok = net_kernel:allow([node()]),
             true;
         false ->
-            ?ERROR("failed to connect to remote node ~p", [Node]),
+            ?ERROR("failed to connect to remote node ~p~n", [Node]),
             halt(1, [{flush, true}])
     end.
 
 plugins(Args) ->
     PluginPaths = proplists:get_all_values(plugin, Args),
-    ?DEBUG("Plugins ~p~n", [PluginPaths]),
+    ?INFO("Plugins ~p~n", [PluginPaths]),
     scan_plugins(PluginPaths, []).
 
 scan_plugins([Plugin | Rest], PluginApps) ->
@@ -397,7 +397,7 @@ scan_plugins([], PluginApps) ->
     PluginApps.
 
 load_plugin(AppName, AppPath) ->
-    ?DEBUG("Adding path ~s~n", [AppPath]),
+    ?INFO("Adding path ~s~n", [AppPath]),
     true = code:add_path(AppPath),
 
     %% Load all files from priv directory to ets

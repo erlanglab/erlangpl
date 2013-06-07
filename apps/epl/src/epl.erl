@@ -65,7 +65,7 @@ to_bin(I) when is_list(I)      -> case catch list_to_binary(I) of
                                   end.
 
 log(Level, Str, Args) ->
-    [{log_level, LogLevel}] = ets:lookup(epl_priv, log_level),
+    [{log_level, LogLevel}] = lookup(log_level),
     case should_log(LogLevel, Level) of
         true ->
             io:format(log_prefix(Level) ++ Str, Args);
@@ -91,14 +91,26 @@ timestamp(TS) ->
 encode(Proplist, Obj) when is_list(Proplist) ->
     encode([], Proplist, Obj).
 
-encode(Key, [{SubKey,V}|Rest], Obj) ->
-    %% if sub-proplist present, nest it under SubKey
-    Obj1 = encode(Key++[to_bin(SubKey)], V, Obj),
-    encode(Key, Rest, Obj1);
 encode(_, [], Obj) ->
     Obj;
+encode(Key, [{SubKey,V}|Rest], Obj) ->
+    %% if sub-proplist present, nest it under SubKey
+    case catch to_bin(SubKey) of
+        {'EXIT', _} ->
+            ?DEBUG("Skipping: ~p~n", [{SubKey,V}]),
+            encode(Key, Rest, Obj);
+        SubKeyBin ->
+            Obj1 = encode(Key++[SubKeyBin], V, Obj),
+            encode(Key, Rest, Obj1)
+    end;
 encode(Key, V, Obj) when is_integer(hd(V)); not is_tuple(V) ->
-    ej:set_p(list_to_tuple(Key), Obj, to_bin(V));
+    case catch to_bin(V) of
+        {'EXIT', _} ->
+            ?DEBUG("Skipping: ~p~n", [V]),
+            Obj;
+        Vbin ->
+            ej:set_p(list_to_tuple(Key), Obj, Vbin)
+    end;
 encode(Key, [I|Rest], Obj) ->
     ?DEBUG("Skipping: ~p~n", [I]),
     encode(Key, Rest, Obj);
