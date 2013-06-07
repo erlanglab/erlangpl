@@ -16,6 +16,7 @@
          subscribe/1,
          unsubscribe/0,
          unsubscribe/1,
+         process_info/1,
          trace_pid/1]).
 
 %% gen_server callbacks
@@ -50,6 +51,9 @@ unsubscribe() ->
 
 unsubscribe(Pid) ->
     gen_server:call(?MODULE, {unsubscribe, Pid}).
+
+process_info(Pid) ->
+    gen_server:call(?MODULE, {process_info, Pid}).
 
 trace_pid(Pid) ->
     gen_server:call(?MODULE, {trace_pid, Pid}).
@@ -144,6 +148,10 @@ init(Node) ->
                          F(F, Ref, Trace);
                      {trace_ts, _, _, _, _, _} ->
                          F(F, Ref, Trace);
+                     {Ref, Pid, {process_info, P}} when is_pid(P) ->
+                         PInfo = process_info(P),
+                         Pid ! {Ref, PInfo},
+                         F(F, Ref, Trace);
                      {Ref, Pid, {trace_pid, NewTrace}} when is_pid(NewTrace) ->
                          F(F, Ref, NewTrace);
                      {Ref, Pid, List} when is_list(List) ->
@@ -179,12 +187,22 @@ handle_call({unsubscribe, Pid}, _From, State = #state{subscribers = Subs}) ->
     {reply, ok, State#state{subscribers = lists:delete(Pid, Subs)}, ?POLL};
 handle_call({trace_pid, Pid}, _, State = #state{ref=Ref, remote_pid=RPid}) ->
     RPid ! {Ref, self(), {trace_pid, Pid}},
-    {reply, ok, State};
+    {reply, ok, State, ?POLL};
+handle_call({process_info, Pid}, _, State = #state{ref=Ref, remote_pid=RPid}) ->
+    RPid ! {Ref, self(), {process_info, Pid}},
+    receive
+        {Ref, PInfo} ->
+            {reply, {ok, PInfo}, State, ?POLL}
+    after 5000 ->
+            ?ERROR("timed out while collecting data from node~n", []),
+            NewState = State#state{timeout = State#state.timeout + 1},
+            {reply, {error, {timeout, node(Pid)}}, NewState, ?POLL}
+    end;
 handle_call(Request, _From, _State) ->
     exit({not_implemented, Request}).
 
 
-handle_info(timeout, #state{remote_pid = Pid, timeout = 10}) ->
+handle_info(timeout, #state{remote_pid = Pid, timeout = T}) when T > 10 ->
     {stop, {max_timeout, node(Pid)}};
 handle_info(timeout,
             State = #state{ref = Ref, remote_pid = RPid, subscribers = Subs}) ->
