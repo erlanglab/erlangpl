@@ -6,6 +6,7 @@
 %% %CopyrightEnd%
 %%
 -module(epl_static).
+-include_lib("epl/include/epl.hrl").
 
 -export([init/3]).
 -export([handle/2]).
@@ -54,6 +55,9 @@ mime(<<".dtd">>)   -> <<"application/xml-dtd">>;
 mime(<<".xhtml">>) -> <<"application/xhtml+xml">>;
 mime(<<".xht">>)   -> <<"application/xhtml+xml">>;
 mime(<<".zip">>)   -> <<"application/zip">>;
+mime(<<".ttf">>)   -> <<"application/x-font-ttf">>;
+mime(<<".ttc">>)   -> <<"application/x-font-ttf">>;
+mime(<<".woff">>)  -> <<"application/x-font-woff">>;
 mime(<<".ico">>)   -> <<"image/x-icon">>;
 mime(<<".gif">>)   -> <<"image/gif">>;
 mime(<<".jpeg">>)  -> <<"image/jpeg">>;
@@ -61,4 +65,7 @@ mime(<<".jpg">>)   -> <<"image/jpeg">>;
 mime(<<".jpe">>)   -> <<"image/jpeg">>;
 mime(<<".png">>)   -> <<"image/png">>;
 mime(<<".svg">>)   -> <<"image/svg+xml">>;
-mime(<<".svgz">>)  -> <<"image/svg+xml">>.
+mime(<<".svgz">>)  -> <<"image/svg+xml">>;
+mime(Ext) ->
+    ?ERROR("Unknown extension ~p, will use application/octet-stream~n", [Ext]),
+    <<"application/octet-stream">>.

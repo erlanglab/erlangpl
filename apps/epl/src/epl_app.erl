@@ -178,10 +178,10 @@ run5(PluginApps, Args) ->
                   end,
 
     HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
-    Pids = [{ok, _} = epl_sup:start_child(M, [epl:lookup(node)])
+    Pids = [{M, {ok, _} = epl_sup:start_child(M, [epl:lookup(node)])}
             || M <- HandlerModules],
 
-    ?INFO("Mod: ~p Pids: ~p~n", [HandlerModules, Pids]),
+    ?INFO("Started: ~p~n", [Pids]),
 
     PluginModules =
           [{"/"++atom_to_list(Mod), Mod, []} || Mod <- HandlerModules],
@@ -204,7 +204,8 @@ run5(PluginApps, Args) ->
            end,
 
     {ok, _} = cowboy:start_http(http, 100, [{port, Port}],
-                                [{env, [{dispatch, Dispatch}]}]).
+                                [{env, [{dispatch, Dispatch}]}]),
+    ?CONSOLE("Visit http://localhost:~w/~n", [Port]).
 
 help() ->
     getopt:usage(option_spec_list(), "erlangpl", [], []),
@@ -388,11 +389,13 @@ scan_plugins([Plugin | Rest], PluginApps) ->
                           App
                   end
           end,
-    AppName = lists:foldl(Fun, undefined, EbinFiles),
-
-    ok = application:start(list_to_atom(AppName)),
-
-    scan_plugins(Rest, [AppName|PluginApps]);
+    case lists:foldl(Fun, undefined, EbinFiles) of
+        undefined ->
+            scan_plugins(Rest, PluginApps);
+        AppName ->
+            ok = application:start(list_to_atom(AppName)),
+            scan_plugins(Rest, [AppName|PluginApps])
+    end;
 scan_plugins([], PluginApps) ->
     PluginApps.
 
