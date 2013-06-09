@@ -1,0 +1,1298 @@
+/*!
+ *
+ *  Project:  GLYPHICONS
+ *  Author:   Jan Kovarik - www.glyphicons.com
+ *  Twitter:  @jankovarik
+ *
+ */
+html,
+html .halflings {
+  -webkit-font-smoothing: antialiased !important;
+}
+@font-face {
+  font-family: 'Glyphicons';
+  src: url('../fonts/glyphicons-regular.eot');
+  src: url('../fonts/glyphicons-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-regular.woff') format('woff'), url('../fonts/glyphicons-regular.ttf') format('truetype'), url('../fonts/glyphicons-regular.svg#glyphicons_halflingsregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.glyphicons {
+  display: inline-block;
+  position: relative;
+  padding: 5px 0 5px 35px;
+  color: #1d1d1b;
+  text-decoration: none;
+  *display: inline;
+  *zoom: 1;
+}
+.glyphicons i:before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font: 24px/1em 'Glyphicons';
+  font-style: normal;
+  color: #1d1d1b;
+}
+.glyphicons.white i:before {
+  color: #fff;
+}
+.glyphicons.glass i:before {
+  content: "\e001";
+}
+.glyphicons.leaf i:before {
+  content: "\e002";
+}
+.glyphicons.dog i:before {
+  content: "\e003";
+}
+.glyphicons.user i:before {
+  content: "\e004";
+}
+.glyphicons.girl i:before {
+  content: "\e005";
+}
+.glyphicons.car i:before {
+  content: "\e006";
+}
+.glyphicons.user_add i:before {
+  content: "\e007";
+}
+.glyphicons.user_remove i:before {
+  content: "\e008";
+}
+.glyphicons.film i:before {
+  content: "\e009";
+}
+.glyphicons.magic i:before {
+  content: "\e010";
+}
+.glyphicons.envelope i:before {
+  content: "\2709";
+}
+.glyphicons.camera i:before {
+  content: "\e012";
+}
+.glyphicons.heart i:before {
+  content: "\e013";
+}
+.glyphicons.beach_umbrella i:before {
+  content: "\e014";
+}
+.glyphicons.train i:before {
+  content: "\e015";
+}
+.glyphicons.print i:before {
+  content: "\e016";
+}
+.glyphicons.bin i:before {
+  content: "\e017";
+}
+.glyphicons.music i:before {
+  content: "\e018";
+}
+.glyphicons.note i:before {
+  content: "\e019";
+}
+.glyphicons.heart_empty i:before {
+  content: "\e020";
+}
+.glyphicons.home i:before {
+  content: "\e021";
+}
+.glyphicons.snowflake i:before {
+  content: "\2744";
+}
+.glyphicons.fire i:before {
+  content: "\e023";
+}
+.glyphicons.magnet i:before {
+  content: "\e024";
+}
+.glyphicons.parents i:before {
+  content: "\e025";
+}
+.glyphicons.binoculars i:before {
+  content: "\e026";
+}
+.glyphicons.road i:before {
+  content: "\e027";
+}
+.glyphicons.search i:before {
+  content: "\e028";
+}
+.glyphicons.cars i:before {
+  content: "\e029";
+}
+.glyphicons.notes_2 i:before {
+  content: "\e030";
+}
+.glyphicons.pencil i:before {
+  content: "\270F";
+}
+.glyphicons.bus i:before {
+  content: "\e032";
+}
+.glyphicons.wifi_alt i:before {
+  content: "\e033";
+}
+.glyphicons.luggage i:before {
+  content: "\e034";
+}
+.glyphicons.old_man i:before {
+  content: "\e035";
+}
+.glyphicons.woman i:before {
+  content: "\e036";
+}
+.glyphicons.file i:before {
+  content: "\e037";
+}
+.glyphicons.coins i:before {
+  content: "\e038";
+}
+.glyphicons.airplane i:before {
+  content: "\2708";
+}
+.glyphicons.notes i:before {
+  content: "\e040";
+}
+.glyphicons.stats i:before {
+  content: "\e041";
+}
+.glyphicons.charts i:before {
+  content: "\e042";
+}
+.glyphicons.pie_chart i:before {
+  content: "\e043";
+}
+.glyphicons.group i:before {
+  content: "\e044";
+}
+.glyphicons.keys i:before {
+  content: "\e045";
+}
+.glyphicons.calendar i:before {
+  content: "\e046";
+}
+.glyphicons.router i:before {
+  content: "\e047";
+}
+.glyphicons.camera_small i:before {
+  content: "\e048";
+}
+.glyphicons.dislikes i:before {
+  content: "\e049";
+}
+.glyphicons.star i:before {
+  content: "\e050";
+}
+.glyphicons.link i:before {
+  content: "\e051";
+}
+.glyphicons.eye_open i:before {
+  content: "\e052";
+}
+.glyphicons.eye_close i:before {
+  content: "\e053";
+}
+.glyphicons.alarm i:before {
+  content: "\e054";
+}
+.glyphicons.clock i:before {
+  content: "\e055";
+}
+.glyphicons.stopwatch i:before {
+  content: "\e056";
+}
+.glyphicons.projector i:before {
+  content: "\e057";
+}
+.glyphicons.history i:before {
+  content: "\e058";
+}
+.glyphicons.truck i:before {
+  content: "\e059";
+}
+.glyphicons.cargo i:before {
+  content: "\e060";
+}
+.glyphicons.compass i:before {
+  content: "\e061";
+}
+.glyphicons.keynote i:before {
+  content: "\e062";
+}
+.glyphicons.paperclip i:before {
+  content: "\e063";
+}
+.glyphicons.power i:before {
+  content: "\e064";
+}
+.glyphicons.lightbulb i:before {
+  content: "\e065";
+}
+.glyphicons.tag i:before {
+  content: "\e066";
+}
+.glyphicons.tags i:before {
+  content: "\e067";
+}
+.glyphicons.cleaning i:before {
+  content: "\e068";
+}
+.glyphicons.ruller i:before {
+  content: "\e069";
+}
+.glyphicons.gift i:before {
+  content: "\e070";
+}
+.glyphicons.umbrella i:before {
+  content: "\2602";
+}
+.glyphicons.book i:before {
+  content: "\e072";
+}
+.glyphicons.bookmark i:before {
+  content: "\e073";
+}
+.glyphicons.wifi i:before {
+  content: "\e074";
+}
+.glyphicons.cup i:before {
+  content: "\e075";
+}
+.glyphicons.stroller i:before {
+  content: "\e076";
+}
+.glyphicons.headphones i:before {
+  content: "\e077";
+}
+.glyphicons.headset i:before {
+  content: "\e078";
+}
+.glyphicons.warning_sign i:before {
+  content: "\e079";
+}
+.glyphicons.signal i:before {
+  content: "\e080";
+}
+.glyphicons.retweet i:before {
+  content: "\e081";
+}
+.glyphicons.refresh i:before {
+  content: "\e082";
+}
+.glyphicons.roundabout i:before {
+  content: "\e083";
+}
+.glyphicons.random i:before {
+  content: "\e084";
+}
+.glyphicons.heat i:before {
+  content: "\e085";
+}
+.glyphicons.repeat i:before {
+  content: "\e086";
+}
+.glyphicons.display i:before {
+  content: "\e087";
+}
+.glyphicons.log_book i:before {
+  content: "\e088";
+}
+.glyphicons.adress_book i:before {
+  content: "\e089";
+}
+.glyphicons.building i:before {
+  content: "\e090";
+}
+.glyphicons.eyedropper i:before {
+  content: "\e091";
+}
+.glyphicons.adjust i:before {
+  content: "\e092";
+}
+.glyphicons.tint i:before {
+  content: "\e093";
+}
+.glyphicons.crop i:before {
+  content: "\e094";
+}
+.glyphicons.vector_path_square i:before {
+  content: "\e095";
+}
+.glyphicons.vector_path_circle i:before {
+  content: "\e096";
+}
+.glyphicons.vector_path_polygon i:before {
+  content: "\e097";
+}
+.glyphicons.vector_path_line i:before {
+  content: "\e098";
+}
+.glyphicons.vector_path_curve i:before {
+  content: "\e099";
+}
+.glyphicons.vector_path_all i:before {
+  content: "\e100";
+}
+.glyphicons.font i:before {
+  content: "\e101";
+}
+.glyphicons.italic i:before {
+  content: "\e102";
+}
+.glyphicons.bold i:before {
+  content: "\e103";
+}
+.glyphicons.text_underline i:before {
+  content: "\e104";
+}
+.glyphicons.text_strike i:before {
+  content: "\e105";
+}
+.glyphicons.text_height i:before {
+  content: "\e106";
+}
+.glyphicons.text_width i:before {
+  content: "\e107";
+}
+.glyphicons.text_resize i:before {
+  content: "\e108";
+}
+.glyphicons.left_indent i:before {
+  content: "\e109";
+}
+.glyphicons.right_indent i:before {
+  content: "\e110";
+}
+.glyphicons.align_left i:before {
+  content: "\e111";
+}
+.glyphicons.align_center i:before {
+  content: "\e112";
+}
+.glyphicons.align_right i:before {
+  content: "\e113";
+}
+.glyphicons.justify i:before {
+  content: "\e114";
+}
+.glyphicons.list i:before {
+  content: "\e115";
+}
+.glyphicons.text_smaller i:before {
+  content: "\e116";
+}
+.glyphicons.text_bigger i:before {
+  content: "\e117";
+}
+.glyphicons.embed i:before {
+  content: "\e118";
+}
+.glyphicons.embed_close i:before {
+  content: "\e119";
+}
+.glyphicons.table i:before {
+  content: "\e120";
+}
+.glyphicons.message_full i:before {
+  content: "\e121";
+}
+.glyphicons.message_empty i:before {
+  content: "\e122";
+}
+.glyphicons.message_in i:before {
+  content: "\e123";
+}
+.glyphicons.message_out i:before {
+  content: "\e124";
+}
+.glyphicons.message_plus i:before {
+  content: "\e125";
+}
+.glyphicons.message_minus i:before {
+  content: "\e126";
+}
+.glyphicons.message_ban i:before {
+  content: "\e127";
+}
+.glyphicons.message_flag i:before {
+  content: "\e128";
+}
+.glyphicons.message_lock i:before {
+  content: "\e129";
+}
+.glyphicons.message_new i:before {
+  content: "\e130";
+}
+.glyphicons.inbox i:before {
+  content: "\e131";
+}
+.glyphicons.inbox_plus i:before {
+  content: "\e132";
+}
+.glyphicons.inbox_minus i:before {
+  content: "\e133";
+}
+.glyphicons.inbox_lock i:before {
+  content: "\e134";
+}
+.glyphicons.inbox_in i:before {
+  content: "\e135";
+}
+.glyphicons.inbox_out i:before {
+  content: "\e136";
+}
+.glyphicons.cogwheel i:before {
+  content: "\e137";
+}
+.glyphicons.cogwheels i:before {
+  content: "\e138";
+}
+.glyphicons.picture i:before {
+  content: "\e139";
+}
+.glyphicons.adjust_alt i:before {
+  content: "\e140";
+}
+.glyphicons.database_lock i:before {
+  content: "\e141";
+}
+.glyphicons.database_plus i:before {
+  content: "\e142";
+}
+.glyphicons.database_minus i:before {
+  content: "\e143";
+}
+.glyphicons.database_ban i:before {
+  content: "\e144";
+}
+.glyphicons.folder_open i:before {
+  content: "\e145";
+}
+.glyphicons.folder_plus i:before {
+  content: "\e146";
+}
+.glyphicons.folder_minus i:before {
+  content: "\e147";
+}
+.glyphicons.folder_lock i:before {
+  content: "\e148";
+}
+.glyphicons.folder_flag i:before {
+  content: "\e149";
+}
+.glyphicons.folder_new i:before {
+  content: "\e150";
+}
+.glyphicons.edit i:before {
+  content: "\e151";
+}
+.glyphicons.new_window i:before {
+  content: "\e152";
+}
+.glyphicons.check i:before {
+  content: "\e153";
+}
+.glyphicons.unchecked i:before {
+  content: "\e154";
+}
+.glyphicons.more_windows i:before {
+  content: "\e155";
+}
+.glyphicons.show_big_thumbnails i:before {
+  content: "\e156";
+}
+.glyphicons.show_thumbnails i:before {
+  content: "\e157";
+}
+.glyphicons.show_thumbnails_with_lines i:before {
+  content: "\e158";
+}
+.glyphicons.show_lines i:before {
+  content: "\e159";
+}
+.glyphicons.playlist i:before {
+  content: "\e160";
+}
+.glyphicons.imac i:before {
+  content: "\e161";
+}
+.glyphicons.macbook i:before {
+  content: "\e162";
+}
+.glyphicons.ipad i:before {
+  content: "\e163";
+}
+.glyphicons.iphone i:before {
+  content: "\e164";
+}
+.glyphicons.iphone_transfer i:before {
+  content: "\e165";
+}
+.glyphicons.iphone_exchange i:before {
+  content: "\e166";
+}
+.glyphicons.ipod i:before {
+  content: "\e167";
+}
+.glyphicons.ipod_shuffle i:before {
+  content: "\e168";
+}
+.glyphicons.ear_plugs i:before {
+  content: "\e169";
+}
+.glyphicons.phone i:before {
+  content: "\e170";
+}
+.glyphicons.step_backward i:before {
+  content: "\e171";
+}
+.glyphicons.fast_backward i:before {
+  content: "\e172";
+}
+.glyphicons.rewind i:before {
+  content: "\e173";
+}
+.glyphicons.play i:before {
+  content: "\e174";
+}
+.glyphicons.pause i:before {
+  content: "\e175";
+}
+.glyphicons.stop i:before {
+  content: "\e176";
+}
+.glyphicons.forward i:before {
+  content: "\e177";
+}
+.glyphicons.fast_forward i:before {
+  content: "\e178";
+}
+.glyphicons.step_forward i:before {
+  content: "\e179";
+}
+.glyphicons.eject i:before {
+  content: "\e180";
+}
+.glyphicons.facetime_video i:before {
+  content: "\e181";
+}
+.glyphicons.download_alt i:before {
+  content: "\e182";
+}
+.glyphicons.mute i:before {
+  content: "\e183";
+}
+.glyphicons.volume_down i:before {
+  content: "\e184";
+}
+.glyphicons.volume_up i:before {
+  content: "\e185";
+}
+.glyphicons.screenshot i:before {
+  content: "\e186";
+}
+.glyphicons.move i:before {
+  content: "\e187";
+}
+.glyphicons.more i:before {
+  content: "\e188";
+}
+.glyphicons.brightness_reduce i:before {
+  content: "\e189";
+}
+.glyphicons.brightness_increase i:before {
+  content: "\e190";
+}
+.glyphicons.circle_plus i:before {
+  content: "\e191";
+}
+.glyphicons.circle_minus i:before {
+  content: "\e192";
+}
+.glyphicons.circle_remove i:before {
+  content: "\e193";
+}
+.glyphicons.circle_ok i:before {
+  content: "\e194";
+}
+.glyphicons.circle_question_mark i:before {
+  content: "\e195";
+}
+.glyphicons.circle_info i:before {
+  content: "\e196";
+}
+.glyphicons.circle_exclamation_mark i:before {
+  content: "\e197";
+}
+.glyphicons.remove i:before {
+  content: "\e198";
+}
+.glyphicons.ok i:before {
+  content: "\e199";
+}
+.glyphicons.ban i:before {
+  content: "\e200";
+}
+.glyphicons.download i:before {
+  content: "\e201";
+}
+.glyphicons.upload i:before {
+  content: "\e202";
+}
+.glyphicons.shopping_cart i:before {
+  content: "\e203";
+}
+.glyphicons.lock i:before {
+  content: "\e204";
+}
+.glyphicons.unlock i:before {
+  content: "\e205";
+}
+.glyphicons.electricity i:before {
+  content: "\e206";
+}
+.glyphicons.ok_2 i:before {
+  content: "\e207";
+}
+.glyphicons.remove_2 i:before {
+  content: "\e208";
+}
+.glyphicons.cart_out i:before {
+  content: "\e209";
+}
+.glyphicons.cart_in i:before {
+  content: "\e210";
+}
+.glyphicons.left_arrow i:before {
+  content: "\e211";
+}
+.glyphicons.right_arrow i:before {
+  content: "\e212";
+}
+.glyphicons.down_arrow i:before {
+  content: "\e213";
+}
+.glyphicons.up_arrow i:before {
+  content: "\e214";
+}
+.glyphicons.resize_small i:before {
+  content: "\e215";
+}
+.glyphicons.resize_full i:before {
+  content: "\e216";
+}
+.glyphicons.circle_arrow_left i:before {
+  content: "\e217";
+}
+.glyphicons.circle_arrow_right i:before {
+  content: "\e218";
+}
+.glyphicons.circle_arrow_top i:before {
+  content: "\e219";
+}
+.glyphicons.circle_arrow_down i:before {
+  content: "\e220";
+}
+.glyphicons.play_button i:before {
+  content: "\e221";
+}
+.glyphicons.unshare i:before {
+  content: "\e222";
+}
+.glyphicons.share i:before {
+  content: "\e223";
+}
+.glyphicons.chevron-right i:before {
+  content: "\e224";
+}
+.glyphicons.chevron-left i:before {
+  content: "\e225";
+}
+.glyphicons.bluetooth i:before {
+  content: "\e226";
+}
+.glyphicons.euro i:before {
+  content: "\20AC";
+}
+.glyphicons.usd i:before {
+  content: "\e228";
+}
+.glyphicons.gbp i:before {
+  content: "\e229";
+}
+.glyphicons.retweet_2 i:before {
+  content: "\e230";
+}
+.glyphicons.moon i:before {
+  content: "\e231";
+}
+.glyphicons.sun i:before {
+  content: "\2609";
+}
+.glyphicons.cloud i:before {
+  content: "\2601";
+}
+.glyphicons.direction i:before {
+  content: "\e234";
+}
+.glyphicons.brush i:before {
+  content: "\e235";
+}
+.glyphicons.pen i:before {
+  content: "\e236";
+}
+.glyphicons.zoom_in i:before {
+  content: "\e237";
+}
+.glyphicons.zoom_out i:before {
+  content: "\e238";
+}
+.glyphicons.pin i:before {
+  content: "\e239";
+}
+.glyphicons.albums i:before {
+  content: "\e240";
+}
+.glyphicons.rotation_lock i:before {
+  content: "\e241";
+}
+.glyphicons.flash i:before {
+  content: "\e242";
+}
+.glyphicons.google_maps i:before {
+  content: "\e243";
+}
+.glyphicons.anchor i:before {
+  content: "\2693";
+}
+.glyphicons.conversation i:before {
+  content: "\e245";
+}
+.glyphicons.chat i:before {
+  content: "\e246";
+}
+.glyphicons.male i:before {
+  content: "\e247";
+}
+.glyphicons.female i:before {
+  content: "\e248";
+}
+.glyphicons.asterisk i:before {
+  content: "\002A";
+}
+.glyphicons.divide i:before {
+  content: "\00F7";
+}
+.glyphicons.snorkel_diving i:before {
+  content: "\e251";
+}
+.glyphicons.scuba_diving i:before {
+  content: "\e252";
+}
+.glyphicons.oxygen_bottle i:before {
+  content: "\e253";
+}
+.glyphicons.fins i:before {
+  content: "\e254";
+}
+.glyphicons.fishes i:before {
+  content: "\e255";
+}
+.glyphicons.boat i:before {
+  content: "\e256";
+}
+.glyphicons.delete i:before {
+  content: "\e257";
+}
+.glyphicons.sheriffs_star i:before {
+  content: "\e258";
+}
+.glyphicons.qrcode i:before {
+  content: "\e259";
+}
+.glyphicons.barcode i:before {
+  content: "\e260";
+}
+.glyphicons.pool i:before {
+  content: "\e261";
+}
+.glyphicons.buoy i:before {
+  content: "\e262";
+}
+.glyphicons.spade i:before {
+  content: "\e263";
+}
+.glyphicons.bank i:before {
+  content: "\e264";
+}
+.glyphicons.vcard i:before {
+  content: "\e265";
+}
+.glyphicons.electrical_plug i:before {
+  content: "\e266";
+}
+.glyphicons.flag i:before {
+  content: "\e267";
+}
+.glyphicons.credit_card i:before {
+  content: "\e268";
+}
+.glyphicons.keyboard-wireless i:before {
+  content: "\e269";
+}
+.glyphicons.keyboard-wired i:before {
+  content: "\e270";
+}
+.glyphicons.shield i:before {
+  content: "\e271";
+}
+.glyphicons.ring i:before {
+  content: "\02DA";
+}
+.glyphicons.cake i:before {
+  content: "\e273";
+}
+.glyphicons.drink i:before {
+  content: "\e274";
+}
+.glyphicons.beer i:before {
+  content: "\e275";
+}
+.glyphicons.fast_food i:before {
+  content: "\e276";
+}
+.glyphicons.cutlery i:before {
+  content: "\e277";
+}
+.glyphicons.pizza i:before {
+  content: "\e278";
+}
+.glyphicons.birthday_cake i:before {
+  content: "\e279";
+}
+.glyphicons.tablet i:before {
+  content: "\e280";
+}
+.glyphicons.settings i:before {
+  content: "\e281";
+}
+.glyphicons.bullets i:before {
+  content: "\e282";
+}
+.glyphicons.cardio i:before {
+  content: "\e283";
+}
+.glyphicons.t-shirt i:before {
+  content: "\e284";
+}
+.glyphicons.pants i:before {
+  content: "\e285";
+}
+.glyphicons.sweater i:before {
+  content: "\e286";
+}
+.glyphicons.fabric i:before {
+  content: "\e287";
+}
+.glyphicons.leather i:before {
+  content: "\e288";
+}
+.glyphicons.scissors i:before {
+  content: "\e289";
+}
+.glyphicons.bomb i:before {
+  content: "\e290";
+}
+.glyphicons.skull i:before {
+  content: "\e291";
+}
+.glyphicons.celebration i:before {
+  content: "\e292";
+}
+.glyphicons.tea_kettle i:before {
+  content: "\e293";
+}
+.glyphicons.french_press i:before {
+  content: "\e294";
+}
+.glyphicons.coffe_cup i:before {
+  content: "\e295";
+}
+.glyphicons.pot i:before {
+  content: "\e296";
+}
+.glyphicons.grater i:before {
+  content: "\e297";
+}
+.glyphicons.kettle i:before {
+  content: "\e298";
+}
+.glyphicons.hospital i:before {
+  content: "\e299";
+}
+.glyphicons.hospital_h i:before {
+  content: "\e300";
+}
+.glyphicons.microphone i:before {
+  content: "\e301";
+}
+.glyphicons.webcam i:before {
+  content: "\e302";
+}
+.glyphicons.temple_christianity_church i:before {
+  content: "\e303";
+}
+.glyphicons.temple_islam i:before {
+  content: "\e304";
+}
+.glyphicons.temple_hindu i:before {
+  content: "\e305";
+}
+.glyphicons.temple_buddhist i:before {
+  content: "\e306";
+}
+.glyphicons.bicycle i:before {
+  content: "\e307";
+}
+.glyphicons.life_preserver i:before {
+  content: "\e308";
+}
+.glyphicons.share_alt i:before {
+  content: "\e309";
+}
+.glyphicons.comments i:before {
+  content: "\e310";
+}
+.glyphicons.flower i:before {
+  content: "\2698";
+}
+.glyphicons.baseball i:before {
+  content: "\e312";
+}
+.glyphicons.rugby i:before {
+  content: "\e313";
+}
+.glyphicons.ax i:before {
+  content: "\e314";
+}
+.glyphicons.table_tennis i:before {
+  content: "\e315";
+}
+.glyphicons.bowling i:before {
+  content: "\e316";
+}
+.glyphicons.tree_conifer i:before {
+  content: "\e317";
+}
+.glyphicons.tree_deciduous i:before {
+  content: "\e318";
+}
+.glyphicons.more_items i:before {
+  content: "\e319";
+}
+.glyphicons.sort i:before {
+  content: "\e320";
+}
+.glyphicons.filter i:before {
+  content: "\e321";
+}
+.glyphicons.gamepad i:before {
+  content: "\e322";
+}
+.glyphicons.playing_dices i:before {
+  content: "\e323";
+}
+.glyphicons.calculator i:before {
+  content: "\e324";
+}
+.glyphicons.tie i:before {
+  content: "\e325";
+}
+.glyphicons.wallet i:before {
+  content: "\e326";
+}
+.glyphicons.piano i:before {
+  content: "\e327";
+}
+.glyphicons.sampler i:before {
+  content: "\e328";
+}
+.glyphicons.podium i:before {
+  content: "\e329";
+}
+.glyphicons.soccer_ball i:before {
+  content: "\e330";
+}
+.glyphicons.blog i:before {
+  content: "\e331";
+}
+.glyphicons.dashboard i:before {
+  content: "\e332";
+}
+.glyphicons.certificate i:before {
+  content: "\e333";
+}
+.glyphicons.bell i:before {
+  content: "\e334";
+}
+.glyphicons.candle i:before {
+  content: "\e335";
+}
+.glyphicons.pushpin i:before {
+  content: "\e336";
+}
+.glyphicons.iphone_shake i:before {
+  content: "\e337";
+}
+.glyphicons.pin_flag i:before {
+  content: "\e338";
+}
+.glyphicons.turtle i:before {
+  content: "\e339";
+}
+.glyphicons.rabbit i:before {
+  content: "\e340";
+}
+.glyphicons.globe i:before {
+  content: "\e341";
+}
+.glyphicons.briefcase i:before {
+  content: "\e342";
+}
+.glyphicons.hdd i:before {
+  content: "\e343";
+}
+.glyphicons.thumbs_up i:before {
+  content: "\e344";
+}
+.glyphicons.thumbs_down i:before {
+  content: "\e345";
+}
+.glyphicons.hand_right i:before {
+  content: "\e346";
+}
+.glyphicons.hand_left i:before {
+  content: "\e347";
+}
+.glyphicons.hand_up i:before {
+  content: "\e348";
+}
+.glyphicons.hand_down i:before {
+  content: "\e349";
+}
+.glyphicons.fullscreen i:before {
+  content: "\e350";
+}
+.glyphicons.shopping_bag i:before {
+  content: "\e351";
+}
+.glyphicons.book_open i:before {
+  content: "\e352";
+}
+.glyphicons.nameplate i:before {
+  content: "\e353";
+}
+.glyphicons.nameplate_alt i:before {
+  content: "\e354";
+}
+.glyphicons.vases i:before {
+  content: "\e355";
+}
+.glyphicons.bullhorn i:before {
+  content: "\e356";
+}
+.glyphicons.dumbbell i:before {
+  content: "\e357";
+}
+.glyphicons.suitcase i:before {
+  content: "\e358";
+}
+.glyphicons.file_import i:before {
+  content: "\e359";
+}
+.glyphicons.file_export i:before {
+  content: "\e360";
+}
+.glyphicons.bug i:before {
+  content: "\e361";
+}
+.glyphicons.crown i:before {
+  content: "\e362";
+}
+.glyphicons.smoking i:before {
+  content: "\e363";
+}
+.glyphicons.cloud-upload i:before {
+  content: "\e364";
+}
+.glyphicons.cloud-download i:before {
+  content: "\e365";
+}
+.glyphicons.restart i:before {
+  content: "\e366";
+}
+.glyphicons.security_camera i:before {
+  content: "\e367";
+}
+.glyphicons.expand i:before {
+  content: "\e368";
+}
+.glyphicons.collapse i:before {
+  content: "\e369";
+}
+.glyphicons.collapse_top i:before {
+  content: "\e370";
+}
+.glyphicons.globe_af i:before {
+  content: "\e371";
+}
+.glyphicons.global i:before {
+  content: "\e372";
+}
+.glyphicons.spray i:before {
+  content: "\e373";
+}
+.glyphicons.nails i:before {
+  content: "\e374";
+}
+.glyphicons.claw_hammer i:before {
+  content: "\e375";
+}
+.glyphicons.classic_hammer i:before {
+  content: "\e376";
+}
+.glyphicons.hand_saw i:before {
+  content: "\e377";
+}
+.glyphicons.riflescope i:before {
+  content: "\e378";
+}
+.glyphicons.electrical_socket_eu i:before {
+  content: "\e379";
+}
+.glyphicons.electrical_socket_us i:before {
+  content: "\e380";
+}
+.glyphicons.pinterest i:before {
+  content: "\e381";
+}
+.glyphicons.dropbox i:before {
+  content: "\e382";
+}
+.glyphicons.google_plus i:before {
+  content: "\e383";
+}
+.glyphicons.jolicloud i:before {
+  content: "\e384";
+}
+.glyphicons.yahoo i:before {
+  content: "\e385";
+}
+.glyphicons.blogger i:before {
+  content: "\e386";
+}
+.glyphicons.picasa i:before {
+  content: "\e387";
+}
+.glyphicons.amazon i:before {
+  content: "\e388";
+}
+.glyphicons.tumblr i:before {
+  content: "\e389";
+}
+.glyphicons.wordpress i:before {
+  content: "\e390";
+}
+.glyphicons.instapaper i:before {
+  content: "\e391";
+}
+.glyphicons.evernote i:before {
+  content: "\e392";
+}
+.glyphicons.xing i:before {
+  content: "\e393";
+}
+.glyphicons.zootool i:before {
+  content: "\e394";
+}
+.glyphicons.dribbble i:before {
+  content: "\e395";
+}
+.glyphicons.deviantart i:before {
+  content: "\e396";
+}
+.glyphicons.read_it_later i:before {
+  content: "\e397";
+}
+.glyphicons.linked_in i:before {
+  content: "\e398";
+}
+.glyphicons.forrst i:before {
+  content: "\e399";
+}
+.glyphicons.pinboard i:before {
+  content: "\e400";
+}
+.glyphicons.behance i:before {
+  content: "\e401";
+}
+.glyphicons.github i:before {
+  content: "\e402";
+}
+.glyphicons.youtube i:before {
+  content: "\e403";
+}
+.glyphicons.skitch i:before {
+  content: "\e404";
+}
+.glyphicons.foursquare i:before {
+  content: "\e405";
+}
+.glyphicons.quora i:before {
+  content: "\e406";
+}
+.glyphicons.badoo i:before {
+  content: "\e407";
+}
+.glyphicons.spotify i:before {
+  content: "\e408";
+}
+.glyphicons.stumbleupon i:before {
+  content: "\e409";
+}
+.glyphicons.readability i:before {
+  content: "\e410";
+}
+.glyphicons.facebook i:before {
+  content: "\e411";
+}
+.glyphicons.twitter i:before {
+  content: "\e412";
+}
+.glyphicons.instagram i:before {
+  content: "\e413";
+}
+.glyphicons.posterous_spaces i:before {
+  content: "\e414";
+}
+.glyphicons.vimeo i:before {
+  content: "\e415";
+}
+.glyphicons.flickr i:before {
+  content: "\e416";
+}
+.glyphicons.last_fm i:before {
+  content: "\e417";
+}
+.glyphicons.rss i:before {
+  content: "\e418";
+}
+.glyphicons.skype i:before {
+  content: "\e419";
+}
+.glyphicons.e-mail i:before {
+  content: "\e420";
+}

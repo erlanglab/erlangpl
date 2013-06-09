@@ -18,7 +18,8 @@
          proplist_to_json/1,
          to_bin/1,
          log/3,
-         timestamp/1
+         timestamp/1,
+         add_plugin_menu/1
         ]).
 
 %% ===================================================================
@@ -83,6 +84,17 @@ timestamp(TS) ->
           io_lib:format("~.2.0w",[Mi]),
           io_lib:format("~.2.0w",[S])],
     to_bin(DT).
+
+
+add_plugin_menu(MenuItem) ->
+    IndexHtml = <<"epl/priv/htdocs/index.html">>,
+    [{_, Bin}] = ets:lookup(epl_priv, IndexHtml),
+    %% Look for predefined string in HTML source code
+    %% and add there HTML code with Plugin menu item
+    NewBin = re:replace(Bin, <<"<!--PLUGIN_MENU-->">>,
+                        <<MenuItem/binary, $&>>,
+                        [{return,binary}]),
+    ets:insert(epl_priv, {IndexHtml, NewBin}).
 
 %% ===================================================================
 %% internal functions

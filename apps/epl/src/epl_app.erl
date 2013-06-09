@@ -155,18 +155,18 @@ run3(Node, Args) ->
 %% Load priv files to ets
 run4() ->
     %% check if we run from escript or regular release
-    %% if the latter, load private files from local file system
-    {ok, PrivFiles} = case init:get_argument(progname) of
-                          {ok,[["erl"]]} ->
-                              escript_foldl();
-                          {ok,[["erlangpl"]]} ->
-                              filesystem_foldl()
-                      end,
-    load_files_into_ets(PrivFiles).
+    %% if the latter, load application files from local file system
+    {ok, AppFiles} = case init:get_argument(progname) of
+                         {ok,[["erl"]]} ->
+                             escript_foldl();
+                         {ok,[["erlangpl"]]} ->
+                             filesystem_foldl()
+                     end,
+    lists:foreach(fun load_app_files/1, AppFiles).
 
 run5(PluginApps, Args) ->
     %% Find modules that end with _EPL
-    %% by convention such modules implement EPL handlers
+    %% by convention such modules implement EPL plugins
     LoadedModules = code:all_loaded(),
     GetHandlers = fun({_,preloaded}, Acc) ->
                           Acc;
@@ -177,23 +177,36 @@ run5(PluginApps, Args) ->
                           end
                   end,
 
-    HandlerModules = lists:foldl(GetHandlers, [], LoadedModules),
-    Pids = [{M, {ok, _} = epl_sup:start_child(M, [epl:lookup(node)])}
-            || M <- HandlerModules],
+    PluginModules = lists:foldl(GetHandlers, [], LoadedModules),
+    Node = epl:lookup(node),
 
-    ?INFO("Started: ~p~n", [Pids]),
+    %% Call EPL plugin callback functions to initialize plugins
+    Pids = [{M, {ok, _} = epl_sup:start_child(M, [Node])}
+            || M <- PluginModules],
 
-    PluginModules =
-          [{"/"++atom_to_list(Mod), Mod, []} || Mod <- HandlerModules],
+    lists:foreach(
+      fun(M) ->
+              {ok, PluginConf} = M:init(Node),
+              case proplists:lookup(menu_item, PluginConf) of
+                  none ->
+                      ?WARN("Plugin ~p:init/1 does not return menu_item attribute~n", [M]);
+                  {menu_item, PluginMenu} ->
+                      epl:add_plugin_menu(PluginMenu)
+              end
+      end,
+      PluginModules),
+
+    ?INFO("Started plugins: ~p~n", [Pids]),
+
+    %% Configure cowboy with paths to plugin module and plugin priv files
+    CowboyHandlers =
+          [{"/"++atom_to_list(Mod), Mod, []} || Mod <- PluginModules],
 
     PrivFiles = [{"/"++App++"/[...]", epl_static, App}
                  || App <- PluginApps],
 
-    ?DEBUG("Cowboy dispatch plugin modules: ~p~n", [PluginModules]),
-    ?DEBUG("Cowboy dispatch plugin priv: ~p~n", [PrivFiles]),
-
     Dispatch = cowboy_router:compile(
-                 [{'_', PluginModules ++ PrivFiles ++
+                 [{'_', CowboyHandlers ++ PrivFiles ++
                        [{"/[...]", epl_static, "epl"}]}
                  ]),
 
@@ -288,18 +301,24 @@ file_contents(Filename) ->
     {ok, Bin} = file:read_file(Filename),
     Bin.
 
-load_files_into_ets(Files) ->
-    Fun = fun({File, Bin}) ->
-                  case filename:extension(File) of
-                      Skip when Skip == <<".beam">>; Skip == <<".app">> ->
-                          ok;
-                      _ ->
-                          ?DEBUG("Loading: ~s~n", [File]),
-                          true = ets:insert(epl_priv, {File, Bin})
-                  end
-          end,
-    lists:foreach(Fun, Files).
-
+load_app_files({File, Bin}) ->
+    case filename:extension(File) of
+        <<".app">> ->
+            ok;
+        <<".beam">> ->
+            FileStr = binary_to_list(File),
+            ModStr = filename:basename(FileStr, ".beam"),
+            Mod = list_to_atom(ModStr),
+            case code:is_loaded(Mod) of
+                {file, _} ->
+                    ok;
+                false ->
+                    {module, _} = code:load_binary(Mod, FileStr, Bin)
+            end;
+        _ ->
+            ?DEBUG("Loading: ~s~n", [File]),
+            true = ets:insert(epl_priv, {File, Bin})
+    end.
 
 %% set log level based on getopt option
 log_level(Options) ->
