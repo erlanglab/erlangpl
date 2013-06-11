@@ -48,6 +48,7 @@ content_type(FilePath) ->
 mime(<<".css">>)   -> <<"text/css">>;
 mime(<<".html">>)  -> <<"text/html">>;
 mime(<<".htm">>)   -> <<"text/html">>;
+mime(<<".txt">>)   -> <<"text/plain">>;
 mime(<<".js">>)    -> <<"application/javascript">>;
 mime(<<".xml">>)   -> <<"application/xml">>;
 mime(<<".xsl">>)   -> <<"application/xml">>;
