@@ -50,6 +50,9 @@ start(_StartType, _StartArgs) ->
     %% Start EPL tracer on remote node
     {ok, _} = epl_sup:start_child(epl_tracer, [Node]),
 
+    %% Start EPL Dashboard
+    {ok, _} = epl_sup:start_child(epl_dashboard, []),
+
     %% load plugins
     PluginApps = plugins(Args),
 

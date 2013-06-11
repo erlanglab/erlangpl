@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title>Erlang Performance Lab - Dashboard</title>
+</head>
+<body>
+  <!-- Erlang Performance Lab plugin-->
+  <script src="/js/epl_dashboard.js"></script>
+  <div class="separator"></div>
+
+  <div class="well">
+    <div class="row-fluid">
+      <div class="span3">
+	<div class="relativeWrap">
+	  <div class="widget widget widget-body-white">
+	    <div class="widget-head">
+	      <h4 class="glyphicons list heading"><i></i> Overview (last 5 sec)</h4>
+	    </div>
+	    <div class="widget-body list">
+	      <ul>
+		<li><span id="receive_count" class="count">N/A</span> Throughput</li>
+		<li><span id="receive_sizes" class="count">N/A</span> Throughput</li>
+		<li><span id="process_count" class="count">N/A</span> Processes</li>
+		<li><span id="spawn_count" class="count">N/A</span> Spawns</li>
+		<li><span id="exit_count" class="count">N/A</span> Exits</li>
+		<li><span id="exit_abnormal" class="count">N/A</span> Abnormal Exits</li>
+		<li><span id="memory_total" class="count">N/A</span> Memory</li>
+	      </ul>
+	    </div>
+	  </div>
+	</div>
+      </div>
+
+      <div class="span6">
+	<div class="relativeWrap">
+	  <div class="widget widget-body-white margin-bottom-none">
+	    <div class="widget-head">
+	      <h4 class="glyphicons cardio heading"><i></i>Message Throughput</h4>
+	      <a data-toggle="dropdown" href="#" class="glyphicons cogwheel pull-right"><i></i></a>
+	      <ul class="dropdown-menu pull-right">
+		<li><a href="#">Messages received</a></li>
+		<li><a href="#">Memory allocated</a></li>
+		<li><a href="#">Processes</a></li>
+	      </ul>
+	    </div>
+	    <div class="widget-body">
+	      <div id="placeholder" style="height: 200px;"></div>
+	      <div id="overview" style="height: 40px;"></div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+
+      <!-- Node settings -->
+      <div class="span3">
+	<div class="accordion" id="accordion2" style="margin-bottom: 0;">
+
+	  <!-- system info -->
+  	  <div class="accordion-group">
+	    <div class="accordion-heading">
+	      <a class="accordion-toggle btn btn-icon btn-default btn-block glyphicons circle_info" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+	        <i></i> system info
+	      </a>
+	    </div>
+	    <div id="collapseOne" class="accordion-body collapse in">
+	      <div class="btn-group btn-group-vertical block">
+		<a class="btn btn-icon btn-default btn-block glyphicons circle_ok count"><i></i> <span id="otp_release">N/A</span>OTP release</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons circle_ok count"><i></i> <span id="version">N/A</span>ERTS version</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons circle_ok count"><i></i> <span id="node_pid">N/A</span>node PID</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons circle_ok count"><i></i> <span id="schedulers">N/A</span>schedulers</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons circle_ok count"><i></i> <span id="build_type">N/A</span>build type</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons circle_ok count"><i></i> <span id="wordsize">N/A</span>wordsize</a>
+	      </div>
+	    </div>
+  	  </div>
+	  <!-- end system info -->
+
+	  <!-- ERTS settings -->
+  	  <div class="accordion-group">
+	    <div class="accordion-heading">
+	      <a class="accordion-toggle btn btn-icon btn-default btn-block glyphicons cogwheels" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+	        <i></i> ERTS settings
+	      </a>
+	    </div>
+	    <div id="collapseTwo" class="accordion-body collapse">
+	      <div class="btn-group btn-group-vertical block">
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="kernel_poll">N/A</span>kernel poll</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="smp_support">N/A</span>SMP support</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="fullsweep_after">N/A</span>fullsweep</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="process_limit">N/A</span>process limit</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="threads">N/A</span>threads</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="thread_pool_size">N/A</span>async threads</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons cogwheel count"><i></i> <span id="port_limit">N/A</span>port limit</a>
+	      </div>
+	    </div>
+  	  </div>
+	  <!-- end ERTS settings -->
+
+	  <!-- applications
+  	  <div class="accordion-group">
+	    <div class="accordion-heading">
+	      <a class="accordion-toggle btn btn-icon btn-default btn-block glyphicons more_windows" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
+	        <i></i> applications
+	      </a>
+	    </div>
+	    <div id="collapseThree" class="accordion-body collapse">
+	      <div class="btn-group btn-group-vertical block">
+		<a class="btn btn-icon btn-default btn-block glyphicons unchecked count"><i></i> <span>2.3.4</span>kernel</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons unchecked count"><i></i> <span>3.4.2</span>stdlib</a>
+		<a class="btn btn-icon btn-default btn-block glyphicons unchecked count"><i></i> <span>3.4.2</span>cowboy</a>
+	      </div>
+	    </div>
+  	  </div>
+	  <!-- end applications -->
+
+	</div>
+	<!-- Node settings -->
+
+
+
+      </div>
+
+    </div>
+  </div>
+</body>
