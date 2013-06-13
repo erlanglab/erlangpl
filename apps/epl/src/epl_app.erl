@@ -44,6 +44,8 @@ start(_StartType, _StartArgs) ->
     %% Load priv files to ets
     ok = run4(),
 
+    insert_node_name(Node),
+
     %% Start top supervisor
     {ok, Pid} = epl_sup:start_link(),
 
@@ -446,3 +448,12 @@ load_plugin_priv(File, App) ->
         true ->
             App
     end.
+
+insert_node_name(Node) ->
+    IndexHtml = <<"epl/priv/htdocs/index.html">>,
+    NodeBin = list_to_binary(atom_to_list(Node)),
+    [{_, Bin}] = ets:lookup(epl_priv, IndexHtml),
+    NewBin = re:replace(Bin, <<"<!--NODE-->">>,
+                        <<NodeBin/binary, $&>>,
+                        [{return,binary}]),
+    ets:insert(epl_priv, {IndexHtml, NewBin}).

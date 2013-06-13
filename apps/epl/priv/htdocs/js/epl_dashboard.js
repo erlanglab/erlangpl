@@ -14,19 +14,14 @@ $(document).ready(function() {
                 window.location.port+"/epl_dashboard_EPL";
             try{
                 socket = new WebSocket(host);
-                message('WebSocekt: new');
+                message('EPL WebSocekt: new');
 
 	        socket.onopen = function(){
-	            message('WebSocket: open');
+	            message('EPL WebSocket: open');
 	        }
 
 	        socket.onmessage = function(msg){
                     s = JSON.parse(msg.data);
-
-                    console.log(s);
-
-                    // Node name
-                    if(s.node_name != undefined) { $('#node_name').text(s.node_name)};
 
 		    // Node counters
                     if(s.spawn != undefined) { $('#spawn_count').text(s.spawn.count)};
@@ -59,7 +54,7 @@ $(document).ready(function() {
                 }
 
 	        socket.onclose = function(){
-	            message('WebSocket: closed');
+	            message('EPL WebSocket: closed');
 	        }
 
 	    } catch(exception){
@@ -73,6 +68,134 @@ $(document).ready(function() {
         }//End connect()
 
     }//End else
+
+    var charts =
+        {
+            init: function() {
+		// init live chart
+		this.chart_live.init();
+	    },
+
+	    // utility class
+	    utility:
+	    {
+		chartColors: [ "#1F79B7", "#227A50", "#8FBF47", "#6E428F", "#3E4190" ],
+		chartBackgroundColors: ["#fff", "#fff"],
+
+		applyStyle: function(that)
+		{
+		    that.options.colors = charts.utility.chartColors;
+		    that.options.grid.backgroundColor = { colors: charts.utility.chartBackgroundColors };
+		    that.options.grid.borderColor = charts.utility.chartColors[0];
+		    that.options.grid.color = charts.utility.chartColors[0];
+		},
+	    },
+
+	    // live chart
+	    chart_live:
+	    {
+		// chart data
+		data: [],
+		totalPoints: 120,
+		updateInterval: 5000,
+
+		// we use an inline data source in the example, usually data would
+		// be fetched from a server
+			getRandomData: function()
+			{
+				if (this.data.length > 0)
+		            this.data = this.data.slice(1);
+
+		        // do a random walk
+		        while (this.data.length < this.totalPoints)
+			    {
+		            var prev = this.data.length > 0 ? this.data[this.data.length - 1] : 50;
+		            var y = prev + Math.random() * 10 - 5;
+		            if (y < 0)
+		                y = 0;
+		            if (y > 100)
+		                y = 100;
+		            this.data.push(y);
+		        }
+
+		        // zip the generated y values with the x values
+		        var res = [];
+		        for (var i = 0; i < this.data.length; ++i)
+		            res.push([i, this.data[i]])
+		        return res;
+			},
+
+			// will hold the chart object
+			plot: null,
+
+			// chart options
+			options:
+			{
+				series: {
+		        	grow: { active: false },
+		        	shadowSize: 0,
+		        	lines: {
+	            		show: true,
+	            		fill: true,
+	            		lineWidth: 2,
+	            		steps: false
+		            }
+		        },
+		        grid: {
+					show: true,
+				    aboveData: false,
+				    color: "#3f3f3f",
+				    labelMargin: 5,
+				    axisMargin: 0,
+				    borderWidth: 0,
+				    borderColor:null,
+				    minBorderMargin: 5 ,
+				    clickable: true,
+				    hoverable: true,
+				    autoHighlight: false,
+				    mouseActiveRadius: 20,
+				    backgroundColor : { }
+				},
+				colors: [],
+		        tooltip: true,
+				tooltipOpts: {
+					content: "Value is : %y.0",
+					shifts: {
+						x: -30,
+						y: -50
+					},
+					defaultTheme: false
+				},
+		        yaxis: { min: 0, max: 100 },
+		        xaxis: { show: true}
+			},
+
+			// initialize
+			init: function()
+			{
+				// apply styling
+				charts.utility.applyStyle(this);
+
+				this.plot = $.plot($("#chart_live"), [ this.getRandomData() ], this.options);
+				setTimeout(this.update, charts.chart_live.updateInterval);
+			},
+
+			// update
+			update: function()
+			{
+				charts.chart_live.plot.setData([ charts.chart_live.getRandomData() ]);
+		        charts.chart_live.plot.draw();
+
+		        setTimeout(charts.chart_live.update, charts.chart_live.updateInterval);
+			}
+		}
+			};
+
+	$(function()
+	{
+		// initialize charts
+		charts.init();
+	});
 
     connect();
 
