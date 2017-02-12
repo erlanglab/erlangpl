@@ -25,5 +25,5 @@ compile:
 	@$(REBAR) compile
 
 rebar:
-	curl http://cloud.github.com/downloads/basho/rebar/rebar > rebar
+	curl https://raw.githubusercontent.com/wiki/rebar/rebar/rebar > rebar
 	chmod +x $@
