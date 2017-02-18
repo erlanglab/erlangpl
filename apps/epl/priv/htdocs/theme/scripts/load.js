@@ -76,9 +76,7 @@ $(function()
 	{
 		if (typeof iScroll == 'undefined') return false;
 
-		var sum = 0;
-		$('.col.main-left div.iScrollWrapper > ul > li').each( function(){ sum += $(this).outerWidth(true); });
-		$('.col.main-left .scroll-y-left div.iScrollWrapper').width(sum);
+		$('.col.main-left .scroll-y-left div.iScrollWrapper').width('auto');
 
 		if (colMainLeftScroller != null)
 		{
