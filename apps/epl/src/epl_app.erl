@@ -212,6 +212,7 @@ run5(PluginApps, Args) ->
 
     Dispatch = cowboy_router:compile(
                  [{'_', CowboyHandlers ++ PrivFiles ++
+                       [{"/epl_3d/[...]", epl_static, "epl_3d"}] ++
                        [{"/[...]", epl_static, "epl"}]}
                  ]),
 
