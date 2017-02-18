@@ -1,0 +1,5 @@
+apps/epl/.rebar
+apps/epl/ebin
+deps
+erlangpl
+rel/erlangpl
