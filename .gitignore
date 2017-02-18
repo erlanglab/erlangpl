@@ -3,3 +3,4 @@ apps/epl/ebin
 deps
 erlangpl
 rel/erlangpl
+rebar
