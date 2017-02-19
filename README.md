@@ -3,7 +3,7 @@
 The Erlang Performance Lab tool (erlangpl for short) can be started using escript or as a regular Erlang release. 
 
 ```
-$ git clone git@bitbucket.org:erlanglab/erlangpl.git
+$ git clone git@github.com:erlanglab/erlangpl.git
 $ cd erlangpl
 $ make rebar
 $ make
