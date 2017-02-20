@@ -17,8 +17,18 @@ The erlangpl shell script is a self-contained escript, which can be started from
 ```
 $ ./erlangpl -h
 
-Usage: erlangpl [-n <node>] [-c <cookie>] [-h] [-v <verbose>] [-V]
-                [-s <sname>] [-l <name>]
+Usage: erlangpl [-n <node>] [-c <cookie>] [-p <plugin>] [-h]
+                [-v <verbose>] [-P <port>] [-V] [-s <sname>] [-l <name>]
+
+  -n, --node     Monitored node name
+  -c, --cookie   Overwrite ~/.erlang.cookie
+  -p, --plugin   Path to plugins
+  -h, --help     Show the program options
+  -v, --verbose  Verbosity level (-v, -vv, -vvv)
+  -P, --port     HTTP and WS port number
+  -V, --version  Show version information
+  -s, --sname    Start with a shortname
+  -l, --name     Start with a longname, default erlangpl@127.0.0.1
 
 $ ./erlangpl -n testnode@127.0.0.1 -c YOURCOOKIE
 ```
