@@ -1,27 +1,3 @@
-/* TODO (baransu) figure out what's the purpose of this classes */
-.color-normal, .severity0 {
-  color: var(--colorNormal);
-}
-
-.color-warning, .severity1 {
-  color: var(--colorWarning);
-}
-
-.color-danger, .severity2 {
-  color: var(--colorDanger);
-}
-
-.disabled {
-  color: var(--colorTextDisabled);
-}
-/* TODO (baransu) end */
-
-.Graph {
-  height: 100%;
-  position: relative;
-  background-color: var(--colorBackgroundDark);
-}
-
 :root, .vizceral {
   --colorText: rgb(214, 214, 214);
   --colorTextDisabled: rgb(129, 129, 129);
@@ -40,3 +16,35 @@
   --colorPageBackgroundTransparent: rgba(45, 45, 45, 0);
   --colorBorderLines: rgb(137, 137, 137);
 }
+
+.Graph {
+  height: 100%;
+  position: relative;
+}
+
+.Graph-tools {
+  height: 60px;
+}
+
+.Graph-container {
+  background-color: var(--colorPageBackground);
+  height: calc(100% - 60px);
+}
+
+/* TODO (baransu) figure out what's the purpose of this classes */
+.color-normal, .severity0 {
+  color: var(--colorNormal);
+}
+
+.color-warning, .severity1 {
+  color: var(--colorWarning);
+}
+
+.color-danger, .severity2 {
+  color: var(--colorDanger);
+}
+
+.disabled {
+  color: var(--colorTextDisabled);
+}
+

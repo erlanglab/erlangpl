@@ -33,8 +33,8 @@ const App = () => {
 };
 
 // TODO (baransu) remove dummy data
-import sampleTrafficData from './sample_data.json';
-import { updateTraffic } from './actions/trafficData';
-store.dispatch(updateTraffic(sampleTrafficData));
+import sampleData from './sample_data.json';
+import { updateGraphData } from './actions/graph';
+store.dispatch(updateGraphData(sampleData));
 
 export default App;

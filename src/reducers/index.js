@@ -2,10 +2,10 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
-import trafficData from './trafficData';
+import graph from './graph';
 
 const rootReducer = combineReducers({
-  trafficData,
+  graph,
   routing: routerReducer,
 });
 

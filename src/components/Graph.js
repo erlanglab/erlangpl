@@ -1,30 +1,39 @@
 // @flow
 import React from 'react';
-import './Graph.css';
-/* import TrafficFlow from './TrafficFlow.js';*/
-
 import { connect } from 'react-redux';
-
 import Vizceral from 'vizceral-react';
-import 'vizceral-react/dist/vizceral.css';
 
-const Graph = ({ trafficData }) => {
+import 'vizceral-react/dist/vizceral.css';
+import './Graph.css';
+
+import GraphTools from './GraphTools';
+
+const Graph = ({ traffic, view, updateGraphView }) => {
   return (
     <div className="Graph">
-      <Vizceral
-        traffic={trafficData}
-        view={['']}
-        showLabels={true}
-        filters={[]}
-        viewChanged={() => {}}
-        viewUpdated={() => {}}
-        allowDraggingOfNodes={true}
-        targetFramerate={30}
-      />
+      <GraphTools className="Graph-tools" />
+      <div className="Graph-container">
+        <Vizceral
+          traffic={traffic}
+          view={view}
+          viewChanged={event => updateGraphView(event.view)}
+          showLabels={true}
+          allowDraggingOfNodes={true}
+          targetFramerate={30}
+        />
+      </div>
     </div>
   );
 };
 
-const mapStateToProps = state => ({ trafficData: state.trafficData });
+import { updateGraphView } from '../actions/graph';
 
-export default connect(mapStateToProps, {})(Graph);
+export default connect(
+  state => ({
+    traffic: state.graph.data,
+    view: state.graph.view,
+  }),
+  {
+    updateGraphView: updateGraphView,
+  },
+)(Graph);
