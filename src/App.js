@@ -3,29 +3,29 @@ import React from 'react';
 import Router from 'react-router-dom/BrowserRouter';
 import Route from 'react-router/Route';
 import { Provider } from 'react-redux';
-import { syncHistoryWithStore } from 'react-router-redux';
-import createHistory from 'history/createBrowserHistory';
+
+import './App.css';
 
 import Navigation from './components/Navigation';
 import Home from './components/Home';
 import Page from './components/Page';
 import About from './components/About';
-import store from './store';
 
-const history = syncHistoryWithStore(createHistory(), store);
+import store, { history } from './store';
 
 const App = () => {
   return (
     <Provider store={store}>
       <Router history={history}>
-        <div>
+        <div className="App">
 
-          {/* TODO (baransu) maybe pass routes as param? */}
           <Navigation />
 
-          <Route exact path="/" component={Home} />
-          <Route path="/page" component={Page} />
-          <Route path="/about" component={About} />
+          <div className="App-container">
+            <Route exact path="/" component={Home} />
+            <Route path="/page" component={Page} />
+            <Route path="/about" component={About} />
+          </div>
         </div>
       </Router>
     </Provider>
