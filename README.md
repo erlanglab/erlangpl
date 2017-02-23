@@ -1,6 +1,6 @@
 ## Getting started
 
-The Erlang Performance Lab tool (erlangpl for short) can be started using escript or as a regular Erlang release. 
+The Erlang Performance Lab tool (erlangpl for short) can be started using escript or as a regular Erlang release.
 
 ```
 $ git clone git@github.com:erlanglab/erlangpl.git
@@ -34,6 +34,18 @@ $ ./erlangpl -n testnode@127.0.0.1 -c YOURCOOKIE
 ```
 
 Once started, try visiting http://localhost:8000/
+
+## Examples
+
+### Connecting to an Elixir iex session
+
+```
+$ iex --name foo@127.0.0.1 -S mix
+```
+
+```
+$ erlangpl --node foo@127.0.0.1
+```
 
 ## Running development release
 
