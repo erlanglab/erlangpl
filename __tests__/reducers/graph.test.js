@@ -1,7 +1,7 @@
 import { UPDATE_GRAPH_DATA, UPDATE_GRAPH_VIEW } from '../../src/actions/graph';
 import reducer, { INITIAL_STATE } from '../../src/reducers/graph';
 
-describe('trafficData reducer', () => {
+describe('graph reducer', () => {
   it('should handle initial state', () => {
     expect(reducer(undefined, {})).toEqual(INITIAL_STATE);
   });

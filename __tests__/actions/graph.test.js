@@ -1,6 +1,6 @@
 import * as actions from '../../src/actions/graph';
 
-describe('should handle TRAFFIC_DATA action creators', () => {
+describe('graph action creators', () => {
   it('should handle updateGraphDAta action creator', () => {
     const data = {
       name: 'edge',
