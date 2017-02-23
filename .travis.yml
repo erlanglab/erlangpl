@@ -7,9 +7,6 @@ cache:
   directories:
     - node_modules
 
-install:
-  - yarn
-
 script:
-  - yarn flow
-  - CI=true yarn test
+  - npm run flow
+  - CI=true npm run test
