@@ -5,9 +5,9 @@ import { Link, Route } from 'react-router-dom/';
 import './Navigation.css';
 
 const tabs = [
-  { path: '/', text: 'Dashboard', icon: 'user-circle' },
-  { path: '/page', text: 'Page', icon: 'user-circle' },
-  { path: '/about', text: 'About', icon: 'info' },
+  { path: '/', icon: 'user-circle' },
+  { path: '/graph', icon: 'share-alt' },
+  { path: '/about', icon: 'info' },
 ];
 
 const NavigationLink = ({ to, icon }) => (
