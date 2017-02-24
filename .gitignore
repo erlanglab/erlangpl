@@ -4,3 +4,4 @@ deps
 erlangpl
 rel/erlangpl
 rebar
+.DS_Store
