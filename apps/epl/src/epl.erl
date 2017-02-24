@@ -48,7 +48,9 @@ trace_pid(Pid) ->
 
 proplist_to_json(Term) ->
     Obj = encode(Term, ej:new()),
-    ej:encode(Obj).
+    Data = [{<<"topic">>, <<"system-init">>},
+            {<<"data">>, Obj}],
+    ej:encode(Data).
 
 to_bin(I) when is_atom(I)      -> list_to_binary(atom_to_list(I));
 to_bin(I) when is_integer(I)   -> list_to_binary(integer_to_list(I));

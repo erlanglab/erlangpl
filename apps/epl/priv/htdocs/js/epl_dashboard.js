@@ -23,7 +23,7 @@ $(document).ready(function() {
 	        socket.onmessage = function(msg){
             // get more nested data because of topic system
             // { topic: string, data: data }
-                    s = JSON.parse(msg.data.data);
+                    s = JSON.parse(msg.data).data;
 
 		    // Node counters
                     if(s.spawn != undefined) { $('#spawn_count').text(s.spawn.count)};
