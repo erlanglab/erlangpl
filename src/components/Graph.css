@@ -1,0 +1,50 @@
+:root, .vizceral {
+  --colorText: rgb(214, 214, 214);
+  --colorTextDisabled: rgb(129, 129, 129);
+  --colorNormal: rgb(186, 213, 237);
+  --colorWarning: rgb(268, 185, 73);
+  --colorDanger: rgb(184, 36, 36);
+  --colorNormalDimmed: rgb(101, 117, 128);
+  --colorBackgroundDark: rgb(40, 40, 40);
+  --colorNormalDonut: rgb(91, 91, 91);
+  --colorLabelBorder: rgb(16, 17, 18);
+  --colorLabelText: rgb(0, 0, 0);
+  --colorDonutInternalColor: rgb(35, 35, 35);
+  --colorDonutInternalColorHighlighted: rgb(255, 255, 255);
+  --colorConnectionLine: rgb(91, 91, 91);
+  --colorPageBackground: rgb(45, 45, 45);
+  --colorPageBackgroundTransparent: rgba(45, 45, 45, 0);
+  --colorBorderLines: rgb(137, 137, 137);
+}
+
+.Graph {
+  height: 100%;
+  position: relative;
+}
+
+.Graph-tools {
+  height: 60px;
+}
+
+.Graph-container {
+  background-color: var(--colorPageBackground);
+  height: calc(100% - 60px);
+}
+
+/* TODO (baransu) figure out what's the purpose of this classes */
+.color-normal, .severity0 {
+  color: var(--colorNormal);
+}
+
+.color-warning, .severity1 {
+  color: var(--colorWarning);
+}
+
+.color-danger, .severity2 {
+  color: var(--colorDanger);
+}
+
+.disabled {
+  color: var(--colorTextDisabled);
+}
+

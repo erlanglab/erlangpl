@@ -2,12 +2,12 @@
 import React from 'react';
 import { Link, Route } from 'react-router-dom/';
 
+import logo from '../images/erlanglab_logo_alpha_250.png';
 import './Navigation.css';
 
 const tabs = [
-  { path: '/', text: 'Dashboard', icon: 'user-circle' },
-  { path: '/page', text: 'Page', icon: 'user-circle' },
-  { path: '/about', text: 'About', icon: 'info' },
+  { path: '/graph', icon: 'share-alt' },
+  { path: '/about', icon: 'info' },
 ];
 
 const NavigationLink = ({ to, icon }) => (
@@ -17,7 +17,7 @@ const NavigationLink = ({ to, icon }) => (
     children={({ match }) => (
       <div className={`item ${match ? 'active' : ''}`}>
         <Link to={to}>
-          <i className={`fa fa-2x fa-${icon}`} />
+          {icon}
         </Link>
       </div>
     )}
@@ -27,8 +27,16 @@ const NavigationLink = ({ to, icon }) => (
 const Navigation = () => {
   return (
     <div className="Navigation">
+      <NavigationLink
+        to="/"
+        icon={<img src={logo} style={{ height: '50px', width: '50px' }} />}
+      />
       {tabs.map((tab, i) => (
-        <NavigationLink key={i} to={tab.path} icon={tab.icon} />
+        <NavigationLink
+          key={i}
+          to={tab.path}
+          icon={<i className={`fa fa-2x fa-${tab.icon}`} />}
+        />
       ))}
     </div>
   );
