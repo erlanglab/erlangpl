@@ -1,5 +1,5 @@
 .Navigation {
-  background-color: #333;
+  background-color: #21252b;
   height: 100%;
   width: 60px;
   float: left;
@@ -12,7 +12,7 @@
 }
 
 .Navigation i {
-  color: #bebebe;
+  color: #9da5b4;
 }
 
 .Navigation .active i {

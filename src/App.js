@@ -1,12 +1,11 @@
 // @flow
 import React from 'react';
-import Router from 'react-router-dom/BrowserRouter';
-import Route from 'react-router/Route';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 
 import './App.css';
 
 import Navigation from './components/Navigation';
-import Home from './components/Home';
+import Index from './components/Index';
 import Traffic from './components/Traffic';
 import Messages from './components/Messages';
 import About from './components/About';
@@ -22,10 +21,11 @@ const App = () => {
         <Navigation />
 
         <div className="App-container">
-          <Route exact path="/" component={Home} />
+          <Route path="/home/:subRoute*" component={Index} />
           <Route path="/messages" component={Messages} />
           <Route path="/traffic/:view*" component={Traffic} />
           <Route path="/about" component={About} />
+          <Redirect to="/home/system" />
         </div>
         <Footer />
       </div>

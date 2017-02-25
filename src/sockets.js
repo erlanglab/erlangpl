@@ -1,10 +1,20 @@
 // @flow
 
 // right now looking for erlangpl runing standalone at localhost:8000
-const { hostname, port } = window.location;
+const { hostname } = window.location;
 const socket = new WebSocket(
   `ws://${hostname}:8000/epl_dashboard_EPL` /* protocols */,
 );
+
+let defaultHandler = {};
+// registers new handler for given topic, it will be used in onmessage
+export const on = (
+  topic: string,
+  callback: () => void,
+  handler: any = defaultHandler,
+) => {
+  handler[topic] = callback;
+};
 
 socket.onopen = e => {
   console.log('EPL WebSocket: opened');
@@ -22,16 +32,6 @@ socket.onmessage = (msg: any) => {
 
 socket.onclose = () => {
   console.log('EPL WebSocket: closed');
-};
-
-let defaultHandler = {};
-// registers new handler for given topic, it will be used in onmessage
-export const on = (
-  topic: string,
-  callback: () => void,
-  handler: any = defaultHandler,
-) => {
-  handler[topic] = callback;
 };
 // socket.send(data: string)
 // socket.close()

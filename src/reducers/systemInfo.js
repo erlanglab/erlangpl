@@ -6,7 +6,7 @@ export const INITIAL_STATE = {
   nodeName: 'undefined',
 };
 
-const systemInfo = (state = INITIAL_STATE, action) => {
+const systemInfo = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === UPDATE_SYSTEM_INFO) {
     return { ...state, ...action.info };
   }

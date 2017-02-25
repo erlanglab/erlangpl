@@ -9,7 +9,7 @@ export const INITIAL_STATE = {
   view: [],
 };
 
-const traffic = (state = INITIAL_STATE, action) => {
+const traffic = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === UPDATE_TRAFFIC_DATA) {
     return {
       ...state,

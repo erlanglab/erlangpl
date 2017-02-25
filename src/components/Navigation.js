@@ -2,10 +2,10 @@
 import React from 'react';
 import { Link, Route } from 'react-router-dom/';
 
-import logo from '../images/erlanglab_logo_alpha_250.png';
 import './Navigation.css';
 
 const tabs = [
+  { path: '/home', icon: 'desktop' },
   { path: '/messages', icon: 'comments' },
   { path: '/traffic', icon: 'share-alt' },
   { path: '/about', icon: 'question' },
@@ -28,10 +28,6 @@ const NavigationLink = ({ to, icon }) => (
 const Navigation = () => {
   return (
     <div className="Navigation">
-      <NavigationLink
-        to="/"
-        icon={<img src={logo} style={{ height: '40px', width: '40px' }} />}
-      />
       {tabs.map((tab, i) => (
         <NavigationLink
           key={i}

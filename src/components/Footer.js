@@ -8,7 +8,7 @@ type Props = {
   node: string,
 };
 
-const Footer = ({ node }) => {
+const Footer = ({ node }: Props) => {
   return (
     <div className="Footer text-right">
       {/* websocket connection status */}
