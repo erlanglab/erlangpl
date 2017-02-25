@@ -4,7 +4,7 @@
 }
 
 .App-container {
-  height: 100%;
+  height: calc(100% - 30px);
   width: calc(100% - 60px);
   margin-left: 60px;
 }

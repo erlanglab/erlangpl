@@ -1620,11 +1620,11 @@ dom-converter@~0.1:
   dependencies:
     utila "~0.3"
 
-dom-helpers@^2.4.0:
+dom-helpers@^2.4.0, "dom-helpers@^2.4.0 || ^3.0.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-2.4.0.tgz#9bb4b245f637367b1fa670274272aa28fe06c367"
 
-"dom-helpers@^2.4.0 || ^3.0.0", dom-helpers@^3.2.0:
+dom-helpers@^3.2.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-3.2.1.tgz#3203e07fed217bd1f424b019735582fc37b2825a"
 
@@ -2513,6 +2513,10 @@ http-signature@~1.1.0:
 https-browserify@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-0.0.1.tgz#3f91365cabe60b77ed0ebba24b454e3e09d95a82"
+
+humps@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/humps/-/humps-2.0.0.tgz#dd4a423e9784626fe7b9f19fde0baff659b40173"
 
 iconv-lite@0.4.13, iconv-lite@~0.4.13:
   version "0.4.13"

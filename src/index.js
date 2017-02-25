@@ -2,6 +2,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
+import humps from 'humps';
 
 import App from './App';
 import { on } from './sockets';
@@ -24,12 +25,16 @@ store.dispatch(updateGraphView(view));
 import sampleData from './sample_data.json';
 store.dispatch(updateGraphData(sampleData));
 
+import { updateSystemInfo } from './actions/systemInfo';
+
 on('system-info', data => {
   console.log('system info', data);
 });
 
 on('system-init', data => {
-  console.log('system-init', data);
+  const d = humps.camelizeKeys(data);
+  console.log('system-init', d);
+  store.dispatch(updateSystemInfo(humps.camelizeKeys(d)));
 });
 
 render(

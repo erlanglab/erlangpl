@@ -9,6 +9,7 @@ import Navigation from './components/Navigation';
 import Home from './components/Home';
 import Graph from './components/Graph';
 import About from './components/About';
+import Footer from './components/Footer';
 
 import history from './history';
 
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/graph/:view*" component={Graph} />
           <Route path="/about" component={About} />
         </div>
+        <Footer />
       </div>
     </Router>
   );
