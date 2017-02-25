@@ -7,7 +7,8 @@ import './App.css';
 
 import Navigation from './components/Navigation';
 import Home from './components/Home';
-import Graph from './components/Graph';
+import Traffic from './components/Traffic';
+import Messages from './components/Messages';
 import About from './components/About';
 import Footer from './components/Footer';
 
@@ -22,7 +23,8 @@ const App = () => {
 
         <div className="App-container">
           <Route exact path="/" component={Home} />
-          <Route path="/graph/:view*" component={Graph} />
+          <Route path="/messages" component={Messages} />
+          <Route path="/traffic/:view*" component={Traffic} />
           <Route path="/about" component={About} />
         </div>
         <Footer />

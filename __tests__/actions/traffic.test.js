@@ -1,7 +1,7 @@
-import * as actions from '../../src/actions/graph';
+import * as actions from '../../src/actions/traffic';
 
 describe('graph action creators', () => {
-  it('should handle updateGraphDAta action creator', () => {
+  it('should handle updateTrafficData action creator', () => {
     const data = {
       name: 'edge',
       renderer: 'global',
@@ -56,15 +56,15 @@ describe('graph action creators', () => {
       ],
     };
 
-    expect(actions.updateGraphData(data)).toEqual({
-      type: actions.UPDATE_GRAPH_DATA,
+    expect(actions.updateTrafficData(data)).toEqual({
+      type: actions.UPDATE_TRAFFIC_DATA,
       data,
     });
   });
 
-  it('should handle updateGraphView action creator', () => {
-    expect(actions.updateGraphView(['us-west-1'])).toEqual({
-      type: actions.UPDATE_GRAPH_VIEW,
+  it('should handle updateTrafficView action creator', () => {
+    expect(actions.updateTrafficView(['us-west-1'])).toEqual({
+      type: actions.UPDATE_TRAFFIC_VIEW,
       view: ['us-west-1'],
     });
   });

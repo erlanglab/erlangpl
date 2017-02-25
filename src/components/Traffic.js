@@ -4,25 +4,25 @@ import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
 
 import 'vizceral-react/dist/vizceral.css';
-import './Graph.css';
+import './Traffic.css';
 
-import GraphTools from './GraphTools';
+import TrafficTools from './TrafficTools';
 
 import history from '../history';
 
-class Graph extends Component {
+class Traffic extends Component {
   handleViewChange(view: Array<string>) {
-    history.push(`/graph/${view.join('/')}`);
+    history.push(`/traffic/${view.join('/')}`);
     // dispatching view change is handled in store.js as history listener
   }
 
   render() {
     return (
-      <div className="Graph">
-        <GraphTools className="Graph-tools" />
-        <div className="Graph-container">
+      <div className="Traffic">
+        <TrafficTools className="Traffic-tools" />
+        <div className="Traffic-container">
           <Vizceral
-            traffic={this.props.traffic}
+            traffic={this.props.data}
             view={this.props.view}
             viewChanged={event => this.handleViewChange(event.view)}
             showLabels={true}
@@ -35,14 +35,10 @@ class Graph extends Component {
   }
 }
 
-import { updateGraphView } from '../actions/graph';
-
 export default connect(
   state => ({
-    traffic: state.graph.data,
-    view: state.graph.view,
+    data: state.traffic.data,
+    view: state.traffic.view,
   }),
-  {
-    updateGraphView: updateGraphView,
-  },
-)(Graph);
+  {},
+)(Traffic);

@@ -1,7 +1,10 @@
-import { UPDATE_GRAPH_DATA, UPDATE_GRAPH_VIEW } from '../../src/actions/graph';
-import reducer, { INITIAL_STATE } from '../../src/reducers/graph';
+import {
+  UPDATE_TRAFFIC_DATA,
+  UPDATE_TRAFFIC_VIEW,
+} from '../../src/actions/traffic';
+import reducer, { INITIAL_STATE } from '../../src/reducers/traffic';
 
-describe('graph reducer', () => {
+describe('traffic reducer', () => {
   it('should handle initial state', () => {
     expect(reducer(undefined, {})).toEqual(INITIAL_STATE);
   });
@@ -63,7 +66,7 @@ describe('graph reducer', () => {
 
     expect(
       reducer(INITIAL_STATE, {
-        type: UPDATE_GRAPH_DATA,
+        type: UPDATE_TRAFFIC_DATA,
         data,
       }),
     ).toEqual({
@@ -72,5 +75,16 @@ describe('graph reducer', () => {
     });
   });
 
-  it('should handle UPDATE_GRAPH_VIEW', () => {});
+  it('should handle UPDATE_TRAFFIC_VIEW', () => {
+    const view = ['us-west-1', 'server'];
+    expect(
+      reducer(INITIAL_STATE, {
+        type: UPDATE_TRAFFIC_VIEW,
+        view,
+      }),
+    ).toEqual({
+      ...INITIAL_STATE,
+      view,
+    });
+  });
 });

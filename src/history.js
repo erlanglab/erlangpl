@@ -4,13 +4,13 @@ import { syncHistoryWithStore } from 'react-router-redux';
 
 import { syncGraphViewWithHistory } from './utils';
 import store from './store';
-import { updateGraphView } from './actions/graph';
+import { updateTrafficView } from './actions/traffic';
 
 const history = syncHistoryWithStore(createHistory(), store);
 
 history.listen(location => {
   const view = syncGraphViewWithHistory(location);
-  store.dispatch(updateGraphView(view));
+  store.dispatch(updateTrafficView(view));
 });
 
 export default history;

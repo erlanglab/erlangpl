@@ -2,11 +2,11 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
-import graph from './graph';
+import traffic from './traffic';
 import systemInfo from './systemInfo';
 
 const rootReducer = combineReducers({
-  graph,
+  traffic,
   systemInfo,
   routing: routerReducer,
 });

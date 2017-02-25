@@ -6,8 +6,9 @@ import logo from '../images/erlanglab_logo_alpha_250.png';
 import './Navigation.css';
 
 const tabs = [
-  { path: '/graph', icon: 'share-alt' },
-  { path: '/about', icon: 'info' },
+  { path: '/messages', icon: 'comments' },
+  { path: '/traffic', icon: 'share-alt' },
+  { path: '/about', icon: 'question' },
 ];
 
 const NavigationLink = ({ to, icon }) => (
@@ -29,7 +30,7 @@ const Navigation = () => {
     <div className="Navigation">
       <NavigationLink
         to="/"
-        icon={<img src={logo} style={{ height: '50px', width: '50px' }} />}
+        icon={<img src={logo} style={{ height: '40px', width: '40px' }} />}
       />
       {tabs.map((tab, i) => (
         <NavigationLink

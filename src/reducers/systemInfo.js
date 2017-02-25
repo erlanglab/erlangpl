@@ -8,8 +8,7 @@ export const INITIAL_STATE = {
 
 const systemInfo = (state = INITIAL_STATE, action) => {
   if (action.type === UPDATE_SYSTEM_INFO) {
-    console.log(action.info);
-    return action.info;
+    return { ...state, ...action.info };
   }
   return state;
 };

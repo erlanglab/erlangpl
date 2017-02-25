@@ -15,25 +15,25 @@ import './index.css';
 
 import store from './store';
 import { syncGraphViewWithHistory } from './utils';
-import { updateGraphData, updateGraphView } from './actions/graph';
+import { updateTrafficData, updateTrafficView } from './actions/traffic';
 import history from './history';
 
 const view = syncGraphViewWithHistory(history.location);
-store.dispatch(updateGraphView(view));
+store.dispatch(updateTrafficView(view));
 
 // TODO (baransu) remove dispatching dummy data
 import sampleData from './sample_data.json';
-store.dispatch(updateGraphData(sampleData));
+store.dispatch(updateTrafficData(sampleData));
 
 import { updateSystemInfo } from './actions/systemInfo';
 
 on('system-info', data => {
-  console.log('system info', data);
+  const d = humps.camelizeKeys(data);
+  store.dispatch(updateSystemInfo(humps.camelizeKeys(d)));
 });
 
 on('system-init', data => {
   const d = humps.camelizeKeys(data);
-  console.log('system-init', d);
   store.dispatch(updateSystemInfo(humps.camelizeKeys(d)));
 });
 

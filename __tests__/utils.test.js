@@ -13,7 +13,7 @@ describe('syncGraphViewWithHistory', () => {
   });
 
   it('should handle graph path', () => {
-    history.push('/graph/us-west-1');
+    history.push('/traffic/us-west-1');
     expect(historyToView(history.location)).toEqual(['us-west-1']);
   });
   it('should handle other path', () => {

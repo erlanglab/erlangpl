@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import './GraphTools.css';
+import './TrafficTools.css';
 
-class GraphTools extends Component {
+class TrafficTools extends Component {
   handleClick(index: number) {
     const view = this.props.view.slice(0, index);
     this.props.setView(view);
@@ -14,7 +14,7 @@ class GraphTools extends Component {
     const view = ['global', ...this.props.view];
 
     return (
-      <div className={`${this.props.className} GraphTools`}>
+      <div className={`${this.props.className} TrafficTools`}>
         {view.map((v, index) => (
           <button key={index} onClick={() => this.handleClick(index)}>
             {v}
@@ -25,8 +25,8 @@ class GraphTools extends Component {
   }
 }
 
-import { updateGraphView } from '../actions/graph';
+import { updateTrafficView } from '../actions/traffic';
 
-export default connect(state => ({ view: state.graph.view }), {
-  setView: updateGraphView,
-})(GraphTools);
+export default connect(state => ({ view: state.traffic.view }), {
+  setView: updateTrafficView,
+})(TrafficTools);
