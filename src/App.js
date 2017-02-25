@@ -25,7 +25,7 @@ const App = () => {
           <Route path="/messages" component={Messages} />
           <Route path="/traffic/:view*" component={Traffic} />
           <Route path="/about" component={About} />
-          <Redirect to="/home/system" />
+          {/*           <Redirect to="/home" /> */}
         </div>
         <Footer />
       </div>

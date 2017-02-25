@@ -4,6 +4,8 @@
 }
 
 .App-container {
+  color: #9da5b4;
+  background-color: #282c34;
   height: calc(100% - 30px);
   width: calc(100% - 60px);
   margin-left: 60px;

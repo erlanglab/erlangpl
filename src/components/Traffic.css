@@ -23,12 +23,13 @@
 }
 
 .Traffic-tools {
-  height: 60px;
+  height: 45px;
+  line-height: 45px;
 }
 
 .Traffic-container {
   background-color: var(--colorPageBackground);
-  height: calc(100% - 60px);
+  height: calc(100% - 45px);
 }
 
 /* TODO (baransu) figure out what's the purpose of this classes */

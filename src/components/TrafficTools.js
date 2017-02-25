@@ -16,9 +16,13 @@ class TrafficTools extends Component {
     return (
       <div className={`${this.props.className} TrafficTools`}>
         {view.map((v, index) => (
-          <button key={index} onClick={() => this.handleClick(index)}>
-            {v}
-          </button>
+          <a
+            key={index}
+            className="TrafficTools-route"
+            onClick={() => this.handleClick(index)}
+          >
+            {`${v}/`}
+          </a>
         ))}
       </div>
     );
