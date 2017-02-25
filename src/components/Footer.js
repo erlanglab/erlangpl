@@ -11,7 +11,7 @@ type Props = {
 const Footer = ({ node }: Props) => {
   return (
     <div className="Footer text-right">
-      {/* websocket connection status */}
+      {/* TODO (@baransu) websocket connection status */}
       <div className="Footer-node">
         <OverlayTrigger
           trigger={['hover']}

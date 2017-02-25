@@ -14,7 +14,7 @@ const tabs = [
 const NavigationLink = ({ to, icon }) => (
   <Route
     path={to}
-    exact={true}
+    exact={false}
     children={({ match }) => (
       <div className={`item ${match ? 'active' : ''}`}>
         <Link to={to}>

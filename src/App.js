@@ -21,11 +21,11 @@ const App = () => {
         <Navigation />
 
         <div className="App-container">
+          <Route exact path="/" render={() => <Redirect to="/home" />} />
           <Route path="/home/:subRoute*" component={Index} />
           <Route path="/messages" component={Messages} />
           <Route path="/traffic/:view*" component={Traffic} />
           <Route path="/about" component={About} />
-          {/*           <Redirect to="/home" /> */}
         </div>
         <Footer />
       </div>
