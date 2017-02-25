@@ -1,6 +1,23 @@
 .SystemInfo {
 }
 
+.SystemInfo-list-header {
+  margin-top: 10px;
+  padding: 6px;
+  font-size: 18px;
+  border-radius: 5px;
+  color: #c4c9d2;
+  font-weight: 900;
+}
+
 .SystemInfo-list .list-group-item {
-  background-color: #282c34;
+  background-color: #333842;
+  border-color: rgb(24, 26, 31);
+}
+
+.SystemInfo-list .value {
+  color: #1F79B7;
+  font-weight: 700;
+  font-size: 16px;
+  float: right;
 }

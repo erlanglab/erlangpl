@@ -4,6 +4,7 @@ import { Grid } from 'react-bootstrap';
 import { Link, Route, Redirect } from 'react-router-dom';
 
 import SystemInfo from './SystemInfo';
+import SystemOverview from './SystemOverview';
 import './Index.css';
 
 class Index extends Component {
@@ -18,7 +19,10 @@ class Index extends Component {
       return this.state.tab === index ? 'Index-active' : '';
     };
 
-    const navItems = [{ text: 'System info', to: '/home/system' }];
+    const navItems = [
+      { text: 'Basic system info', to: '/home/system' },
+      { text: 'System overview', to: '/home/overview' },
+    ];
 
     return (
       <div className="Index">
@@ -37,6 +41,7 @@ class Index extends Component {
         </ul>
         <Grid className="Index-grid" fluid>
           <Route path="/home/system" component={SystemInfo} />
+          <Route path="/home/overview" component={SystemOverview} />
           <Redirect to="/home/system" component={SystemInfo} />
         </Grid>
       </div>
