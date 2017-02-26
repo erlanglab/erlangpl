@@ -42,7 +42,11 @@ class Index extends Component {
         <Grid className="Index-grid" fluid>
           <Route path="/home/system" component={SystemInfo} />
           <Route path="/home/overview" component={SystemOverview} />
-          <Redirect to="/home/system" component={SystemInfo} />
+          <Route
+            exact={true}
+            path="/home"
+            render={() => <Redirect to="/home/system" />}
+          />
         </Grid>
       </div>
     );
