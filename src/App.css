@@ -1,14 +1,27 @@
 .App {
   width: 100%;
   height: 100%;
+  background-color: #282c34;
+  color: #9da5b4;
 }
 
 .App-container {
-  color: #9da5b4;
-  background-color: #282c34;
   height: calc(100% - 30px);
   width: calc(100% - 60px);
   margin-left: 60px;
 }
 
 
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px #282c34;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(157,165,180, 0.3);
+  outline: 1px solid slategrey;
+  border-radius: 5px;
+}

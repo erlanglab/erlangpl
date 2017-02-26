@@ -41,6 +41,6 @@
 
 .Index-grid {
   background-color: #282c34;
-  overflow: scroll;
+  overflow-y: scroll;
   height: calc(100% - 42px);
 }
