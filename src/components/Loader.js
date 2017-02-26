@@ -5,11 +5,12 @@ import './Loader.css';
 
 type Props = {
   text: string,
+  style: any,
 };
 
-const Loader = ({ text }: Props) => {
+const Loader = ({ text, style }: Props) => {
   return (
-    <div className="text-center">
+    <div className="text-center" style={{ ...style, paddingTop: '100px' }}>
       <div className="spinner">
         <div className="bounce1" />
         <div className="bounce2" />

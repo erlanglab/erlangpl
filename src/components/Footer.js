@@ -19,7 +19,7 @@ const Footer = ({ node }: Props) => {
           overlay={
             (
               <Popover id="footer-node-popover" title="Node">
-                <strong>Current node: </strong>{node}
+                <strong>Connetected to node: </strong>{node}
               </Popover>
             )
           }

@@ -4,7 +4,6 @@ import { UPDATE_SYSTEM_INFO } from '../actions/systemInfo';
 
 export const INITIAL_STATE = {
   nodeName: 'undefined',
-  receive: [],
 };
 
 const systemInfo = (state: any = INITIAL_STATE, action: any) => {
@@ -12,9 +11,6 @@ const systemInfo = (state: any = INITIAL_STATE, action: any) => {
     return {
       ...state,
       ...action.info,
-      receive: state.receive
-        .concat(action.info.receive)
-        .filter(a => a !== undefined),
     };
   }
   return state;
