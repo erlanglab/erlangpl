@@ -16,3 +16,44 @@ yarn start
 ```
 
 Now, application can be found at `localhost:3000` and will be listening for messages from `localhost:8000` where you have to have [erlangpl](https://github.com/erlanglab/erlangpl) running. 
+
+## Writing Elm code
+
+Although `erlangpl-ui` is written in React we belive in Elm power. Because of that we support Elm in out build process.
+This is possible because of [react-elm-components](https://github.com/evancz/react-elm-components) and [elm-webpack](https://github.com/elm-community/elm-webpack-loader). 
+
+You can write any separate component in Elm and then wrap it into React component which can be integrated with whole application. Elm code should be placed in `./src/elm` and every component whould have main file in this directory and all files related to this component in directory with the same name. React wrapper file should have the same name as Elm component and `flow` should be disabled for this file.
+
+
+```elm
+-- ./src/elm/About.elm
+
+module About exposing (..)
+
+import Html exposing (text)
+
+main =
+    text "Hello world from Elm component"
+```
+
+
+```javascript
+// ./src/components/About.js
+
+import React from 'react';
+import Elm from 'react-elm-components';
+import { About } from '../elm/About.elm';
+
+import './About.css';
+
+const AboutWrapper = () => {
+  return (
+    <div className="About">
+      <Elm src={About} />
+    </div>
+  );
+};
+
+export default AboutWrapper;
+```
+

@@ -1,4 +1,4 @@
-module Main exposing (..)
+module About exposing (..)
 
 import Html exposing (Html, text, button, div)
 import Html.Events exposing (onClick)
@@ -37,6 +37,7 @@ view model =
         ]
 
 
+main : Program Never Model Msg
 main =
     Html.program
         { init = init

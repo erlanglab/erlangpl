@@ -1,17 +1,15 @@
-// @flow
 import React from 'react';
 import Elm from 'react-elm-components';
-import { Main } from '../elm/Main.elm';
+import { About } from '../elm/About.elm';
 
 import './About.css';
 
-const About = () => {
+const AboutWrapper = () => {
   return (
     <div className="About">
-      About
-      <Elm src={Main} />
+      <Elm src={About} />
     </div>
   );
 };
 
-export default About;
+export default AboutWrapper;
