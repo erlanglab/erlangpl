@@ -1755,9 +1755,9 @@ electron-to-chromium@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.2.3.tgz#4b4d04d237c301f72e2d15c2137b2b79f9f5ab76"
 
-elm-webpack-loader@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-4.2.0.tgz#469e1832c304182b6b7fc619fb7518fb3eab47f5"
+elm-webpack-loader@4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-4.1.1.tgz#6c8b5f88e36c6885955e7de0e7df8a3c7aab1871"
   dependencies:
     elm "^0.18.0"
     glob "^7.1.1"

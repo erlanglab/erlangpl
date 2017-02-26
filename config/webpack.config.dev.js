@@ -125,6 +125,12 @@ module.exports = {
           cacheDirectory: true
         }
       },
+      // Elm loader
+      {
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        loader: 'elm-webpack'
+      },
       // "postcss" loader applies autoprefixer to our CSS.
       // "css" loader resolves paths in CSS and adds assets as dependencies.
       // "style" loader turns CSS into JS modules that inject <style> tags.
@@ -147,18 +153,10 @@ module.exports = {
         query: {
           name: 'static/media/[name].[hash:8].[ext]'
         }
-      },
-      // Elm loader
-      {
-        test: /\.elm$/,
-        exclude: [/elm-stuff/, /node_modules/],
-        loader: 'elm-webpack'
       }
       // ** STOP ** Are you adding a new loader?
       // Remember to add the new extension(s) to the "url" loader exclusion list.,,,,,,,,,,
-    ],
-    // Adding elm to no parse to speed up build process
-    noParse: /\.elm$/
+    ]
   },
   // We use PostCSS for autoprefixing only.
   postcss: function() {

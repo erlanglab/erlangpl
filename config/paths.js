@@ -55,9 +55,8 @@ function getPublicUrl(appPackageJson) {
 // like /todos/42/static/js/bundle.7289d.js. We have to know the root.
 function getServedPath(appPackageJson) {
   var publicUrl = getPublicUrl(appPackageJson);
-  var servedUrl = envPublicUrl || (
-    publicUrl ? url.parse(publicUrl).pathname : '/'
-  );
+  var servedUrl = envPublicUrl ||
+    (publicUrl ? url.parse(publicUrl).pathname : '/');
   return ensureSlash(servedUrl, true);
 }
 
@@ -69,6 +68,7 @@ module.exports = {
   appIndexJs: resolveApp('src/index.js'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
+  elmSrc: resolveApp('src/elm'),
   yarnLockFile: resolveApp('yarn.lock'),
   testsSetup: resolveApp('src/setupTests.js'),
   appNodeModules: resolveApp('node_modules'),
