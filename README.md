@@ -1,7 +1,7 @@
 # Erlang Performance Lab UI
 [![Build Status](https://travis-ci.org/erlanglab/erlangpl-ui.svg?branch=master)](https://travis-ci.org/erlanglab/erlangpl-ui)
 
-The Erlang Performance Lab UI is under heavy development leaning towards replacement for current [erlangpl](https://github.com/erlanglab/erlangpl) frontend.
+The Erlang Performance Lab UI is under heavy development towards replacement for current [erlangpl](https://github.com/erlanglab/erlangpl) frontend.
 
 ## Getting started
 
@@ -57,3 +57,11 @@ const AboutWrapper = () => {
 export default AboutWrapper;
 ```
 
+## Code formatting
+We belive in code consistency. Because of that we care about code formatting.
+
+### Elm
+Elm code should be formatted using latest version of [elm-format](https://github.com/avh4/elm-format)
+
+### JavaScript
+JavaScript code should be formatted using latest version of [prettier](https://github.com/prettier/prettier)
