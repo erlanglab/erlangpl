@@ -12,8 +12,10 @@ import history from '../history';
 
 class Traffic extends Component {
   handleViewChange(view: Array<string>) {
-    history.push(`/traffic/${view.join('/')}`);
-    // dispatching view change is handled in store.js as history listener
+    if (view.length > 0) {
+      history.push(`/traffic/${view.join('/')}`);
+      // dispatching view change is handled in history.js as history listener
+    }
   }
 
   render() {
@@ -38,7 +40,7 @@ class Traffic extends Component {
 export default connect(
   state => ({
     data: state.traffic.data,
-    view: state.traffic.view,
+    view: state.traffic.view
   }),
-  {},
+  {}
 )(Traffic);
