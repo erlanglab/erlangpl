@@ -1,9 +1,11 @@
 // @flow
+import store from './store';
+import { connectionOpen, connectionClose } from './actions/connection';
 
 // right now looking for erlangpl runing standalone at localhost:8000
 const { hostname } = window.location;
 const socket = new WebSocket(
-  `ws://${hostname}:8000/epl_dashboard_EPL` /* protocols */,
+  `ws://${hostname}:8000/epl_dashboard_EPL` /* protocols */
 );
 
 let defaultHandler = {};
@@ -11,13 +13,13 @@ let defaultHandler = {};
 export const on = (
   topic: string,
   callback: () => void,
-  handler: any = defaultHandler,
+  handler: any = defaultHandler
 ) => {
   handler[topic] = callback;
 };
 
 socket.onopen = e => {
-  console.log('EPL WebSocket: opened');
+  store.dispatch(connectionOpen());
 };
 
 // when messages come, it will find handler and run them with msg data
@@ -31,8 +33,9 @@ socket.onmessage = (msg: any) => {
 };
 
 socket.onclose = () => {
-  console.log('EPL WebSocket: closed');
+  store.dispatch(connectionClose());
 };
+
 // socket.send(data: string)
 // socket.close()
 //export default socket;

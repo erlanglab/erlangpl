@@ -6,6 +6,7 @@
   line-height: 30px;
 }
 
-.Footer-node {
-  margin-right: 10px
+.Footer-item {
+  display: inline-block;
+  margin-right: 15px
 }
