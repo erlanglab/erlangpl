@@ -6,7 +6,12 @@ export const INITIAL_STATE = {
   memoryTotal: [],
 };
 
-const systemOverview = (state = INITIAL_STATE, action) => {
+type State = {
+  receive: Array<{ count: string, sizes: string }>,
+  memoryTotal: Array<string>,
+};
+
+const systemOverview = (state: State = INITIAL_STATE, action: any) => {
   if (action.type === UPDATE_SYSTEM_INFO) {
     return {
       receive: state.receive

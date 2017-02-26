@@ -19,10 +19,11 @@ type Props = {
   width: number,
   height: number,
   dataKey: string,
-  xAxisDataKey: string,
   loaderText: string,
-  domain: any,
+  domain?: any,
+  xAxisDataKey?: string,
 };
+
 const SystemOverviewChart = (
   {
     data,
