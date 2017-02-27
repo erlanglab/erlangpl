@@ -14,7 +14,7 @@ import Footer from './components/Footer';
 
 import history from './history';
 
-const App = ({ store }) => {
+const App = ({ store }: { store: mixed }) => {
   return (
     <Provider store={store}>
       <Router history={history}>
