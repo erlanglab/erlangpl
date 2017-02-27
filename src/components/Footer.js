@@ -1,8 +1,9 @@
 // @flow
 import React from 'react';
-import './Footer.css';
-import { Popover, OverlayTrigger } from 'react-bootstrap';
 import { connect } from 'react-redux';
+
+import './Footer.css';
+import FooterItem from './FooterItem';
 
 type Props = {
   node: string,
@@ -17,37 +18,31 @@ const Footer = ({ node, connection }: Props) => {
 
   return (
     <div className="Footer text-right">
-      <div className="Footer-item">
-        <OverlayTrigger
-          trigger={['hover']}
-          placement="top"
-          overlay={
-            (
-              <Popover id="footer-node" title="Node">
-                Connected to: <strong>{node}</strong>
-              </Popover>
-            )
-          }
-        >
-          <span>{node}</span>
-        </OverlayTrigger>
-      </div>
+      <FooterItem
+        id="footer-node"
+        title="Node"
+        popover={
+          (
+            <span>
+              Connected to: <strong>{node}</strong>
+            </span>
+          )
+        }
+        item={<span>{node}</span>}
+      />
 
-      <div className="Footer-item">
-        <OverlayTrigger
-          trigger={['hover']}
-          placement="top"
-          overlay={
-            (
-              <Popover id="footer-connection" title="Connection">
-                Status: <strong style={{ color }}>{connection}</strong>
-              </Popover>
-            )
-          }
-        >
-          <i className="fa fa-plug" style={{ color }} />
-        </OverlayTrigger>
-      </div>
+      <FooterItem
+        id="footer-connectionn"
+        title="Connection"
+        popover={
+          (
+            <span>
+              Status: <strong style={{ color }}>{connection}</strong>
+            </span>
+          )
+        }
+        item={<i className="fa fa-plug" style={{ color }} />}
+      />
     </div>
   );
 };
