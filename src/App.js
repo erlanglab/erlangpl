@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import './App.css';
 
@@ -13,23 +14,25 @@ import Footer from './components/Footer';
 
 import history from './history';
 
-const App = () => {
+const App = ({ store }) => {
   return (
-    <Router history={history}>
-      <div className="App">
+    <Provider store={store}>
+      <Router history={history}>
+        <div className="App">
 
-        <Navigation />
+          <Navigation />
 
-        <div className="App-container">
-          <Route exact path="/" render={() => <Redirect to="/home" />} />
-          <Route path="/home/:subRoute*" component={Index} />
-          <Route path="/messages" component={Messages} />
-          <Route path="/traffic/:view*" component={Traffic} />
-          <Route path="/about" component={About} />
+          <div className="App-container">
+            <Route exact path="/" render={() => <Redirect to="/home" />} />
+            <Route path="/home/:subRoute*" component={Index} />
+            <Route path="/messages" component={Messages} />
+            <Route path="/traffic/:view*" component={Traffic} />
+            <Route path="/about" component={About} />
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
-    </Router>
+      </Router>
+    </Provider>
   );
 };
 

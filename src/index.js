@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import { render } from 'react-dom';
-import { Provider } from 'react-redux';
 import humps from 'humps';
 
 import App from './App';
@@ -37,9 +36,4 @@ on('system-init', data => {
   store.dispatch(updateSystemInfo(humps.camelizeKeys(d)));
 });
 
-render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root'),
-);
+render(<App store={store} />, document.getElementById('root'));
