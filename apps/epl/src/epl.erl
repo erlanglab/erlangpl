@@ -15,7 +15,7 @@
          unsubscribe/1,
          process_info/1,
          trace_pid/1,
-         proplist_to_json/1,
+         proplist_to_json/2,
          to_bin/1,
          log/3,
          timestamp/1,
@@ -46,9 +46,9 @@ process_info(Pid) ->
 trace_pid(Pid) ->
     epl_tracer:trace_pid(Pid).
 
-proplist_to_json(Term) ->
+proplist_to_json(Term, Topic) ->
     Obj = encode(Term, ej:new()),
-    Data = [{<<"topic">>, <<"system-init">>},
+    Data = [{<<"topic">>, Topic},
             {<<"data">>, Obj}],
     ej:encode(Data).
 
