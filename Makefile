@@ -1,7 +1,7 @@
 .PHONY: all clean deps distclean doc test compile
 
 # allow rebar binary to be set via environment variable
-REBAR ?= rebar
+REBAR ?= ./rebar
 
 all:
 	@$(REBAR) get-deps compile
