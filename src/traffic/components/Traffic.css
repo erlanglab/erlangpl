@@ -20,6 +20,7 @@
 .Traffic {
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .Traffic-tools {
@@ -30,6 +31,10 @@
 .Traffic-container {
   background-color: var(--colorPageBackground);
   height: calc(100% - 45px);
+}
+
+.Traffic-panel {
+  height: 100%;
 }
 
 /* TODO (baransu) figure out what's the purpose of this classes */

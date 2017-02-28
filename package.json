@@ -58,6 +58,7 @@
     "react-dom": "^15.4.2",
     "react-elm-components": "^1.0.1",
     "react-measure": "^1.4.5",
+    "react-motion": "^0.4.7",
     "react-redux": "^5.0.2",
     "react-router-dom": "^4.0.0-beta.6",
     "react-router-redux": "^4.0.8",

@@ -11,7 +11,7 @@ class TrafficTools extends Component {
   }
 
   render() {
-    const view = ['global', ...this.props.view];
+    const view = ['cluster', ...this.props.view];
 
     return (
       <div className={`${this.props.className} TrafficTools`}>
