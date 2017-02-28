@@ -41,7 +41,7 @@ unsubscribe(Pid) ->
     epl_tracer:unsubscribe(Pid).
 
 process_info(Pid) ->
-    epl_tracer:process_info(Pid).
+    epl_tracer:command(fun erlang:process_info/1, [Pid]).
 
 trace_pid(Pid) ->
     epl_tracer:trace_pid(Pid).
