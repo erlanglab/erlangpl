@@ -1,8 +1,5 @@
-import {
-  UPDATE_TRAFFIC_DATA,
-  UPDATE_TRAFFIC_VIEW,
-} from '../../src/actions/traffic';
-import reducer, { INITIAL_STATE } from '../../src/reducers/traffic';
+import * as actions from '../actions';
+import reducer, { INITIAL_STATE } from '../reducer';
 
 describe('traffic reducer', () => {
   it('should handle initial state', () => {
@@ -17,7 +14,7 @@ describe('traffic reducer', () => {
         {
           renderer: 'region',
           name: 'INTERNET',
-          class: 'normal',
+          class: 'normal'
         },
         {
           renderer: 'region',
@@ -29,13 +26,13 @@ describe('traffic reducer', () => {
             {
               name: 'INTERNET',
               renderer: 'focused',
-              class: 'normal',
+              class: 'normal'
             },
             {
               name: 'proxy-prod',
               renderer: 'focused',
-              class: 'normal',
-            },
+              class: 'normal'
+            }
           ],
           connections: [
             {
@@ -43,12 +40,12 @@ describe('traffic reducer', () => {
               target: 'proxy-prod',
               metrics: {
                 danger: 116.524,
-                normal: 15598.906,
+                normal: 15598.906
               },
-              class: 'normal',
-            },
-          ],
-        },
+              class: 'normal'
+            }
+          ]
+        }
       ],
       connections: [
         {
@@ -56,35 +53,25 @@ describe('traffic reducer', () => {
           target: 'us-east-1',
           metrics: {
             normal: 26037.626,
-            danger: 92.37,
+            danger: 92.37
           },
           notices: [],
-          class: 'normal',
-        },
-      ],
+          class: 'normal'
+        }
+      ]
     };
 
-    expect(
-      reducer(INITIAL_STATE, {
-        type: UPDATE_TRAFFIC_DATA,
-        data,
-      }),
-    ).toEqual({
+    expect(reducer(INITIAL_STATE, actions.updateTrafficData(data))).toEqual({
       ...INITIAL_STATE,
-      data,
+      data
     });
   });
 
   it('should handle UPDATE_TRAFFIC_VIEW', () => {
     const view = ['us-west-1', 'server'];
-    expect(
-      reducer(INITIAL_STATE, {
-        type: UPDATE_TRAFFIC_VIEW,
-        view,
-      }),
-    ).toEqual({
+    expect(reducer(INITIAL_STATE, actions.updateTrafficView(view))).toEqual({
       ...INITIAL_STATE,
-      view,
+      view
     });
   });
 });

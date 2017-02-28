@@ -1,4 +1,4 @@
-import { syncGraphViewWithHistory as historyToView } from '../src/utils';
+import { syncGraphViewWithHistory as historyToView } from '../utils';
 import createHistory from 'history/createBrowserHistory';
 
 describe('syncGraphViewWithHistory', () => {
