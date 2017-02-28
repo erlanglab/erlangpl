@@ -5,9 +5,9 @@ import { Link, Route, Redirect } from 'react-router-dom';
 
 import SystemInfo from './SystemInfo';
 import SystemOverview from './SystemOverview';
-import './Index.css';
+import './Home.css';
 
-class Index extends Component {
+class Home extends Component {
   state: { tab: number };
   constructor() {
     super();
@@ -16,17 +16,17 @@ class Index extends Component {
 
   render() {
     const active = (index: number) => {
-      return this.state.tab === index ? 'Index-active' : '';
+      return this.state.tab === index ? 'Home-active' : '';
     };
 
     const navItems = [
-      { text: 'Basic system info', to: '/home/system' },
       { text: 'System overview', to: '/home/overview' },
+      { text: 'Basic system info', to: '/home/system' }
     ];
 
     return (
-      <div className="Index">
-        <ul className="Index-navigation nav nav-tabs">
+      <div className="Home">
+        <ul className="Home-navigation nav nav-tabs">
           {navItems.map((link, i) => (
             <li
               key={i}
@@ -39,17 +39,17 @@ class Index extends Component {
             </li>
           ))}
         </ul>
-        <Grid className="Index-grid" fluid>
+        <Grid className="Home-grid" fluid>
           <Route path="/home/system" component={SystemInfo} />
           <Route path="/home/overview" component={SystemOverview} />
           <Route
             exact={true}
             path="/home"
-            render={() => <Redirect to="/home/system" />}
+            render={() => <Redirect to={navItems[0].to} />}
           />
         </Grid>
       </div>
     );
   }
 }
-export default Index;
+export default Home;

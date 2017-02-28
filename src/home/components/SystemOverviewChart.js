@@ -7,10 +7,11 @@ import {
   YAxis,
   XAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip
 } from 'recharts';
 
-import Loader from './Loader';
+import core from '../../core';
+const { Loader } = core.components;
 
 type Props = {
   data: any,
@@ -21,7 +22,7 @@ type Props = {
   dataKey: string,
   loaderText: string,
   domain?: any,
-  xAxisDataKey?: string,
+  xAxisDataKey?: string
 };
 
 const SystemOverviewChart = (
@@ -34,8 +35,8 @@ const SystemOverviewChart = (
     dataKey,
     xAxisDataKey,
     loaderText,
-    domain,
-  }: Props,
+    domain
+  }: Props
 ) => {
   return (
     <Col xs={12}>

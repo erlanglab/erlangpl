@@ -5,16 +5,15 @@ import { Provider } from 'react-redux';
 
 import './App.css';
 
-import Navigation from './components/Navigation';
-import Index from './components/Index';
-import Traffic from './components/Traffic';
-import Messages from './components/Messages';
-import About from './components/About';
-import Footer from './components/Footer';
+import core from './core';
+const { Navigation, Footer } = core.components;
 
-import history from './history';
+import home from './home';
+import traffic from './traffic';
+import messages from './messages';
+import about from './about';
 
-const App = ({ store }: { store: mixed }) => {
+const App = ({ store, history }: { store: mixed, history: mixed }) => {
   return (
     <Provider store={store}>
       <Router history={history}>
@@ -24,10 +23,13 @@ const App = ({ store }: { store: mixed }) => {
 
           <div className="App-container">
             <Route exact path="/" render={() => <Redirect to="/home" />} />
-            <Route path="/home/:subRoute*" component={Index} />
-            <Route path="/messages" component={Messages} />
-            <Route path="/traffic/:view*" component={Traffic} />
-            <Route path="/about" component={About} />
+            <Route path="/home/:subRoute*" component={home.components.Home} />
+            <Route path="/messages" component={messages.components.Messages} />
+            <Route
+              path="/traffic/:view*"
+              component={traffic.components.Traffic}
+            />
+            <Route path="/about" component={about.components.About} />
           </div>
           <Footer />
         </div>

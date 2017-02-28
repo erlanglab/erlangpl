@@ -1,6 +1,6 @@
 // @flow
 import store from './store';
-import { connectionOpen, connectionClose } from './actions/connection';
+import core from './core';
 
 // right now looking for erlangpl runing standalone at localhost:8000
 const { hostname } = window.location;
@@ -19,7 +19,7 @@ export const on = (
 };
 
 socket.onopen = e => {
-  store.dispatch(connectionOpen());
+  store.dispatch(core.actions.connectionOpen());
 };
 
 // when messages come, it will find handler and run them with msg data
@@ -33,9 +33,5 @@ socket.onmessage = (msg: any) => {
 };
 
 socket.onclose = () => {
-  store.dispatch(connectionClose());
+  store.dispatch(core.actions.connectionClose());
 };
-
-// socket.send(data: string)
-// socket.close()
-//export default socket;

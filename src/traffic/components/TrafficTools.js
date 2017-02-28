@@ -29,8 +29,8 @@ class TrafficTools extends Component {
   }
 }
 
-import { updateTrafficView } from '../actions/traffic';
+import * as actions from '../actions';
 
 export default connect(state => ({ view: state.traffic.view }), {
-  setView: updateTrafficView,
+  setView: actions.updateTrafficView
 })(TrafficTools);

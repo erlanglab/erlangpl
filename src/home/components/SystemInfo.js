@@ -7,27 +7,25 @@ import './SystemInfo.css';
 
 const SystemInfo = ({ info }) => {
   const systemInfo = [
-    ['opt release', info.otpRelease],
-    ['erts version', info.version],
-    ['node pid', info.nodePid],
+    ['OTP release', info.otpRelease],
+    ['ERTS version', info.version],
+    ['node PID', info.nodePid],
     ['schedulers', info.schedulers],
     ['build type', info.buildType],
-    ['wordsize', info.wordsize],
+    ['wordsize', info.wordsize]
   ];
 
   const ertsSettings = [
-    ['kernelPoll', info.kernelPoll],
-    ['smpSupport', info.smpSupport],
+    ['kernel poll', info.kernelPoll],
+    ['SMP support', info.smpSupport],
     [
       'fullSweep',
-      info.garbageCollection
-        ? info.garbageCollection.fullsweepAfter
-        : undefined,
+      info.garbageCollection ? info.garbageCollection.fullsweepAfter : undefined
     ],
     ['proces limit', info.processLimit],
     ['thread', info.threads],
     ['async threads', info.threadPoolSize],
-    ['port limit', info.portLimit],
+    ['port limit', info.portLimit]
   ];
 
   return (
@@ -60,7 +58,7 @@ const SystemInfo = ({ info }) => {
 
 export default connect(
   state => {
-    return { info: state.systemInfo };
+    return { info: state.home.systemInfo };
   },
-  {},
+  {}
 )(SystemInfo);

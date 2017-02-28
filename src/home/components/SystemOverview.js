@@ -13,7 +13,7 @@ class SystemOverview extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      width: 0,
+      width: 0
     };
   }
 
@@ -21,24 +21,24 @@ class SystemOverview extends Component {
     const { info, overview } = this.props;
 
     const systemOverview = [
-      ['throughput', info.receive ? `${info.receive.count} msg` : undefined],
-      ['throughput', info.receive ? `${info.receive.sizes} B` : undefined],
-      ['processes', info.processCount],
-      ['spawns', info.spawn ? info.spawn.count : undefined],
-      ['exits', info.exit ? info.exit.count : undefined],
-      ['abnormal exits', info.exit ? info.exit.abnormal : undefined],
-      ['memory', info.memoryTotal ? `${info.memoryTotal} B` : undefined],
+      ['Throughput', info.receive ? `${info.receive.count} msg` : undefined],
+      ['Throughput', info.receive ? `${info.receive.sizes} B` : undefined],
+      ['Processes', info.processCount],
+      ['Spawns', info.spawn ? info.spawn.count : undefined],
+      ['Exits', info.exit ? info.exit.count : undefined],
+      ['Abnormal Exits', info.exit ? info.exit.abnormal : undefined],
+      ['Memory', info.memoryTotal ? `${info.memoryTotal} B` : undefined]
     ];
 
     const throughputData = overview.receive.map(a => ({
       name: 'Throughput (B)',
-      size: parseInt(a.sizes, 10),
+      size: parseInt(a.sizes, 10)
     }));
 
     const memoryData = overview.memoryTotal.map(a => {
       return {
         name: 'Memory (MB)',
-        usage: Number((parseInt(a, 10) / 1000000).toFixed(2)),
+        usage: Number((parseInt(a, 10) / 1000000).toFixed(2))
       };
     });
 
@@ -91,9 +91,9 @@ class SystemOverview extends Component {
 export default connect(
   state => {
     return {
-      info: state.systemInfo,
-      overview: state.systemOverview,
+      info: state.home.systemInfo,
+      overview: state.home.systemOverview
     };
   },
-  {},
+  {}
 )(SystemOverview);

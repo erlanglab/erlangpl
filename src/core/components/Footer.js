@@ -50,8 +50,8 @@ const Footer = ({ node, connection }: Props) => {
 export default connect(
   state => {
     return {
-      node: state.systemInfo.nodeName,
-      connection: state.connection
+      node: state.home.systemInfo.nodeName,
+      connection: state.core.connection
     };
   },
   {}

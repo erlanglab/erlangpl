@@ -7,17 +7,9 @@ import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
 
 import TrafficTools from './TrafficTools';
-
-import history from '../history';
+import * as actions from '../actions';
 
 class Traffic extends Component {
-  handleViewChange(view: Array<string>) {
-    if (view.length > 0) {
-      history.push(`/traffic/${view.join('/')}`);
-      // dispatching view change is handled in history.js as history listener
-    }
-  }
-
   render() {
     return (
       <div className="Traffic">
@@ -26,7 +18,7 @@ class Traffic extends Component {
           <Vizceral
             traffic={this.props.data}
             view={this.props.view}
-            viewChanged={event => this.handleViewChange(event.view)}
+            viewChanged={event => this.props.updateTrafficView(event.view)}
             showLabels={true}
             allowDraggingOfNodes={true}
             targetFramerate={30}
@@ -38,9 +30,13 @@ class Traffic extends Component {
 }
 
 export default connect(
-  state => ({
-    data: state.traffic.data,
-    view: state.traffic.view
-  }),
-  {}
+  state => {
+    return {
+      data: state.traffic.data,
+      view: state.traffic.view
+    };
+  },
+  {
+    updateTrafficView: actions.updateTrafficView
+  }
 )(Traffic);
