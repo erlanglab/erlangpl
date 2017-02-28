@@ -39,11 +39,11 @@ main =
 
 
 ```javascript
-// src/components/About.js
+// src/about/components/About.js
 
 import React from 'react';
 import Elm from 'react-elm-components';
-import { About } from '../elm/About.elm';
+import { About } from '../../elm/About.elm';
 
 import './About.css';
 
@@ -63,4 +63,4 @@ We belive in code consistency. Because of that we care about code formatting.
 Elm code should be formatted using latest version of [elm-format](https://github.com/avh4/elm-format)
 
 ### JavaScript
-JavaScript code should be formatted using latest version of [prettier](https://github.com/prettier/prettier)
+JavaScript code should be formatted using latest version of [prettier](https://github.com/prettier/prettier) with `singleQuote: true`.
