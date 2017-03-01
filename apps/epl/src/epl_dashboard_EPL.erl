@@ -38,7 +38,7 @@ init(_Options) ->
 init({tcp, http}, _Req, _Opts) ->
     [{node, Node}] = epl:lookup(node),
     [{node_settings, NodeSettings}] = epl:lookup(node_settings),
-    JSON = epl:proplist_to_json([{node_name, Node}|NodeSettings]),
+    JSON = epl:proplist_to_json([{node_name, Node}|NodeSettings], <<"system-init">>),
     self() ! {data, JSON},
     epl_dashboard:subscribe(),
     {upgrade, protocol, cowboy_websocket}.
