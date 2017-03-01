@@ -16,7 +16,7 @@
          subscribe/1,
          unsubscribe/0,
          unsubscribe/1,
-         process_info/1,
+         command/2,
          trace_pid/1]).
 
 %% gen_server callbacks
@@ -52,8 +52,8 @@ unsubscribe() ->
 unsubscribe(Pid) ->
     gen_server:call(?MODULE, {unsubscribe, Pid}).
 
-process_info(Pid) ->
-    gen_server:call(?MODULE, {process_info, Pid}).
+command(Fun, Args) ->
+    gen_server:call(?MODULE, {command, Fun, Args}).
 
 trace_pid(Pid) ->
     gen_server:call(?MODULE, {trace_pid, Pid}).
@@ -188,15 +188,15 @@ handle_call({unsubscribe, Pid}, _From, State = #state{subscribers = Subs}) ->
 handle_call({trace_pid, Pid}, _, State = #state{ref=Ref, remote_pid=RPid}) ->
     RPid ! {Ref, self(), {trace_pid, Pid}},
     {reply, ok, State, ?POLL};
-handle_call({process_info, Pid}, _, State = #state{ref=Ref, remote_pid=RPid}) ->
-    RPid ! {Ref, self(), {process_info, Pid}},
+handle_call({command, Fun, Args}, _, State = #state{ref=Ref, remote_pid=RPid}) ->
+    RPid ! {Ref, self(), [{command, Fun, Args}]},
     receive
-        {Ref, PInfo} ->
-            {reply, {ok, PInfo}, State, ?POLL}
+        {Ref, [{command, ReturnVal}]} ->
+            {reply, {ok, ReturnVal}, State, ?POLL}
     after 5000 ->
             ?ERROR("timed out while collecting data from node~n", []),
             NewState = State#state{timeout = State#state.timeout + 1},
-            {reply, {error, {timeout, node(Pid)}}, NewState, ?POLL}
+            {reply, {error, timeout}, NewState, ?POLL}
     end;
 handle_call(Request, _From, _State) ->
     exit({not_implemented, Request}).
