@@ -1,0 +1,27 @@
+<html>
+<head>
+  <title>Erlang Performance Lab - 3D</title>
+</head>
+<body style="margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;
+             padding: 0; color: red; font-size: 10pt; background-color: black;"
+      onload="VE.changeEffect();">
+
+  <script src="/epl_3d/ve/js/jquery-2.0.0.js"></script>
+  <script src="/epl_3d/ve/js/Three.js"></script>
+  <script src="/epl_3d/ve/js/TrackballControls.js"></script>
+  <script src="/epl_3d/ve/js/effects/AnaglyphEffect.js"></script>
+  <script src="/epl_3d/ve/js/effects/GrayAnaglyphEffect.js"></script>
+  <script src="/epl_3d/ve/js/Graph.js"></script>
+  <script src="/epl_3d/ve/js/force-directed-layout.js"></script>
+
+  <script src="/epl_3d/ve/js/VisualEyes.min.js"></script>
+
+  <!-- Erlang Performance Lab plugin-->
+  <script src="/epl_3d/epl_3d.js"></script>
+
+  <div id="epl_3d" style="width: 100%; height: 95%"> </div>
+  <button onmousedown="VE.changeEffect()">Toggle 3D effect</button>
+  <pre id="process_info">Process info: N/A</pre>
+
+</body>
+</html>
