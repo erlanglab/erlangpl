@@ -1,0 +1,18 @@
+{application, epl_st,
+ [{description, "EPL plugin for visualising applications' supervision trees"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {epl_st_app, []}},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, ["Erlang Performance Lab"]},
+  {licenses, ["Apache 2.0"]},
+  {links,
+   [{"GitHub", "https://github.com/erlanglab/epl_sup_tree"},
+    {"Erlang Performance Lab", "http://www.erlang.pl"}]}
+ ]}.
