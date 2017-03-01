@@ -19,12 +19,14 @@ const systemInfo = (state: any = INITIAL_STATE_SYSTEM_INFO, action: any) => {
 
 export const INITIAL_STATE_SYSTEM_OVERVIEW = {
   receive: [],
-  memoryTotal: []
+  memoryTotal: [],
+  processCount: []
 };
 
 type State = {
   receive: Array<{ count: string, sizes: string }>,
-  memoryTotal: Array<string>
+  memoryTotal: Array<string>,
+  processCount: Array<string>
 };
 
 const systemOverview = (
@@ -38,6 +40,9 @@ const systemOverview = (
         .filter(a => a !== undefined),
       memoryTotal: state.memoryTotal
         .concat(action.info.memoryTotal)
+        .filter(a => a !== undefined),
+      processCount: state.processCount
+        .concat(action.info.processCount)
         .filter(a => a !== undefined)
     };
   }

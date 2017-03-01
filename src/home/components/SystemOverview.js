@@ -20,6 +20,19 @@ class SystemOverview extends Component {
   render() {
     const { info, overview } = this.props;
 
+    const mem = ['KB', 'MB', 'GB'];
+
+    const memory = mem.reduce(
+      (acc, a) => {
+        if (acc.v > 1000) {
+          return { v: acc.v / 1000, t: a };
+        } else {
+          return acc;
+        }
+      },
+      { v: parseInt(info.memoryTotal, 10), t: 'B' }
+    );
+
     const systemOverview = [
       ['Throughput', info.receive ? `${info.receive.count} msg` : undefined],
       ['Throughput', info.receive ? `${info.receive.sizes} B` : undefined],
@@ -27,12 +40,15 @@ class SystemOverview extends Component {
       ['Spawns', info.spawn ? info.spawn.count : undefined],
       ['Exits', info.exit ? info.exit.count : undefined],
       ['Abnormal Exits', info.exit ? info.exit.abnormal : undefined],
-      ['Memory', info.memoryTotal ? `${info.memoryTotal} B` : undefined]
+      [
+        'Memory',
+        info.memoryTotal ? `${memory.v.toFixed(2)} ${memory.t}` : undefined
+      ]
     ];
 
     const throughputData = overview.receive.map(a => ({
-      name: 'Throughput (B)',
-      size: parseInt(a.sizes, 10)
+      name: 'Throughput (msg)',
+      count: parseInt(a.count, 10)
     }));
 
     const memoryData = overview.memoryTotal.map(a => {
@@ -41,6 +57,18 @@ class SystemOverview extends Component {
         usage: Number((parseInt(a, 10) / 1000000).toFixed(2))
       };
     });
+
+    const processesData = overview.processCount.map(a => ({
+      name: 'Processes',
+      count: parseInt(a, 10)
+    }));
+
+    const maxProcesses = Math.max(...overview.processCount);
+
+    const dimensions = {
+      width: this.state.width - this.state.width / 10,
+      height: 210
+    };
 
     return (
       <Row className="SystemOverview">
@@ -61,25 +89,38 @@ class SystemOverview extends Component {
           includeMargin={false}
           onMeasure={({ width }) => this.setState({ width })}
         >
-          <Col xs={7}>
-            <Chart
-              title="Throughput"
-              height={250}
-              width={this.state.width}
-              data={throughputData}
-              color="#1F79B7"
-              dataKey="size"
-              loaderText="Gathering throughput data"
-            />
+          <Col xs={8} className="charts">
             <Chart
               title="Memory usage"
-              height={250}
-              width={this.state.width}
+              height={dimensions.height}
+              width={dimensions.width}
               data={memoryData}
               color="#8FBF47"
               dataKey="usage"
               domain={['dataMin', 'dataMax']}
               loaderText="Gathering memory usage data"
+            />
+            <Chart
+              title="Processes"
+              height={dimensions.height}
+              width={dimensions.width}
+              data={processesData}
+              color="#227A50"
+              dataKey="count"
+              domain={[
+                `dataMin - ${maxProcesses / 5}`,
+                `dataMax + ${maxProcesses / 5}`
+              ]}
+              loaderText="Gathering processes data"
+            />
+            <Chart
+              title="Throughput"
+              height={dimensions.height}
+              width={dimensions.width}
+              data={throughputData}
+              color="#1F79B7"
+              dataKey="count"
+              loaderText="Gathering throughput data"
             />
           </Col>
         </Measure>

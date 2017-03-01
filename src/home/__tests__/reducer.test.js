@@ -17,6 +17,7 @@ describe('systemOverview reducer', () => {
         count: 0,
         size: 0
       },
+      processCount: 35,
       memoryTotal: 1123123123
     };
 
@@ -24,6 +25,7 @@ describe('systemOverview reducer', () => {
       reducer(undefined, actions.updateSystemInfo(info)).systemOverview
     ).toEqual({
       receive: [{ count: 0, size: 0 }],
+      processCount: [35],
       memoryTotal: [1123123123]
     });
   });
@@ -31,7 +33,8 @@ describe('systemOverview reducer', () => {
   it('should filter undefined data', () => {
     const info = {
       receive: undefined,
-      memoryTotal: undefined
+      memoryTotal: undefined,
+      processCount: undefined
     };
     const state = reducer(
       undefined,
@@ -39,6 +42,7 @@ describe('systemOverview reducer', () => {
     ).systemOverview;
     expect(state.receive).toHaveLength(0);
     expect(state.memoryTotal).toHaveLength(0);
+    expect(state.processCount).toHaveLength(0);
   });
 });
 
