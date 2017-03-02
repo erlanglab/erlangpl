@@ -37,6 +37,23 @@
   height: 100%;
 }
 
+.Traffic .loader {
+  background-color: var(--colorPageBackground);
+  width: 100%;
+  height: calc(100% - 45px);
+  position: absolute;
+  left: 0;
+  top: 45px;
+}
+
+.Traffic .loader-img {
+  position: absolute;
+  width: 615px;
+  height: 75px;
+  left: calc(50% - 300px);
+  top: calc(50% - 40px);
+}
+
 /* TODO (baransu) figure out what's the purpose of this classes */
 .color-normal, .severity0 {
   color: var(--colorNormal);
