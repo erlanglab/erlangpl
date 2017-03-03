@@ -44,23 +44,8 @@ websocket_init(_TransportName, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
 websocket_handle({text, Id}, Req, State) ->
-    NodeId = binary_to_list(Id),
-    case catch list_to_pid(NodeId) of
-        {'EXIT',{badarg,_}} ->
-            JSON = epl:proplist_to_json([{status,
-                                          "Ports are not supported yet."}]),
-            {reply, {text, JSON}, Req, State};
-        Pid ->
-            ProcessInfo = case epl:process_info(Pid) of
-                              {ok, undefined} ->
-                                  [{pid, Pid},
-                                   {status, exited}];
-                              {ok, PI} ->
-                                  [{pid, Pid} | PI]
-                          end,
-            JSON = epl:proplist_to_json(ProcessInfo),
-            {reply, {text, JSON}, Req, State}
-    end;
+    Data = epl_st:node_info(Id),
+    {reply, {text, Data}, Req, State};
 websocket_handle(Data, _Req, _State) ->
     exit({not_implemented, Data}).
 

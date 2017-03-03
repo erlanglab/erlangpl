@@ -41,11 +41,11 @@ $(document).ready(function() {
         }
 
         socket.onmessage = function(msg){
-          d = JSON.parse(msg.data);
+          d = JSON.parse(msg.data).data;
           console.log(d);
 
-          if(d.status != undefined) {
-            $('#process_info').html(JSON.stringify(d, undefined, 2));
+          if(d.info != undefined) {
+            $('#process_info').html(JSON.stringify(d.info, undefined, 2));
           };
 
           if(d.applications != undefined) {
