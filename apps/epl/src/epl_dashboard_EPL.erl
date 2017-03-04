@@ -38,7 +38,9 @@ init(_Options) ->
 init({tcp, http}, _Req, _Opts) ->
     [{node, Node}] = epl:lookup(node),
     [{node_settings, NodeSettings}] = epl:lookup(node_settings),
-    JSON = epl:proplist_to_json([{node_name, Node}|NodeSettings], <<"system-init">>),
+    FormattedSettings = lists:foldl(fun format_node_settings/2,
+                                    #{node_name => Node}, NodeSettings),
+    JSON = epl_json:encode(FormattedSettings, <<"system-init">>),
     self() ! {data, JSON},
     epl_dashboard:subscribe(),
     {upgrade, protocol, cowboy_websocket}.
@@ -56,3 +58,19 @@ websocket_info(_Info, Req, State) ->
 
 websocket_terminate(_Reason, _Req, _State) ->
     ok.
+
+format_node_settings({K, V}, Acc) ->
+    case format_node_setting(K, V) of
+        ignore ->
+            Acc;
+        Val ->
+            maps:put(K, Val, Acc)
+    end.
+
+format_node_setting(allocated_areas, _) -> ignore;
+format_node_setting(memory, _)          -> ignore;
+format_node_setting(system_version, _)  -> ignore;
+format_node_setting(node_pid, V)        -> list_to_binary(V);
+format_node_setting(otp_release, V)     -> list_to_binary(V);
+format_node_setting(version, V)         -> list_to_binary(V);
+format_node_setting(_K, V)              -> V.

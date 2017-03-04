@@ -85,10 +85,7 @@ handle_info({data, {N, T}, Proplist}, State = #state{subscribers = Subs}) ->
     Id = << (epl:to_bin(N))/binary, $:, (epl:timestamp(T))/binary >>,
     Proplist2 = [{id, Id} | Proplist1],
 
-    Data = [{<<"data">>, Proplist2},
-            {<<"topic">>, <<"system-info">>}],
-
-    JSON = ej:encode(Data),
+    JSON = epl_json:encode(Proplist2, <<"system-info">>),
 
     [Pid ! {data, JSON} || Pid <- Subs],
 

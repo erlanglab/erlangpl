@@ -15,7 +15,6 @@
          unsubscribe/1,
          process_info/1,
          trace_pid/1,
-         proplist_to_json/2,
          to_bin/1,
          log/3,
          timestamp/1,
@@ -45,12 +44,6 @@ process_info(Pid) ->
 
 trace_pid(Pid) ->
     epl_tracer:trace_pid(Pid).
-
-proplist_to_json(Term, Topic) ->
-    Obj = encode(Term, ej:new()),
-    Data = [{<<"topic">>, Topic},
-            {<<"data">>, Obj}],
-    ej:encode(Data).
 
 to_bin(I) when is_atom(I)      -> list_to_binary(atom_to_list(I));
 to_bin(I) when is_integer(I)   -> list_to_binary(integer_to_list(I));
@@ -101,36 +94,6 @@ add_plugin_menu(MenuItem) ->
 %% ===================================================================
 %% internal functions
 %% ===================================================================
-
-encode(Proplist, Obj) when is_list(Proplist) ->
-    encode([], Proplist, Obj).
-
-encode(_, [], Obj) ->
-    Obj;
-encode(Key, [{SubKey,V}|Rest], Obj) ->
-    %% if sub-proplist present, nest it under SubKey
-    case catch to_bin(SubKey) of
-        {'EXIT', _} ->
-            ?DEBUG("Skipping: ~p~n", [{SubKey,V}]),
-            encode(Key, Rest, Obj);
-        SubKeyBin ->
-            Obj1 = encode(Key++[SubKeyBin], V, Obj),
-            encode(Key, Rest, Obj1)
-    end;
-encode(Key, V, Obj) when is_integer(hd(V)); not is_tuple(V) ->
-    case catch to_bin(V) of
-        {'EXIT', _} ->
-            ?DEBUG("Skipping: ~p~n", [V]),
-            Obj;
-        Vbin ->
-            ej:set_p(list_to_tuple(Key), Obj, Vbin)
-    end;
-encode(Key, [I|Rest], Obj) ->
-    ?DEBUG("Skipping: ~p~n", [I]),
-    encode(Key, Rest, Obj);
-encode(_Key, I, Obj) ->
-    ?DEBUG("Skipping: ~p~n", [I]),
-    Obj.
 
 should_log(debug, _)     -> true;
 should_log(info, debug)  -> false;
