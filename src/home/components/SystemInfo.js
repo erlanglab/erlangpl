@@ -16,14 +16,14 @@ const SystemInfo = ({ info }) => {
   ];
 
   const ertsSettings = [
-    ['kernel poll', info.kernelPoll],
-    ['SMP support', info.smpSupport],
+    ['kernel poll', info.kernelPoll ? 'true' : 'false'],
+    ['SMP support', info.smpSupport ? 'true' : 'false'],
     [
-      'fullSweep',
+      'full sweep',
       info.garbageCollection ? info.garbageCollection.fullsweepAfter : undefined
     ],
     ['proces limit', info.processLimit],
-    ['thread', info.threads],
+    ['thread', info.threads ? 'true' : 'false'],
     ['async threads', info.threadPoolSize],
     ['port limit', info.portLimit]
   ];
