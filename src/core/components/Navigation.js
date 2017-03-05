@@ -6,9 +6,8 @@ import './Navigation.css';
 
 const tabs = [
   { path: '/home', icon: 'desktop' },
-  { path: '/messages', icon: 'comments' },
   { path: '/traffic', icon: 'share-alt' },
-  { path: '/about', icon: 'question' },
+  { path: '/about', icon: 'question' }
 ];
 
 const NavigationLink = ({ to, icon }) => (
