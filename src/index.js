@@ -5,7 +5,7 @@ import humps from 'humps';
 import throttle from 'lodash/throttle';
 
 import App from './App';
-import { on } from './sockets';
+import { on, combineSockets, createSockets } from './sockets';
 
 // CSS imports
 import 'bootstrap/dist/css/bootstrap.css';
@@ -40,15 +40,38 @@ store.dispatch(traffic.actions.updateTrafficView(view));
 import sampleData from './sample_data.json';
 store.dispatch(traffic.actions.updateTrafficData(sampleData));
 
-on('system-info', data => {
-  const d = humps.camelizeKeys(data);
-  store.dispatch(home.actions.updateSystemInfo(humps.camelizeKeys(d)));
-});
+/* register new handlers
+   every plugin should return array of handlers which will be passed to
+   combineSockets in main application
+ */
 
-on('system-init', data => {
-  const d = humps.camelizeKeys(data);
-  store.dispatch(home.actions.updateSystemInfo(humps.camelizeKeys(d)));
-});
+const handlers = on(
+  'epl_dashboard_EPL',
+  {
+    'system-init': data => {
+      const d = humps.camelizeKeys(data);
+      store.dispatch(home.actions.updateSystemInfo(humps.camelizeKeys(d)));
+    },
+    'system-info': data => {
+      const d = humps.camelizeKeys(data);
+      store.dispatch(home.actions.updateSystemInfo(humps.camelizeKeys(d)));
+    }
+  },
+  () => {
+    //onopen
+    store.dispatch(core.actions.connectionOpen());
+  },
+  () => {
+    //onclose
+    store.dispatch(core.actions.connectionClose());
+  }
+);
+
+createSockets(
+  combineSockets([
+    handlers /*, handlers from other plugins or other handlers from the same plugin*/
+  ])
+);
 
 render(
   <App store={store} history={history} />,
