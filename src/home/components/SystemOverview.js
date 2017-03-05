@@ -108,8 +108,8 @@ class SystemOverview extends Component {
               color="#227A50"
               dataKey="count"
               domain={[
-                `dataMin - ${maxProcesses / 5}`,
-                `dataMax + ${maxProcesses / 5}`
+                `dataMin - ${Math.floor(maxProcesses / 5)}`,
+                `dataMax + ${Math.floor(maxProcesses / 5)}`
               ]}
               loaderText="Gathering processes data"
             />
