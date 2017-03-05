@@ -6,8 +6,9 @@ type Socket = {
     onopen?: Array<() => void>
   },
   route: string,
-  topic: string,
-  handler: () => void
+  topics: {
+    [key: string]: () => void
+  }
 };
 
 export const on = (
@@ -15,7 +16,7 @@ export const on = (
   topics: { [key: string]: () => void },
   onopen: any = undefined,
   onclose: any = undefined
-): Array<Socket> => {
+): Socket => {
   return {
     route,
     topics,
@@ -30,7 +31,7 @@ export const combineSockets = (sockets: Array<Socket>) => {
   return sockets.reduce(
     (acc, { route, topics, builtIn }) => {
       const concatenatedTopics = Object.keys(topics).reduce(
-        (acc, topic) => {
+        (acc: { [key: string]: Array<() => void> }, topic: string) => {
           return {
             ...acc,
             [topic]: (acc[topic] || []).concat(topics[topic])
