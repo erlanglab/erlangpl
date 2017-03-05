@@ -16,43 +16,45 @@ export const on = (
   onopen: any = undefined,
   onclose: any = undefined
 ): Array<Socket> => {
-  return Object.keys(topics).map(topic => {
-    return {
-      route,
-      topic,
-      handler: topics[topic],
-      builtIn: {
-        onclose,
-        onopen
-      }
-    };
-  });
+  return {
+    route,
+    topics,
+    builtIn: {
+      onopen,
+      onclose
+    }
+  };
 };
 
-export const combineSockets = (sockets: Array<Array<Socket>>) => {
-  const flatten = [].concat.apply([], sockets);
-  return flatten.reduce(
-    (acc, { route, topic, handler, builtIn }) => {
-      const concatTopic = (acc, route, topic, handler) => {
-        const functions = acc[route][topic];
-        return functions ? functions.concat(handler) : [handler];
-      };
+export const combineSockets = (sockets: Array<Socket>) => {
+  return sockets.reduce(
+    (acc, { route, topics, builtIn }) => {
+      const concatenatedTopics = Object.keys(topics).reduce(
+        (acc, topic) => {
+          return {
+            ...acc,
+            [topic]: (acc[topic] || []).concat(topics[topic])
+          };
+        },
+        acc[route] ? acc[route].topics : {}
+      );
 
       return !acc.hasOwnProperty(route)
         ? {
             ...acc,
             [route]: {
+              topics: concatenatedTopics,
               __builtIn: {
                 onopen: [].concat(builtIn.onopen || []),
                 onclose: [].concat(builtIn.onclose || [])
-              },
-              [topic]: [].concat(handler)
+              }
             }
           }
         : {
             ...acc,
             [route]: {
               ...acc[route],
+              topics: concatenatedTopics,
               __builtIn: {
                 onopen: acc[route].__builtIn.onopen.concat(
                   builtIn.onopen || []
@@ -60,8 +62,7 @@ export const combineSockets = (sockets: Array<Array<Socket>>) => {
                 onclose: acc[route].__builtIn.onclose.concat(
                   builtIn.onclose || []
                 )
-              },
-              [topic]: concatTopic(acc, route, topic, handler)
+              }
             }
           };
     },
@@ -74,11 +75,11 @@ export const createSockets = (sockets: any) => {
     const { hostname } = window.location;
     let ws = new WebSocket(`ws://${hostname}:8000/${route}`);
 
-    const handlers = Object.keys(sockets[route]).reduce((acc, topic) => {
-      if (Array.isArray(sockets[route][topic])) {
+    const handlers = Object.keys(sockets[route].topics).reduce((acc, topic) => {
+      if (Array.isArray(sockets[route].topics[topic])) {
         return {
           ...acc,
-          [topic]: sockets[route][topic]
+          [topic]: sockets[route].topics[topic]
         };
       }
       return acc;
