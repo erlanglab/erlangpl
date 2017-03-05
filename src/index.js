@@ -47,11 +47,9 @@ store.dispatch(traffic.actions.updateTrafficData(sampleData));
  */
 
 createSockets(
-  combineSockets([
-    eplDashboard.sockets(store),
-    core.sockets(
-      store
-    ) /*, handlers from other plugins or other handlers from the same plugin*/
+  combineSockets(store, [
+    eplDashboard.sockets,
+    core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
   ])
 );
 
