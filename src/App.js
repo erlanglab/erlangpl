@@ -8,9 +8,15 @@ import './App.css';
 import core from './core';
 const { Navigation, Footer } = core.components;
 
-import home from './home';
+import eplDashboard from './plugins/epl-dashboard';
 import traffic from './traffic';
 import about from './about';
+
+const tabs = [
+  { path: '/dashboard', icon: 'desktop' },
+  { path: '/traffic', icon: 'share-alt' },
+  { path: '/about', icon: 'question' }
+];
 
 const App = ({ store, history }: { store: mixed, history: mixed }) => {
   return (
@@ -18,11 +24,14 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
       <Router history={history}>
         <div className="App">
 
-          <Navigation />
+          <Navigation tabs={tabs} />
 
           <div className="App-container">
-            <Route exact path="/" render={() => <Redirect to="/home" />} />
-            <Route path="/home/:subRoute*" component={home.components.Home} />
+            <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
+            <Route
+              path="/dashboard/:subRoute*"
+              component={eplDashboard.Dashboard}
+            />
             <Route
               path="/traffic/:view*"
               component={traffic.components.Traffic}

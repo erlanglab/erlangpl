@@ -4,12 +4,6 @@ import { Link, Route } from 'react-router-dom/';
 
 import './Navigation.css';
 
-const tabs = [
-  { path: '/home', icon: 'desktop' },
-  { path: '/traffic', icon: 'share-alt' },
-  { path: '/about', icon: 'question' }
-];
-
 const NavigationLink = ({ to, icon }) => (
   <Route
     path={to}
@@ -24,7 +18,11 @@ const NavigationLink = ({ to, icon }) => (
   />
 );
 
-const Navigation = () => {
+type Props = {
+  tabs: Array<{ path: string, icon: string }>
+};
+
+const Navigation = ({ tabs }: Props) => {
   return (
     <div className="Navigation">
       {tabs.map((tab, i) => (

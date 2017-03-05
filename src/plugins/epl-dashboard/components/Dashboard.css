@@ -1,27 +1,27 @@
-.Home {
+.Dashboard {
   height: 100%;
   color: #9da5b4;
 }
 
-.Home-navigation {
+.Dashboard-navigation {
   background-color: #21252b;
   height: 42px;
   width: 100%;
   border-bottom: 1px solid #21252b !important;
 }
 
-.Home-navigation a {
+.Dashboard-navigation a {
   color: #7d8490;
   border-left: 2px solid transparent !important;
 }
 
-.Home-navigation a:hover {
+.Dashboard-navigation a:hover {
   color: #7d8490;
   background-color: transparent !important;
   border-color: transparent !important;
 }
 
-.Home-active a {
+.Dashboard-active a {
   background-color: #282c34 !important;
   border-left: 2px solid #8FBF47 !important;
   border-bottom-color: #282c34 !important;
@@ -30,7 +30,7 @@
   color: #a6aebb !important;
 }
 
-.Home-active a:hover {
+.Dashboard-active a:hover {
   background-color: #282c34 !important;
   border-left: 2px solid #8FBF47 !important;
   border-bottom-color: #282c34 !important;
@@ -39,7 +39,7 @@
   color: #a6aebb !important;
 }
 
-.Home-grid {
+.Dashboard-grid {
   background-color: #282c34;
   overflow-y: scroll;
   height: calc(100% - 42px);

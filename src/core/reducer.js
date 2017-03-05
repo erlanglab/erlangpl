@@ -20,6 +20,14 @@ const connection = (state: State = INITIAL_STATE, action: any): State => {
   return state;
 };
 
+const node = (state: string = '', action: any): string => {
+  if (action.type === t.SET_NODE) {
+    return action.node;
+  }
+  return state;
+};
+
 export default combineReducers({
-  connection
+  connection,
+  node
 });

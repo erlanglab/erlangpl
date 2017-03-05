@@ -132,8 +132,8 @@ class SystemOverview extends Component {
 export default connect(
   state => {
     return {
-      info: state.home.systemInfo,
-      overview: state.home.systemOverview
+      info: state.dashboard.systemInfo,
+      overview: state.dashboard.systemOverview
     };
   },
   {}

@@ -10,8 +10,7 @@ import {
   Tooltip
 } from 'recharts';
 
-import core from '../../core';
-const { Loader } = core.components;
+import Loader from './Loader';
 
 type Props = {
   data: any,

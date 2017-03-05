@@ -27,6 +27,10 @@ export const on = (
   };
 };
 
+export const onWithStore = handler => {
+  return store => handler(store, on);
+};
+
 export const combineSockets = (sockets: Array<Socket>) => {
   return sockets.reduce(
     (acc, { route, topics, builtIn }) => {

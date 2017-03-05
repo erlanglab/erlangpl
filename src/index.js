@@ -1,11 +1,10 @@
 // @flow
 import React from 'react';
 import { render } from 'react-dom';
-import humps from 'humps';
 import throttle from 'lodash/throttle';
 
 import App from './App';
-import { on, combineSockets, createSockets } from './sockets';
+import { combineSockets, createSockets } from './sockets';
 
 // CSS imports
 import 'bootstrap/dist/css/bootstrap.css';
@@ -13,9 +12,11 @@ import 'bootstrap/dist/css/bootstrap-theme.css';
 import 'font-awesome/css/font-awesome.min.css';
 import './index.css';
 
+// plugins
+import eplDashboard from './plugins/epl-dashboard';
+
 import core from './core';
 import traffic from './traffic';
-import home from './home';
 import store, { history } from './store';
 
 store.subscribe(
@@ -45,31 +46,12 @@ store.dispatch(traffic.actions.updateTrafficData(sampleData));
    combineSockets in main application
  */
 
-const handlers = on(
-  'epl_dashboard_EPL',
-  {
-    'system-init': data => {
-      const d = humps.camelizeKeys(data);
-      store.dispatch(home.actions.updateSystemInfo(humps.camelizeKeys(d)));
-    },
-    'system-info': data => {
-      const d = humps.camelizeKeys(data);
-      store.dispatch(home.actions.updateSystemInfo(humps.camelizeKeys(d)));
-    }
-  },
-  () => {
-    //onopen
-    store.dispatch(core.actions.connectionOpen());
-  },
-  () => {
-    //onclose
-    store.dispatch(core.actions.connectionClose());
-  }
-);
-
 createSockets(
   combineSockets([
-    handlers /*, handlers from other plugins or other handlers from the same plugin*/
+    eplDashboard.sockets(store),
+    core.sockets(
+      store
+    ) /*, handlers from other plugins or other handlers from the same plugin*/
   ])
 );
 
