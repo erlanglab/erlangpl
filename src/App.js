@@ -10,7 +10,6 @@ const { Navigation, Footer } = core.components;
 
 import home from './home';
 import traffic from './traffic';
-import messages from './messages';
 import about from './about';
 
 const App = ({ store, history }: { store: mixed, history: mixed }) => {
@@ -24,7 +23,6 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
           <div className="App-container">
             <Route exact path="/" render={() => <Redirect to="/home" />} />
             <Route path="/home/:subRoute*" component={home.components.Home} />
-            <Route path="/messages" component={messages.components.Messages} />
             <Route
               path="/traffic/:view*"
               component={traffic.components.Traffic}
