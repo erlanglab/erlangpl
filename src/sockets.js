@@ -32,8 +32,8 @@ export const onWithStore = (handler: any): (store: any) => Socket => {
 };
 
 export const combineSockets = (
-  store: any,
-  sockets: Array<Socket | ((store: any) => Socket)>
+  sockets: Array<Socket | ((store: any) => Socket)>,
+  store: any
 ) => {
   // apply
   return sockets
