@@ -13,7 +13,6 @@
 -export([start_link/0,
          subscribe/0,
          unsubscribe/0,
-         encode/1,
          node_info/1]).
 
 %% gen_server callbacks
@@ -39,9 +38,6 @@ subscribe() ->
 unsubscribe() ->
     gen_server:cast(?MODULE, {unsubscribe, self()}).
 
-encode(Data) ->
-    epl_json:encode(Data, <<"epl_st">>).
-
 node_info(NodeId) when is_list(NodeId) ->
     Info =
         case node_id_to_pid(NodeId) of
@@ -50,7 +46,7 @@ node_info(NodeId) when is_list(NodeId) ->
             error ->
                 #{error => <<"Ports are not supported yet">>}
         end,
-    epl_json:encode(#{id => list_to_binary(NodeId), info => Info}, <<"epl_st">>);
+    epl_json:encode(#{id => list_to_binary(NodeId), info => Info}, <<"node-info">>);
 node_info(NodeId) when is_binary(NodeId) ->
     node_info(binary_to_list(NodeId)).
 
@@ -81,7 +77,7 @@ handle_info({data, _, _}, State = #state{subscribers = Subs}) ->
                        end,
                        #{},
                        proplists:get_value(running, AppsInfo)),
-    JSON = encode(#{applications => Apps}),
+    JSON = epl_json:encode(Apps, <<"apps-info">>),
 
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
