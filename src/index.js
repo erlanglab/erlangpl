@@ -14,6 +14,7 @@ import './index.css';
 
 // plugins
 import eplDashboard from './plugins/epl-dashboard';
+import eplSupTree from './plugins/epl-sup-tree';
 
 import core from './core';
 import traffic from './traffic';
@@ -50,6 +51,7 @@ createSockets(
   combineSockets(
     [
       eplDashboard.sockets,
+      eplSupTree.sockets,
       core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
     ],
     store

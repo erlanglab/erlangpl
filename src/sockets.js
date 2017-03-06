@@ -87,8 +87,10 @@ export const combineSockets = (
     );
 };
 
+let socketsArray = [];
+
 export const createSockets = (sockets: any) => {
-  return Object.keys(sockets).map(route => {
+  socketsArray = Object.keys(sockets).map(route => {
     const { hostname } = window.location;
     let ws = new WebSocket(`ws://${hostname}:8000/${route}`);
 
@@ -112,14 +114,25 @@ export const createSockets = (sockets: any) => {
 
     ws.onmessage = (msg: any) => {
       const { topic, data } = JSON.parse(msg.data);
-      handlers[topic].forEach(handler => {
-        if (typeof handler === 'function') {
-          handler(data);
-        } else {
-          console.warn('Could not find handler for', topic);
-        }
-      });
+      if (handlers[topic] !== undefined) {
+        handlers[topic].forEach(handler => {
+          if (typeof handler === 'function') {
+            handler(data);
+          } else {
+            console.warn('Could not find handler for', topic);
+          }
+        });
+      }
     };
-    return ws;
+    return { route, ws };
   });
+};
+
+export const send = (route: string, message: string) => {
+  let socket = socketsArray.find(s => s.route === route);
+  if (socket) {
+    socket.ws.send(message);
+  } else {
+    console.warn(`Could not find socket on ${route} route`);
+  }
 };

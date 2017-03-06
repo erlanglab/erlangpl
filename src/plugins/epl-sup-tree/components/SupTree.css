@@ -1,0 +1,12 @@
+.SupTree {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+.SupTree g {
+  color: red;
+  background-color: red;
+  fill: red;
+  stroke: red;
+}

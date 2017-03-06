@@ -37,6 +37,10 @@ acorn@^3.0.0, acorn@^3.0.4:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
 
+add-event-listener@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/add-event-listener/-/add-event-listener-0.0.1.tgz#a76229ebc64c8aefae204a16273a2f255abea2d0"
+
 ajv-keywords@^1.0.0:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-1.5.1.tgz#314dd0a4b3368fad3dfcdc54ede6171b886daf3c"
@@ -2391,6 +2395,10 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
+gintersect@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/gintersect/-/gintersect-0.1.0.tgz#9a8cb6a80b7d6e955ac33515495b1212627b1816"
+
 glob-base@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/glob-base/-/glob-base-0.3.0.tgz#dbb164f6221b1c0b1ccf82aea328b497df0ea3c4"
@@ -3574,6 +3582,75 @@ ncname@1.0.x:
 negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+
+ngraph.centrality@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/ngraph.centrality/-/ngraph.centrality-0.1.3.tgz#6ca07b4179aff007d8498edef256688b37d8769d"
+
+ngraph.events@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/ngraph.events/-/ngraph.events-0.0.3.tgz#38f55316f3d207ad631ff94f6622ca8f2c0e87d0"
+
+ngraph.expose@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/ngraph.expose/-/ngraph.expose-0.0.0.tgz#746c34903a3848c45d033b14bc64619ea85fe5aa"
+
+ngraph.forcelayout@0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/ngraph.forcelayout/-/ngraph.forcelayout-0.0.21.tgz#7df63e14e1b742d833a97d35ccd6a14f022c2643"
+  dependencies:
+    ngraph.physics.simulator "0.0.11"
+
+ngraph.fromjson@0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/ngraph.fromjson/-/ngraph.fromjson-0.1.7.tgz#5571270ac8fe103eb16844146e8948ad42219c73"
+  dependencies:
+    ngraph.graph "0.0.11"
+
+ngraph.generators@0.0.15:
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/ngraph.generators/-/ngraph.generators-0.0.15.tgz#1a09c7e92d883d78bc816c06c2f6640b45f4cff2"
+  dependencies:
+    ngraph.graph "0.0.11"
+    ngraph.random "0.0.1"
+
+ngraph.graph@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/ngraph.graph/-/ngraph.graph-0.0.11.tgz#9f10a7267ef5977439ac507bafcba7f4ed728401"
+  dependencies:
+    ngraph.events "0.0.3"
+
+ngraph.merge@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/ngraph.merge/-/ngraph.merge-0.0.1.tgz#e4e80ce37581a3c96b17d545e3a43c85434b9025"
+
+ngraph.physics.primitives@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/ngraph.physics.primitives/-/ngraph.physics.primitives-0.0.7.tgz#5dc9e179ba1f92e6dec774b01cd68914120b795b"
+
+ngraph.physics.simulator@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/ngraph.physics.simulator/-/ngraph.physics.simulator-0.0.11.tgz#4de130cf1de30163f8852ed5f5a27b2c9b985a34"
+  dependencies:
+    ngraph.expose "0.0.0"
+    ngraph.merge "0.0.1"
+    ngraph.physics.primitives "0.0.7"
+    ngraph.quadtreebh "0.0.3"
+    ngraph.random "0.0.1"
+
+ngraph.quadtreebh@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/ngraph.quadtreebh/-/ngraph.quadtreebh-0.0.3.tgz#9aee2a0931b19780d34ad83616e96a2536751295"
+  dependencies:
+    ngraph.random "0.0.1"
+
+ngraph.random@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/ngraph.random/-/ngraph.random-0.0.1.tgz#c008e2ebbfdffaf17ed10e4bbc913e567166bcf8"
+
+ngraph.tojson@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/ngraph.tojson/-/ngraph.tojson-0.1.3.tgz#72152af3306c001797bb7cc92930e921ba7beb3a"
 
 no-case@^2.2.0:
   version "2.3.1"
@@ -4896,6 +4973,12 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
+simplesvg@0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/simplesvg/-/simplesvg-0.0.10.tgz#37d2ec18de2c154dd9b69f79e8ad20bf1e1e5fdd"
+  dependencies:
+    add-event-listener "0.0.1"
+
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
@@ -5399,6 +5482,22 @@ verror@1.3.6:
   resolved "https://registry.yarnpkg.com/verror/-/verror-1.3.6.tgz#cff5df12946d297d2baaefaa2689e25be01c005c"
   dependencies:
     extsprintf "1.0.2"
+
+vivagraphjs@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/vivagraphjs/-/vivagraphjs-0.8.2.tgz#a9692ad9134086becc56045e626b84c5af8aee85"
+  dependencies:
+    gintersect "0.1.0"
+    ngraph.centrality "0.1.3"
+    ngraph.events "0.0.3"
+    ngraph.forcelayout "0.0.21"
+    ngraph.fromjson "0.1.7"
+    ngraph.generators "0.0.15"
+    ngraph.graph "0.0.11"
+    ngraph.merge "0.0.1"
+    ngraph.random "0.0.1"
+    ngraph.tojson "0.1.3"
+    simplesvg "0.0.10"
 
 vizceral-react@^4.3.0:
   version "4.3.0"
