@@ -27,48 +27,64 @@ export const on = (
   };
 };
 
-export const combineSockets = (sockets: Array<Socket>) => {
-  return sockets.reduce(
-    (acc, { route, topics, builtIn }) => {
-      const concatenatedTopics = Object.keys(topics).reduce(
-        (acc: { [key: string]: Array<() => void> }, topic: string) => {
-          return {
-            ...acc,
-            [topic]: (acc[topic] || []).concat(topics[topic])
-          };
-        },
-        acc[route] ? acc[route].topics : {}
-      );
+export const onWithStore = (handler: any): (store: any) => Socket => {
+  return (store: any) => handler(store, on);
+};
 
-      return !acc.hasOwnProperty(route)
-        ? {
-            ...acc,
-            [route]: {
-              topics: concatenatedTopics,
-              __builtIn: {
-                onopen: [].concat(builtIn.onopen || []),
-                onclose: [].concat(builtIn.onclose || [])
+export const combineSockets = (
+  sockets: Array<Socket | ((store: any) => Socket)>,
+  store: any
+) => {
+  // apply
+  return sockets
+    .map(socket => {
+      // if socket is a function ( created with onWithStore ), we have to provide store to it
+      if (typeof socket === 'function') {
+        return socket(store);
+      }
+      return socket;
+    })
+    .reduce(
+      (acc, { route, topics, builtIn }) => {
+        const concatenatedTopics = Object.keys(topics).reduce(
+          (acc: { [key: string]: Array<() => void> }, topic: string) => {
+            return {
+              ...acc,
+              [topic]: (acc[topic] || []).concat(topics[topic])
+            };
+          },
+          acc[route] ? acc[route].topics : {}
+        );
+
+        return !acc.hasOwnProperty(route)
+          ? {
+              ...acc,
+              [route]: {
+                topics: concatenatedTopics,
+                __builtIn: {
+                  onopen: [].concat(builtIn.onopen || []),
+                  onclose: [].concat(builtIn.onclose || [])
+                }
               }
             }
-          }
-        : {
-            ...acc,
-            [route]: {
-              ...acc[route],
-              topics: concatenatedTopics,
-              __builtIn: {
-                onopen: acc[route].__builtIn.onopen.concat(
-                  builtIn.onopen || []
-                ),
-                onclose: acc[route].__builtIn.onclose.concat(
-                  builtIn.onclose || []
-                )
+          : {
+              ...acc,
+              [route]: {
+                ...acc[route],
+                topics: concatenatedTopics,
+                __builtIn: {
+                  onopen: acc[route].__builtIn.onopen.concat(
+                    builtIn.onopen || []
+                  ),
+                  onclose: acc[route].__builtIn.onclose.concat(
+                    builtIn.onclose || []
+                  )
+                }
               }
-            }
-          };
-    },
-    {}
-  );
+            };
+      },
+      {}
+    );
 };
 
 export const createSockets = (sockets: any) => {
