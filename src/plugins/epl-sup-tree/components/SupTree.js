@@ -2,47 +2,58 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Viva from 'vivagraphjs';
+import difference from 'lodash/difference';
 
 import './SupTree.css';
-
-let iter = 0;
 
 class SupTree extends Component {
   div: any;
   renderer: any;
   g: any;
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      all: []
-    };
-  }
+  layout: any;
+  first: boolean;
+  apps: Array<any>;
+  all: Array<string>;
 
   componentDidMount() {
+    this.all = [];
+    this.apps = [];
     this.g = Viva.Graph.graph();
-    const graphics = Viva.Graph.View.webglGraphics({
-      clearColor: true, // we want to avoid rendering artifacts
-      clearColorValue: {
-        r: 1,
-        g: 1,
-        b: 1,
-        a: 1
-      }
-    });
+    const graphics = Viva.Graph.View.webglGraphics();
 
-    graphics.node(node => {
-      let color = '#000';
-      let size = 15;
-      if (node.data && node.data.type === 'worker') {
-        color = '#f00';
-        size = 5;
-      } else if (node.data && node.data.type === 'supervisor') {
-        color = '#0f0';
-        size = 10;
-      }
-      return Viva.Graph.View.webglSquare(size, color);
-    });
+    graphics
+      .node(node => {
+        let color = '#000';
+        let size = 15;
+        if (node.data && node.data.type === 'worker') {
+          color = '#f00';
+          size = 5;
+        } else if (node.data && node.data.type === 'supervisor') {
+          color = '#0f0';
+          size = 10;
+        }
+        return Viva.Graph.View.webglSquare(size, color);
+      })
+      .placeNode((ui, pos) => {
+        if (ui.node.data.type === 'supervisor') {
+          // This callback is called by the renderer before it updates
+          // node coordinate. We can use it to update corresponding DOM
+          // label position;
+          // we create a copy of layout position
+          var domPos = {
+            x: pos.x,
+            y: pos.y
+          };
+          // And ask graphics to transform it to DOM coordinates:
+          graphics.transformGraphToClientCoordinates(domPos);
+          // then move corresponding dom label to its own position:
+          var nodeId = ui.node.id;
+
+          var labelStyle = this.domLabels[nodeId].style;
+          labelStyle.left = domPos.x + 'px';
+          labelStyle.top = domPos.y + 'px';
+        }
+      });
 
     this.layout = Viva.Graph.Layout.forceDirected(this.g, {
       springLength: 1,
@@ -51,69 +62,92 @@ class SupTree extends Component {
       gravity: -1
     });
 
-    // run layout for as many iterations as we want:
-    /* this.layout = Viva.Graph.Layout.forceDirected(this.g, {
-     *   springLength: 0.1,
-     *   springCoeff: 0.0001,
-     *   dragCoeff: 1,
-     *   gravity: -0.05
-     * });*/
-
-    // check for webgl support and run instead of svg
-    // TODO (@baransu) fix svg
+    // TODO (@baransu) check for webgl support and run instead of svg
     this.renderer = Viva.Graph.View.renderer(this.g, {
       container: this.div,
       graphics,
       layout: this.layout
     });
-    this.renderer.run();
   }
 
-  mapChild(child, parent) {
-    this.g.addNode(child.id, { ...child });
-    this.g.addLink(child.id, parent.id);
-    return child.children.map(c => this.mapChild(c, child));
+  mapChild(child, parent, list) {
+    if (this.all.indexOf(child.id) < 0) {
+      this.g.addNode(child.id, { ...child });
+      this.g.addLink(child.id, parent.id);
+    }
+    list.push(child.id);
+    child.children.forEach(c => this.mapChild(c, child, list));
   }
 
   componentWillReceiveProps(props) {
     if (this.div) {
-      console.log(props.tree);
-      //render pelna bulwa
+      const generateDOMLabels = graph => {
+        // this will map node id into DOM element
+        var labels = Object.create(null);
+        graph.forEachNode(node => {
+          if (node.data.type === 'supervisor') {
+            var label = document.createElement('span');
+            label.classList.add('node-label');
+            label.innerText = node.id;
+            labels[node.id] = label;
+            this.div.appendChild(label);
+          }
+        });
+        // NOTE: If your graph changes over time you will need to
+        // monitor graph changes and update DOM elements accordingly
+        return labels;
+      };
 
-      const root = this.g.addNode('whole');
-      this.layout.pinNode(root, true);
+      const precompute = (iterations, callback) => {
+        // let's run 10 iterations per event loop cycle:
+        var i = 0;
+        while (iterations > 0 && i < 10) {
+          this.layout.step();
+          iterations--;
+          i++;
+        }
+        if (iterations > 0) {
+          setTimeout(
+            () => {
+              precompute(iterations, callback);
+            },
+            0
+          ); // keep going in next even cycle
+        } else {
+          // we are done!
+          callback();
+        }
+      };
 
-      const tree = Object.keys(props.tree).map(app => {
+      let list = [];
+      Object.keys(props.tree).forEach(app => {
         if (Object.keys(props.tree[app]).length) {
           const parent = props.tree[app];
-          this.g.addNode(parent.id, { ...parent });
-
-          this.g.addLink('whole', parent.id);
-          return parent.children.map(child => this.mapChild(child, parent));
-        } else {
-          return undefined;
+          if (this.all.indexOf(parent.id) < 0) {
+            const app = this.g.addNode(parent.id, { ...parent });
+            if (this.apps.includes(app)) this.apps.push(app);
+          }
+          list.push(parent.id);
+          parent.children.forEach(child => this.mapChild(child, parent, list));
         }
       });
 
-      if (this.tree === undefined) {
-        for (var i = 0; i < 1000; ++i) {
-          this.layout.step();
-        }
+      this.domLabels = generateDOMLabels(this.g);
+
+      if (this.first === undefined) {
+        precompute(1000, () => {
+          this.apps.forEach(app => this.layout.pinNode(app, true));
+          this.renderer.run();
+        });
       }
 
-      this.tree = tree;
-      /* console.log(this.g);
-       * // check if node exist if not, add;
-       * this.g.addNode('some' + iter);
-       * this.g.addNode('other' + iter);
-       * this.link = this.g.addLink('some' + iter, 'other' + iter);
-       * if (iter) {
-       *   this.g.addLink('some' + iter, 'some' + (iter - 1));
-       *   if (iter > 1) {
-       *     this.g.removeLink(this.link);
-       *   }
-       * }
-       * iter++;*/
+      // simple diffing to remove not existing nodes
+      difference(this.all, list).forEach(
+        id => console.log('removing:', id) || this.g.removeNode(id)
+      );
+
+      this.first = false;
+      this.all = list;
     }
   }
 
