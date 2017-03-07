@@ -17,7 +17,7 @@ import about from './about';
 
 const tabs = [
   { path: '/dashboard', icon: 'desktop' },
-  { path: '/sup-tree', icon: 'share-alt' },
+  { path: '/sup-tree', icon: 'tree' },
   { path: '/traffic', icon: 'share-alt' },
   { path: '/about', icon: 'question' }
 ];
