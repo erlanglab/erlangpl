@@ -13,6 +13,7 @@ export default onWithStore((store, on) => {
       },
       'node-info': data => {
         console.log('node-info', data);
+        store.dispatch(actions.updateNodeInfo(data));
       }
     },
     () => {
