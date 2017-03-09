@@ -17,6 +17,7 @@ main(_) ->
     ok = application:start(cowboy),
     ok = application:start(jsone),
     ok = application:start(epl),
+    ok = application:start(epl_st),
 
     %% Start applications because escript can't take -boot argument
     %% TODO: start sasl if escript run with debug flags
