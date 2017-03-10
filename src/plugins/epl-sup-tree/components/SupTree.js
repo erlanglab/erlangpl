@@ -140,7 +140,8 @@ class SupTree extends Component {
   propagateGraph(p) {
     const props = p || this.props;
 
-    if (!this.state.graph || !this.div) return;
+    this.div = document.getElementsByClassName('graph')[0];
+    if (!this.state.graph) return;
 
     const { all } = this.state;
 
@@ -255,18 +256,40 @@ class SupTree extends Component {
   };
 
   render() {
+    const color = (type: string) => {
+      if (type === 'supervisor') return '#227A50';
+      if (type === 'worker') return '#1F79B7';
+      return 'inherit';
+    };
+
+    console.log(this.state.first);
+
     return (
       <div className="SupTree">
-        <div className="graph" ref={node => this.div = node} />
+        {this.state.first &&
+          <div className="loader">
+            <div className="text-center" style={{ paddingTop: '35%' }}>
+              <div className="spinner">
+                <div className="bounce1" />
+                <div className="bounce2" />
+                <div className="bounce3" />
+              </div>
+              <span>Creating graph</span>
+            </div>
+          </div>}
+        <div
+          className="graph"
+          style={this.state.first ? { position: 'absolute', zIndex: -1 } : {}}
+          ref={node => this.div = node}
+        />
+
         <div className="side-panel">
 
           <div className="head" onClick={this.toggleCollapse}>
             <h4
               className="text-center"
               style={{
-                color: this.state.selected.type === 'supervisor'
-                  ? '#227A50'
-                  : '#1F79B7'
+                color: color(this.state.selected.type)
               }}
             >
               {this.state.selected && this.state.selected.id}
