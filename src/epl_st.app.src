@@ -13,6 +13,6 @@
   {maintainers, ["Erlang Performance Lab"]},
   {licenses, ["Apache 2.0"]},
   {links,
-   [{"GitHub", "https://github.com/erlanglab/epl_sup_tree"},
+   [{"GitHub", "https://github.com/erlanglab/epl_st"},
     {"Erlang Performance Lab", "http://www.erlang.pl"}]}
  ]}.
