@@ -16,6 +16,29 @@
   overflow-x: hidden;
 }
 
+.SupTree .head {
+  height: 40px;
+  padding: 10px 0;
+}
+
+.SupTree .head i {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+
+.SupTree h4 {
+  margin: 0px;
+}
+
+.SupTree .side-content {
+  height: calc(100% - 40px);
+}
+
+.SupTree pre {
+  margin: 0px;
+}
+
 .SupTree ul {
   padding-left: 5px;
   list-style: none;

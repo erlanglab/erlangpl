@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Viva from 'vivagraphjs';
 import difference from 'lodash/difference';
+import { Motion, spring } from 'react-motion';
 
 import { send } from '../../../sockets';
 
@@ -10,31 +11,49 @@ import './SupTree.css';
 
 class SupTree extends Component {
   div: any;
-  renderer: any;
-  g: any;
-  graphics: any;
-  selected: { color: number, id: string };
-  layout: any;
-  first: boolean;
-  apps: Array<any>;
-  all: Array<string>;
+
   state: {
-    apps: Array<string>
+    graphics: any,
+    graph: any,
+    layout: any,
+    renderer: any,
+    events: any,
+
+    collapse: boolean,
+    hStart: number,
+    hEnd: number,
+    selected: { id: string, color: number, type: string },
+    appsNodes: Array<*>,
+    apps: Array<string>,
+    first: boolean,
+    all: Array<string>
   };
+
   constructor(props: any) {
     super(props);
     this.state = {
-      apps: []
+      graphics: null,
+      graph: null,
+      layout: null,
+      renderer: null,
+      events: null,
+
+      collapse: false,
+      hStart: 50,
+      hEnd: 50,
+      selected: { id: 'Applications', color: 0, type: '' },
+      appsNodes: [],
+      apps: [],
+      all: [],
+      first: true
     };
   }
 
   componentDidMount() {
-    this.all = [];
-    this.apps = [];
-    this.g = Viva.Graph.graph();
-    this.graphics = Viva.Graph.View.webglGraphics();
+    const graph = Viva.Graph.graph();
+    const graphics = Viva.Graph.View.webglGraphics();
 
-    this.graphics
+    graphics
       .node(node => {
         let color = '#000', size = 15;
         if (node.data && node.data.type === 'worker') {
@@ -51,7 +70,7 @@ class SupTree extends Component {
         return Viva.Graph.View.webglLine('#808080');
       });
 
-    this.layout = Viva.Graph.Layout.forceDirected(this.g, {
+    const layout = Viva.Graph.Layout.forceDirected(graph, {
       springLength: 1,
       springCoeff: 0.0001,
       dragCoeff: 0.1,
@@ -59,75 +78,115 @@ class SupTree extends Component {
     });
 
     // TODO (@baransu) check for webgl support and run instead of svg
-    this.renderer = Viva.Graph.View.renderer(this.g, {
+    const renderer = Viva.Graph.View.renderer(graph, {
       container: this.div,
-      graphics: this.graphics,
-      layout: this.layout,
+      graphics,
+      layout,
       prerender: 1200
     });
 
-    const events = Viva.Graph.webglInputEvents(this.graphics, this.g);
+    const events = Viva.Graph.webglInputEvents(graphics, graph);
 
     // on click get info from server about node
     events.click(({ id }) => {
-      send('epl_st_EPL', id);
       this.selectNode(id);
     });
-  }
 
-  mapChild(child, parent, list) {
-    if (this.all.indexOf(child.id) < 0) {
-      this.g.addNode(child.id, { ...child });
-      this.g.addLink(child.id, parent.id);
-    }
-    list.push(child.id);
-    child.children.forEach(c => this.mapChild(c, child, list));
+    setTimeout(
+      () => {
+        this.setState(
+          { renderer, graph, graphics, layout, events },
+          () => this.propagateGraph()
+        );
+      },
+      10
+    );
   }
 
   selectNode(id: string, center: ?boolean) {
-    if (this.selected) {
-      const node = this.graphics.getNodeUI(this.selected.id);
-      node.color = this.selected.color;
+    const { layout, renderer, selected, graphics } = this.state;
+
+    const oldNode = graphics.getNodeUI(selected.id);
+    if (oldNode) {
+      oldNode.color = selected.color;
     }
 
-    const node = this.graphics.getNodeUI(id);
-    this.selected = { id, color: node.color };
+    const node = graphics.getNodeUI(id);
+    const color = node.color;
     node.color = 0xdf307dff;
+
     if (center) {
-      const pos = this.layout.getNodePosition(id);
-      this.renderer.moveTo(pos.x, pos.y);
+      const pos = layout.getNodePosition(id);
+      renderer.moveTo(pos.x, pos.y);
     }
+
+    send('epl_st_EPL', id);
+    this.setState({ selected: { id, color, type: node.node.data.type } });
+  }
+
+  mapChild(child, parent) {
+    const { all, graph } = this.state;
+
+    if (all.indexOf(child.id) < 0) {
+      graph.addNode(child.id, { ...child });
+      graph.addLink(child.id, parent.id);
+    }
+
+    return [child.id].concat(
+      child.children.reduce((acc, a) => acc.concat(this.mapChild(a, child)), [])
+    );
+  }
+
+  propagateGraph(p) {
+    const props = p || this.props;
+
+    if (!this.state.graph || !this.div) return;
+
+    const { all } = this.state;
+
+    let appsNodes = this.state.appsNodes;
+
+    const list = Object.keys(props.tree).reduce((acc, app) => {
+      const parent = props.tree[app];
+      if (Object.keys(parent).length) {
+        if (all.indexOf(parent.id) < 0) {
+          const app = this.state.graph.addNode(parent.id, { ...parent });
+          if (!appsNodes.includes(app)) {
+            appsNodes.push(app);
+          }
+        }
+
+        return acc
+          .concat(parent.id)
+          .concat(
+            parent.children.reduce(
+              (acc, child) => acc.concat(this.mapChild(child, parent)),
+              []
+            )
+          );
+      }
+
+      return acc;
+    }, []);
+
+    if (this.state.first && Object.keys(props.tree).length) {
+      this.state.renderer.run();
+      this.setState({ first: false });
+    }
+
+    // simple diffing to remove not existing nodes
+    difference(all, list).forEach(id => this.state.graph.removeNode(id));
+
+    appsNodes.forEach(app => this.state.layout.pinNode(app, true));
+    this.setState({
+      appsNodes,
+      apps: Object.keys(props.tree),
+      all: list
+    });
   }
 
   componentWillReceiveProps(props) {
-    if (this.div) {
-      let list = [];
-      Object.keys(props.tree).forEach(app => {
-        if (Object.keys(props.tree[app]).length) {
-          const parent = props.tree[app];
-          if (this.all.indexOf(parent.id) < 0) {
-            const app = this.g.addNode(parent.id, { ...parent });
-            if (!this.apps.includes(app)) {
-              this.apps.push(app);
-            }
-          }
-          list.push(parent.id);
-          parent.children.forEach(child => this.mapChild(child, parent, list));
-        }
-      });
-
-      if (this.first === undefined) {
-        this.setState({ apps: Object.keys(props.tree) });
-        this.renderer.run();
-        this.apps.forEach(app => this.layout.pinNode(app, true));
-      }
-
-      // simple diffing to remove not existing nodes
-      difference(this.all, list).forEach(id => this.g.removeNode(id));
-
-      this.first = false;
-      this.all = list;
-    }
+    this.propagateGraph(props);
   }
 
   handleAppClick(app: string, id: string) {
@@ -157,11 +216,11 @@ class SupTree extends Component {
   }
 
   toggleTree(id: string, hide: boolean) {
-    const node = this.graphics.getNodeUI(id);
+    const node = this.state.graphics.getNodeUI(id);
     if (node) {
       node.color = this.changeColorNode(node.color, hide);
       node.node.links.forEach(({ id }) => {
-        const link = this.graphics.getLinkUI(id);
+        const link = this.state.graphics.getLinkUI(id);
         link.color = this.changeColorLink(link.color, hide);
       });
       node.node.data.children.forEach(n => this.toggleTree(n.id, hide));
@@ -169,66 +228,116 @@ class SupTree extends Component {
     return undefined;
   }
 
-  selectAll() {
+  selectAll = () => {
     if (this.props.tree) {
       const apps = Object.keys(this.props.tree)
         .map(a => this.toggleTree(this.props.tree[a].id, false) || a);
 
       this.setState({ apps });
     }
-  }
+  };
 
-  clearAll() {
+  clearAll = () => {
     if (this.props.tree) {
       this.state.apps.forEach(a =>
         this.toggleTree(this.props.tree[a].id, true));
 
       this.setState({ apps: [] });
     }
-  }
+  };
+
+  toggleCollapse = () => {
+    this.setState(({ collapse, hEnd, hStart }) => ({
+      collapse: !collapse,
+      hEnd: collapse ? 0 : 50,
+      hStart: collapse ? 50 : 0
+    }));
+  };
 
   render() {
     return (
       <div className="SupTree">
         <div className="graph" ref={node => this.div = node} />
         <div className="side-panel">
-          <div className="applications">
-            <a onClick={() => this.selectAll()}>
-              select all
-            </a><br />
-            <a onClick={() => this.clearAll()}>clear all</a>
-            <ul>
-              {Object.keys(this.props.tree).map(
-                (app, key) => Object.keys(this.props.tree[app]).length
-                  ? <li key={key}>
-                      <input
-                        type="checkbox"
-                        checked={this.state.apps.includes(app)}
-                        onChange={() =>
-                          this.handleAppClick(app, this.props.tree[app].id)}
-                      />
-                      <a
-                        onClick={() =>
-                          this.selectNode(this.props.tree[app].id, true)}
-                      >
-                        {app}
-                      </a>
-                    </li>
-                  : <li key={key}>
-                      <span>{app}</span>
-                    </li>
-              )}
-            </ul>
+
+          <div className="head" onClick={this.toggleCollapse}>
+            <h4
+              className="text-center"
+              style={{
+                color: this.state.selected.type === 'supervisor'
+                  ? '#227A50'
+                  : '#1F79B7'
+              }}
+            >
+              {this.state.selected && this.state.selected.id}
+            </h4>
+            <i
+              className={`fa fa-angle-${this.state.collapse ? 'up' : 'down'}`}
+            />
           </div>
-          <div className="node-info">
-            {this.props.nodeInfo
-              ? <pre>
-                  <code>
-                    {JSON.stringify(this.props.nodeInfo, null, 2)}
-                  </code>
-                </pre>
-              : ''}
-          </div>
+
+          <Motion
+            defaultStyle={{ height: this.state.hStart }}
+            style={{ height: spring(this.state.hEnd) }}
+            children={({ height }) => (
+              <div className="side-content" style={{}}>
+
+                {!this.state.first &&
+                  <div
+                    className="applications"
+                    style={{ height: `calc(${height}%)` }}
+                  >
+
+                    <a onClick={this.selectAll}>
+                      select all
+                    </a>
+                    <br />
+                    <a onClick={this.clearAll}>clear all</a>
+                    <ul>
+                      {Object.keys(this.props.tree).map(
+                        (app, key) => Object.keys(this.props.tree[app]).length
+                          ? <li key={key}>
+                              <input
+                                type="checkbox"
+                                checked={this.state.apps.includes(app)}
+                                onChange={() =>
+                                  this.handleAppClick(
+                                    app,
+                                    this.props.tree[app].id
+                                  )}
+                              />
+                              <a
+                                onClick={() =>
+                                  this.selectNode(
+                                    this.props.tree[app].id,
+                                    true
+                                  )}
+                              >
+                                {app}
+                              </a>
+                            </li>
+                          : <li key={key}>
+                              <span>{app}</span>
+                            </li>
+                      )}
+                    </ul>
+                  </div>}
+
+                <div
+                  className="node-info"
+                  style={{ height: `calc(${100 - height}%)` }}
+                >
+                  <pre style={{ height: '100%' }}>
+                    <code>
+                      {this.props.nodeInfo &&
+                        JSON.stringify(this.props.nodeInfo, null, 2)}
+                    </code>
+                  </pre>
+
+                </div>
+              </div>
+            )}
+          />
         </div>
       </div>
     );
@@ -238,8 +347,7 @@ class SupTree extends Component {
 export default connect(
   state => ({
     tree: state.eplSupTree.tree,
-    nodeInfo: console.log(state.eplSupTree.nodeInfo) ||
-      state.eplSupTree.nodeInfo
+    nodeInfo: state.eplSupTree.nodeInfo
   }),
   {}
 )(SupTree);
