@@ -12,12 +12,15 @@
 
 .SupTree .side-panel {
   width: 30%;
+  border-left: 1px solid #21252b;
   height: 100%;
   float: right;
+  box-sizing: border-box;
   overflow-x: hidden;
 }
 
 .SupTree .head {
+  border-bottom: 1px solid #21252b;
   height: 40px;
   padding: 10px 0;
 }
@@ -34,10 +37,16 @@
 
 .SupTree .side-content {
   height: calc(100% - 40px);
+  padding-left: 5px;
 }
 
 .SupTree pre {
+  padding: 10px 0px;
   margin: 0px;
+  border: none;
+  border-radius: 0px;
+  color: inherit;
+  background-color: #282c34;
 }
 
 .SupTree ul {
@@ -45,7 +54,21 @@
   list-style: none;
 }
 
+.SupTree .application-link {
+  border: 1px solid #21252b;
+  background-color: #333842;
+  padding: 5px;
+  font-size: 17px;
+}
+
+.SupTree .application-link button {
+  width: 50%;
+  background-color: #282c34;
+  border: 1px solid #21252b;
+}
+
 .SupTree a {
+  color: #1F79B7;
   cursor: pointer;
 }
 

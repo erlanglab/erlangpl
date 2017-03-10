@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Viva from 'vivagraphjs';
 import difference from 'lodash/difference';
 import { Motion, spring } from 'react-motion';
-
+import { ListGroup, ListGroupItem } from 'react-bootstrap';
 import { send } from '../../../sockets';
 
 import './SupTree.css';
@@ -250,8 +250,8 @@ class SupTree extends Component {
   toggleCollapse = () => {
     this.setState(({ collapse, hEnd, hStart }) => ({
       collapse: !collapse,
-      hEnd: collapse ? 0 : 50,
-      hStart: collapse ? 50 : 0
+      hEnd: collapse ? 50 : 0,
+      hStart: collapse ? 0 : 50
     }));
   };
 
@@ -268,7 +268,7 @@ class SupTree extends Component {
       <div className="SupTree">
         {this.state.first &&
           <div className="loader">
-            <div className="text-center" style={{ paddingTop: '35%' }}>
+            <div className="text-center" style={{ paddingTop: '25%' }}>
               <div className="spinner">
                 <div className="bounce1" />
                 <div className="bounce2" />
@@ -295,7 +295,7 @@ class SupTree extends Component {
               {this.state.selected && this.state.selected.id}
             </h4>
             <i
-              className={`fa fa-angle-${this.state.collapse ? 'up' : 'down'}`}
+              className={`fa fa-angle-${this.state.collapse ? 'down' : 'up'}`}
             />
           </div>
 
@@ -311,15 +311,21 @@ class SupTree extends Component {
                     style={{ height: `calc(${height}%)` }}
                   >
 
-                    <a onClick={this.selectAll}>
-                      select all
-                    </a>
-                    <br />
-                    <a onClick={this.clearAll}>clear all</a>
-                    <ul>
+                    <ListGroup style={{ margin: '10px 0px' }}>
+                      <ListGroupItem className="application-link">
+                        <button onClick={this.selectAll}>
+                          Select all
+                        </button>
+                        <button onClick={this.clearAll}>
+                          Clear all
+                        </button>
+                      </ListGroupItem>
                       {Object.keys(this.props.tree).map(
                         (app, key) => Object.keys(this.props.tree[app]).length
-                          ? <li key={key}>
+                          ? <ListGroupItem
+                              key={key}
+                              className="application-link"
+                            >
                               <input
                                 type="checkbox"
                                 checked={this.state.apps.includes(app)}
@@ -330,6 +336,7 @@ class SupTree extends Component {
                                   )}
                               />
                               <a
+                                style={{ marginLeft: '5px' }}
                                 onClick={() =>
                                   this.selectNode(
                                     this.props.tree[app].id,
@@ -338,12 +345,15 @@ class SupTree extends Component {
                               >
                                 {app}
                               </a>
-                            </li>
-                          : <li key={key}>
-                              <span>{app}</span>
-                            </li>
+                            </ListGroupItem>
+                          : <ListGroupItem
+                              key={key}
+                              className="application-link"
+                            >
+                              <span style={{ marginLeft: '17px' }}>{app}</span>
+                            </ListGroupItem>
                       )}
-                    </ul>
+                    </ListGroup>
                   </div>}
 
                 <div
