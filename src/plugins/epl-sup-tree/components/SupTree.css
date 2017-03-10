@@ -28,7 +28,7 @@
 .SupTree .head i {
   position: absolute;
   right: 15px;
-  top: 10px;
+  top: 12px;
 }
 
 .SupTree h4 {
@@ -93,6 +93,8 @@
   overflow-y: scroll;
   height: calc(50%);
 }
+
+/* loader animation */
 
 .spinner {
   margin: 0px auto 10px;
