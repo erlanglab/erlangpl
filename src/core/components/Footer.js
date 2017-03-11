@@ -12,8 +12,8 @@ type Props = {
 
 const Footer = ({ node, connection }: Props) => {
   const color = ({
-    connected: 'green',
-    disconnected: 'red'
+    connected: '#227A50',
+    disconnected: '#C13035'
   })[connection];
 
   return (
