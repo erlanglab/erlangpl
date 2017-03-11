@@ -1,0 +1,3 @@
+[submodule "erlangpl-ui"]
+	path = erlangpl-ui
+	url = https://github.com/erlanglab/erlangpl-ui.git
