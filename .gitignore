@@ -1,6 +1,6 @@
 apps/epl/.rebar
 apps/epl/ebin
-apps/epl/priv/htdocs
+apps/epl/priv/htdocs/
 deps
 erlangpl
 rel/erlangpl
