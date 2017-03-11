@@ -27,3 +27,7 @@ compile:
 rebar:
 	curl https://raw.githubusercontent.com/wiki/rebar/rebar/rebar > rebar
 	chmod +x $@
+
+build-ui:
+	cd erlangpl-ui && yarn && yarn build && cd ../
+	mv erlangpl-ui/build apps/epl/priv/htdocs

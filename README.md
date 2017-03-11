@@ -2,10 +2,14 @@
 
 The Erlang Performance Lab tool (erlangpl for short) can be started using escript or as a regular Erlang release.
 
+For building UI you have to have [node](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/lang/en/) installed.
+Be aware that building UI can take some time. It takes around 1 minute on stock MacBook 2015 plus dependencies download for the first time. Second time dependencies will be cached. 
+
 ```
-$ git clone git@github.com:erlanglab/erlangpl.git
+$ git clone --recursive git@github.com:erlanglab/erlangpl.git
 $ cd erlangpl
 $ make rebar
+$ make build-ui
 $ make
 $ ./bootstrap
 ```
