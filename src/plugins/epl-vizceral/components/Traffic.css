@@ -1,0 +1,73 @@
+:root, .vizceral {
+  --colorText: rgb(214, 214, 214);
+  --colorTextDisabled: rgb(129, 129, 129);
+  --colorNormal: rgb(186, 213, 237);
+  --colorWarning: rgb(268, 185, 73);
+  --colorDanger: rgb(184, 36, 36);
+  --colorNormalDimmed: rgb(101, 117, 128);
+  --colorBackgroundDark: rgb(40, 40, 40);
+  --colorNormalDonut: rgb(91, 91, 91);
+  --colorLabelBorder: rgb(16, 17, 18);
+  --colorLabelText: rgb(0, 0, 0);
+  --colorDonutInternalColor: rgb(35, 35, 35);
+  --colorDonutInternalColorHighlighted: rgb(255, 255, 255);
+  --colorConnectionLine: rgb(91, 91, 91);
+  --colorPageBackground: #282c34;
+  --colorPageBackgroundTransparent: rgba(45, 45, 45, 0);
+  --colorBorderLines: rgb(137, 137, 137);
+}
+
+.Traffic {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.Traffic-tools {
+  height: 45px;
+  line-height: 45px;
+}
+
+.Traffic-container {
+  background-color: var(--colorPageBackground);
+  height: calc(100% - 45px);
+}
+
+.Traffic-panel {
+  height: 100%;
+}
+
+.Traffic .loader {
+  background-color: var(--colorPageBackground);
+  width: 100%;
+  height: calc(100% - 45px);
+  position: absolute;
+  left: 0;
+  top: 45px;
+}
+
+.Traffic .loader-img {
+  position: absolute;
+  width: 615px;
+  height: 75px;
+  left: calc(50% - 300px);
+  top: calc(50% - 40px);
+}
+
+/* TODO (baransu) figure out what's the purpose of this classes */
+.color-normal, .severity0 {
+  color: var(--colorNormal);
+}
+
+.color-warning, .severity1 {
+  color: var(--colorWarning);
+}
+
+.color-danger, .severity2 {
+  color: var(--colorDanger);
+}
+
+.disabled {
+  color: var(--colorTextDisabled);
+}
+

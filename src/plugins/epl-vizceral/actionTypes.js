@@ -1,0 +1,5 @@
+// @flow
+
+export const UPDATE_TRAFFIC_DATA = 'UPDATE_TRAFFIC_DATA';
+
+export const UPDATE_TRAFFIC_VIEW = 'UPDATE_TRAFFIC_VIEW';

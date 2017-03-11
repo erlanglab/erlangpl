@@ -1,0 +1,16 @@
+.TrafficTools {
+  border-left: 2px solid #8fbf47;
+  padding-left: 10px;
+  background-color: #21252b;
+  font-size: 18px;
+}
+
+.TrafficTools-route {
+  color: #9da5b4;
+  margin-right: 2px;
+}
+
+.TrafficTools-route:hover {
+  color: white;
+  cursor: pointer;
+}
