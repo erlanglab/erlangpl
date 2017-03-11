@@ -7,12 +7,12 @@ import core from './core';
 //plugins
 import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
-import traffic from './traffic';
+import eplVizceral from './plugins/epl-vizceral';
 
 export default combineReducers({
   core: core.reducer,
-  traffic: traffic.reducer,
-  dashboard: eplDashboard.reducer,
+  eplVizceral: eplVizceral.reducer,
+  eplDashboard: eplDashboard.reducer,
   eplSupTree: eplSupTree.reducer,
   routing: routerReducer
 });
