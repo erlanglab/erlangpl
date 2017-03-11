@@ -52,6 +52,4 @@ describe('systemInfo reducer', () => {
       INITIAL_STATE_SYSTEM_INFO
     );
   });
-
-  // TODO (baransu) check if action updates store
 });

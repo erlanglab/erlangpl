@@ -5,9 +5,14 @@ import Viva from 'vivagraphjs';
 import difference from 'lodash/difference';
 import { Motion, spring } from 'react-motion';
 import { ListGroup, ListGroupItem } from 'react-bootstrap';
-import { send } from '../../../sockets';
 
+import { send } from '../../../sockets';
 import './SupTree.css';
+
+const COLORS = {
+  supervisor: '#227A50',
+  worker: '#1F79B7'
+};
 
 class SupTree extends Component {
   div: any;
@@ -55,14 +60,10 @@ class SupTree extends Component {
 
     graphics
       .node(node => {
-        let color = '#000', size = 15;
-        if (node.data && node.data.type === 'worker') {
-          color = '#1F79B7';
-          size = 10;
-        } else if (node.data && node.data.type === 'supervisor') {
-          color = '#227A50';
-          size = 15;
-        }
+        const size = node.data && node.data.type === 'worker' ? 10 : 15;
+        const color = node.data && COLORS.hasOwnProperty(node.data.type)
+          ? COLORS[node.data.type]
+          : '#000';
 
         return Viva.Graph.View.webglSquare(size, color);
       })
@@ -77,7 +78,6 @@ class SupTree extends Component {
       gravity: -0.5
     });
 
-    // TODO (@baransu) check for webgl support and run instead of svg
     const renderer = Viva.Graph.View.renderer(graph, {
       container: this.div,
       graphics,
@@ -87,10 +87,7 @@ class SupTree extends Component {
 
     const events = Viva.Graph.webglInputEvents(graphics, graph);
 
-    // on click get info from server about node
-    events.click(({ id }) => {
-      this.selectNode(id);
-    });
+    events.click(({ id }) => this.selectNode(id));
 
     setTimeout(
       () => {
@@ -116,8 +113,8 @@ class SupTree extends Component {
     node.color = 0xdf307dff;
 
     if (center) {
-      const pos = layout.getNodePosition(id);
-      renderer.moveTo(pos.x, pos.y);
+      const { x, y } = layout.getNodePosition(id);
+      renderer.moveTo(x, y);
     }
 
     send('epl_st_EPL', id);
@@ -140,7 +137,6 @@ class SupTree extends Component {
   propagateGraph(p) {
     const props = p || this.props;
 
-    this.div = document.getElementsByClassName('graph')[0];
     if (!this.state.graph) return;
 
     const { all } = this.state;
@@ -175,7 +171,7 @@ class SupTree extends Component {
       this.setState({ first: false });
     }
 
-    // simple diffing to remove not existing nodes
+    // simple diffing to remove non existing nodes
     difference(all, list).forEach(id => this.state.graph.removeNode(id));
 
     appsNodes.forEach(app => this.state.layout.pinNode(app, true));
@@ -226,25 +222,20 @@ class SupTree extends Component {
       });
       node.node.data.children.forEach(n => this.toggleTree(n.id, hide));
     }
-    return undefined;
   }
 
   selectAll = () => {
-    if (this.props.tree) {
-      const apps = Object.keys(this.props.tree)
-        .map(a => this.toggleTree(this.props.tree[a].id, false) || a);
-
-      this.setState({ apps });
-    }
+    this.setState((state, { tree }) => ({
+      apps: Object.keys(tree).map(app => {
+        this.toggleTree(tree[app].id, false);
+        return app;
+      })
+    }));
   };
 
   clearAll = () => {
-    if (this.props.tree) {
-      this.state.apps.forEach(a =>
-        this.toggleTree(this.props.tree[a].id, true));
-
-      this.setState({ apps: [] });
-    }
+    this.state.apps.forEach(a => this.toggleTree(this.props.tree[a].id, true));
+    this.setState({ apps: [] });
   };
 
   toggleCollapse = () => {
@@ -256,16 +247,9 @@ class SupTree extends Component {
   };
 
   render() {
-    const color = (type: string) => {
-      if (type === 'supervisor') return '#227A50';
-      if (type === 'worker') return '#1F79B7';
-      return 'inherit';
-    };
-
-    console.log(this.state.first);
-
     return (
       <div className="SupTree">
+
         {this.state.first &&
           <div className="loader">
             <div className="text-center" style={{ paddingTop: '25%' }}>
@@ -277,22 +261,18 @@ class SupTree extends Component {
               <span>Creating graph</span>
             </div>
           </div>}
-        <div
-          className="graph"
-          style={this.state.first ? { position: 'absolute', zIndex: -1 } : {}}
-          ref={node => this.div = node}
-        />
 
+        <div className="graph" ref={node => this.div = node} />
         <div className="side-panel">
 
           <div className="head" onClick={this.toggleCollapse}>
             <h4
               className="text-center"
               style={{
-                color: color(this.state.selected.type)
+                color: COLORS[this.state.selected.type] || 'inherit'
               }}
             >
-              {this.state.selected && this.state.selected.id}
+              {this.state.selected.id}
             </h4>
             <i
               className={`fa fa-angle-${this.state.collapse ? 'down' : 'up'}`}
