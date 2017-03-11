@@ -6,8 +6,9 @@ import Html exposing (Html, text, button, div)
 
 
 init : String -> ( Model, Cmd Msg )
-init change =
-    ( change, Cmd.none )
+init logo =
+    -- make request to localhost to get version
+    ( ( logo, "0.4.0" ), Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

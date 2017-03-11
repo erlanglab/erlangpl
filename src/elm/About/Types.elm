@@ -6,4 +6,4 @@ type Msg
 
 
 type alias Model =
-    String
+    ( String, String )
