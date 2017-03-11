@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
 import { Motion, spring } from 'react-motion';
 
-import loaderLogo from '../../images/erlanglab_logo_alpha_250.png';
-import loaderText from '../../images/erlangpl_test_1.jpg';
+import loaderLogo from '../images/erlanglab_logo_alpha_250.png';
+import loaderText from '../images/erlangpl_test_1.jpg';
 
 import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
