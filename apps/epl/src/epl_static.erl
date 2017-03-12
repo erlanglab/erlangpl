@@ -28,9 +28,12 @@ handle(Req, PathPrefix) ->
                            Bin, Req),
             {ok, Req2, PathPrefix};
         [] ->
+            %% if file not found, serve /index.html
+            IndexPath = <<"epl/priv/htdocs/index.html">>,
+            [{_, IndexBin}] = epl:lookup(IndexPath),
             {ok, Req2} = cowboy_req:reply(
-                           404, [{<<"content-type">>, <<"text/html">>}],
-                           <<"<html><body>Not Found</body></html>">>, Req),
+                           200, [content_type(IndexPath)],
+                           IndexBin, Req),
             {ok, Req2, PathPrefix}
     end.
 
