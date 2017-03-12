@@ -1,9 +1,11 @@
 module About.Types exposing (..)
 
+import Http
+
 
 type Msg
-    = No0p
+    = RequestVersion (Result Http.Error String)
 
 
 type alias Model =
-    String
+    ( String, String )

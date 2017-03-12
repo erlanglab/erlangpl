@@ -8,11 +8,11 @@ export default onWithStore((store, on) => {
     {
       'apps-info': data => {
         // dispatch some action to store this
-        console.log('apps-info', data);
+        /*         console.log('apps-info', data);*/
         store.dispatch(actions.updateAppsInfo(data));
       },
       'node-info': data => {
-        console.log('node-info', data);
+        /*         console.log('node-info', data);*/
         store.dispatch(actions.updateNodeInfo(data));
       }
     },

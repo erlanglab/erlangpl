@@ -16,8 +16,8 @@ import eplSupTree from './plugins/epl-sup-tree';
 import about from './about';
 
 const tabs = [
-  { path: '/dashboard', icon: 'desktop' },
-  { path: '/sup-tree', icon: 'share-alt' },
+  { path: '/dashboard', icon: 'television' },
+  { path: '/sup-tree', icon: 'sitemap' },
   /*   { path: '/traffic', icon: 'share-alt' },*/
   { path: '/about', icon: 'question' }
 ];
