@@ -29,5 +29,6 @@ rebar:
 	chmod +x $@
 
 build-ui:
+	rm -rf apps/epl/priv/htdocs
 	cd erlangpl-ui && yarn && yarn build && cd ../
 	mv erlangpl-ui/build apps/epl/priv/htdocs
