@@ -30,4 +30,4 @@ rebar:
 
 build-ui:
 	cd erlangpl-ui && yarn && yarn build && cd ../
-	mkdir apps/epl/priv && mv erlangpl-ui/build apps/epl/priv/htdocs
+	mv erlangpl-ui/build apps/epl/priv/htdocs
