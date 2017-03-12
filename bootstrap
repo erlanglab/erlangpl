@@ -44,9 +44,15 @@ get_files() ->
                   Filename = filename:join(tl(filename:split(Path))),
                   [{Filename, file_contents(Path)} | Acc]
           end,
+
+    %% include all compiled modules and the .app file
     Beams = [filelib:fold_files(Dir, "\\.app$|\\.beam$", true, Fun, [])
 	     || Dir <- Apps],
-    Privs = [filelib:fold_files(filename:join([Dir, "priv"]), "", true, Fun, [])
+
+    %% include all contents of the priv dirs
+    %% except for .js.map files, which are heavy but unnecessary
+    Privs = [filelib:fold_files(filename:join([Dir, "priv"]),
+                                "^((?!\\.js\\.map).)*$", true, Fun, [])
 	     || Dir <- Apps],
 
     lists:flatten([Beams, Privs]).
