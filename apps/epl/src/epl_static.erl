@@ -68,6 +68,7 @@ mime(<<".jpe">>)   -> <<"image/jpeg">>;
 mime(<<".png">>)   -> <<"image/png">>;
 mime(<<".svg">>)   -> <<"image/svg+xml">>;
 mime(<<".svgz">>)  -> <<"image/svg+xml">>;
+mime(<<".map">>)   -> <<"application/json">>;
 mime(Ext) ->
     ?ERROR("Unknown extension ~p, will use application/octet-stream~n", [Ext]),
     <<"application/octet-stream">>.
