@@ -26,3 +26,6 @@ erl_crash.dump
 
 # Dialyzer PLTs
 /.dialyzer
+
+.rebar
+ebin
