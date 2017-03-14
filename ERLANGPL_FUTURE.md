@@ -21,20 +21,33 @@
 ### Web
 
 Two main aproaches are:
-* our own custom webpack-dev-server based on erlang as much as we can (still we need node underneath)
-* probuild everything in our custom build system as fast as possible
+* our own custom webpack-dev-server based on erlang as much as we can (still we need Node runtime underneath)
+* prebuild everything in our custom build system as fast as possible
+* require modules/libraries from global scope
 
-#### `webpack-dev-server` like
+#### `webpack-dev-server` like (JIT?)
 
-* Hot Module Replacement, how webpack-dev-server handles that, maybe we can run two separate servers at the same time? but probably we can achive the same thing with erlang too because it's all based on http/ws protocols
-* run something like webpack-dev-server, then you can change some file based on client/server communication change that file and force webpack-dev-server to reload
-* something like we can run development server whole time and not build for production of optimize dev-server for production as much as we can
+* most advanced solution, require Node runtime dependency
+* we have Erlang "controller" which manager all file system level things happening
+* when we require new plugin it's added to build list, then webpack run it's bundling (with import() for easier fauil catch)
+* when we have new application version, we store state in localStorage, reload page and restore state
+* when build fails, we're only showing info about failt (with logs for example) to user via WebSockets
+* we have to make build time as fast as possible and as fabult tolerant as possible 
 
-#### Prebuild 
+#### Prebuilt 
 
-* probably we have to build whole application knowing which plugin to include
-* import() is good for dynamic loading but it requires build step right now I guess
+* builing whole UI with plugins
+* then we can require every plugin with import() and filter if plugins work or not
 
+#### Global (window) scope libraries
+
+* this silution does not require Node runtime dependency
+* we're building every plugin with webpack lib output and then require it as dynamically as we can
+
+### More efficient runtime
+
+* maybe we can pack everything into Vagrant for example or something like this
+* we have to minimalize runtime dependencies for users not running development version (ideally only Erlang VM)
 
 # Other cool things to have
 
