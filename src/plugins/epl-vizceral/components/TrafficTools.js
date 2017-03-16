@@ -31,6 +31,6 @@ class TrafficTools extends Component {
 
 import * as actions from '../actions';
 
-export default connect(state => ({ view: state.traffic.view }), {
+export default connect(state => ({ view: state.eplVizceral.view }), {
   setView: actions.updateTrafficView
 })(TrafficTools);

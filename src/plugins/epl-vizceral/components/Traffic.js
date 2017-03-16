@@ -13,6 +13,8 @@ import './Traffic.css';
 import TrafficTools from './TrafficTools';
 import * as actions from '../actions';
 
+import sampleData from '../sample_data.json';
+
 class Traffic extends Component {
   state: {
     start: number,
@@ -29,13 +31,27 @@ class Traffic extends Component {
     };
   }
 
+  // TODO (baransu) remove dispatching dummy data once we have server connection
+  componentDidMount() {
+    setTimeout(
+      () => {
+        this.props.updateTrafficData(sampleData);
+      },
+      1500
+    );
+  }
+
   handleViewChange(data: any) {
+    const sidePanelLevel = 2;
     let anim;
     const { view, graph } = data;
-    if (view.length > 0 && this.props.view.length === 0) {
+    if (
+      view.length > sidePanelLevel - 1 &&
+      this.props.view.length === sidePanelLevel - 1
+    ) {
       //open
       anim = { end: 1, start: 0 };
-    } else if (this.props.view.length > 0) {
+    } else if (this.props.view.length > sidePanelLevel - 1) {
       //stay open
       anim = { end: 1, start: 1 };
     } else {
@@ -120,11 +136,12 @@ class Traffic extends Component {
 export default connect(
   state => {
     return {
-      data: state.traffic.data,
-      view: state.traffic.view
+      data: state.eplVizceral.data,
+      view: state.eplVizceral.view
     };
   },
   {
+    updateTrafficData: actions.updateTrafficData,
     updateTrafficView: actions.updateTrafficView
   }
 )(Traffic);

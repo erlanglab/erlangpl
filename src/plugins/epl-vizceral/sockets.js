@@ -1,8 +1,8 @@
 // @flow
-/* import { onWithStore } from '../../sockets';*/
-/* export default onWithStore((store, on) => {
+/* import { onWithStore } from '../../sockets';
+ * export default onWithStore((store, on) => {
  *   return on(
- *     'epl_st_EPL',
+ *     'epl_dashboard_EPL',
  *     {
  *       'apps-info': data => {
  *         // dispatch some action to store this
