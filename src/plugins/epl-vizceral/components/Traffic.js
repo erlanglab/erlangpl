@@ -4,9 +4,6 @@ import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
 import { Motion, spring } from 'react-motion';
 
-import loaderLogo from '../images/erlanglab_logo_alpha_250.png';
-import loaderText from '../images/erlangpl_test_1.jpg';
-
 import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
 
@@ -101,17 +98,13 @@ class Traffic extends Component {
                     opacity: y
                   }}
                 >
-                  <div className="loader-img">
-                    <img
-                      src={loaderLogo}
-                      style={{ width: '75px', height: '75px' }}
-                      alt="Erlang Performance Lab"
-                    />
-                    <img
-                      style={{ width: '540px', height: '75px' }}
-                      src={loaderText}
-                      alt="Erlang Performance Lab"
-                    />
+                  <div className="text-center" style={{ paddingTop: '25%' }}>
+                    <div className="spinner">
+                      <div className="bounce1" />
+                      <div className="bounce2" />
+                      <div className="bounce3" />
+                    </div>
+                    <span>Gathering cluster data</span>
                   </div>
                 </div>
               </div>

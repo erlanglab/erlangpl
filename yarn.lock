@@ -5510,16 +5510,16 @@ vivagraphjs@^0.8.2:
     ngraph.tojson "0.1.3"
     simplesvg "0.0.10"
 
-vizceral-react@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/vizceral-react/-/vizceral-react-4.3.0.tgz#b7ced951d0a132d462c6462a918fa3d854c1e8c6"
+vizceral-react@4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/vizceral-react/-/vizceral-react-4.2.1.tgz#0a5cc99f2f408e0d5c7a2b3e715905c9e6e72a7a"
   dependencies:
     lodash "^4.16.4"
-    vizceral "~4.3.0"
+    vizceral "~4.2.3"
 
-vizceral@~4.3.0:
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/vizceral/-/vizceral-4.3.5.tgz#e2f88ae6196f5ca55a22e18be0fffbb9e0a5b9f7"
+vizceral@~4.2.3:
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/vizceral/-/vizceral-4.2.3.tgz#f88b8fe018769482119c04b5fd766eb0f7af810c"
   dependencies:
     chroma-js "^1.1.1"
     hammerjs "^2.0.8"
