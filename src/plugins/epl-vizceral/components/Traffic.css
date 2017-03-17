@@ -34,7 +34,10 @@
 }
 
 .Traffic-panel {
+  padding: 10px;
   height: 100%;
+  box-sizing: border-box;
+  border-left: 1px solid #21252b;
 }
 
 .Traffic .loader {
@@ -54,7 +57,19 @@
   top: calc(50% - 40px);
 }
 
-/* TODO (baransu) figure out what's the purpose of this classes */
+.Traffic pre {
+  padding: 10px 0px;
+  margin: 0px;
+  border: none;
+  border-radius: 0px;
+  color: inherit;
+  background-color: #282c34;
+}
+
+.Traffic h3 {
+  margin: 5px;
+}
+
 .color-normal, .severity0 {
   color: var(--colorNormal);
 }

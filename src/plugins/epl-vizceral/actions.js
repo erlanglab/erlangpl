@@ -11,3 +11,8 @@ export const updateTrafficView = (view: Array<string>) => ({
   type: t.UPDATE_TRAFFIC_VIEW,
   view
 });
+
+export const updateTrafficSearch = (search: string) => ({
+  type: t.UPDATE_TRAFFIC_SEARCH,
+  search
+});

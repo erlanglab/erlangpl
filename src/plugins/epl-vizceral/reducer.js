@@ -6,6 +6,7 @@ export const INITIAL_STATE = {
     nodes: [],
     connections: []
   },
+  search: '',
   view: []
 };
 
@@ -20,7 +21,15 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === t.UPDATE_TRAFFIC_VIEW) {
     return {
       ...state,
+      search: '',
       view: action.view
+    };
+  }
+
+  if (action.type === t.UPDATE_TRAFFIC_SEARCH) {
+    return {
+      ...state,
+      search: action.search
     };
   }
 

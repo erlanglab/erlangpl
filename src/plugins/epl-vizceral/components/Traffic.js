@@ -38,7 +38,7 @@ class Traffic extends Component {
     );
   }
 
-  handleViewChange(data: any) {
+  handleViewChange = (data: any) => {
     const sidePanelLevel = 2;
     let anim;
     const { view, graph } = data;
@@ -63,9 +63,10 @@ class Traffic extends Component {
     });
 
     this.props.updateTrafficView(view);
-  }
+  };
 
   render() {
+    /*     console.log(this.props.nodeInfo);*/
     const sidePanelWidth = 30;
 
     return (
@@ -86,8 +87,9 @@ class Traffic extends Component {
                 <Vizceral
                   traffic={this.props.data}
                   view={this.props.view}
-                  viewChanged={event => this.handleViewChange(event)}
+                  viewChanged={this.handleViewChange}
                   showLabels={true}
+                  match={this.props.search}
                   allowDraggingOfNodes={true}
                   targetFramerate={30}
                 />
@@ -109,14 +111,20 @@ class Traffic extends Component {
                 </div>
               </div>
               <div
-                className="Traffic-panel text-center"
+                className="Traffic-panel"
                 style={{
                   width: `${sidePanelWidth * x}%`,
                   opacity: x,
                   float: 'right'
                 }}
               >
-                <h3>side panel content</h3>
+                <pre style={{ height: '100%' }}>
+                  <code>
+                    {this.props.nodeInfo
+                      ? JSON.stringify(this.props.nodeInfo, null, 2)
+                      : 'No info available'}
+                  </code>
+                </pre>
               </div>
             </div>
           )}
@@ -129,6 +137,8 @@ class Traffic extends Component {
 export default connect(
   state => {
     return {
+      search: state.eplVizceral.search,
+      nodeInfo: state.eplSupTree.nodeInfo,
       data: state.eplVizceral.data,
       view: state.eplVizceral.view
     };

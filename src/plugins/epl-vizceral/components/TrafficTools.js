@@ -24,6 +24,10 @@ class TrafficTools extends Component {
             {`${v}/`}
           </a>
         ))}
+        <input
+          value={this.props.search}
+          onChange={event => this.props.setSearch(event.target.value)}
+        />
       </div>
     );
   }
@@ -31,6 +35,10 @@ class TrafficTools extends Component {
 
 import * as actions from '../actions';
 
-export default connect(state => ({ view: state.eplVizceral.view }), {
-  setView: actions.updateTrafficView
-})(TrafficTools);
+export default connect(
+  state => ({ search: state.eplVizceral.search, view: state.eplVizceral.view }),
+  {
+    setView: actions.updateTrafficView,
+    setSearch: actions.updateTrafficSearch
+  }
+)(TrafficTools);
