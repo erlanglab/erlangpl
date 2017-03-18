@@ -90,9 +90,13 @@ init(Node) ->
                          case ets:lookup(epl_timeline, Pid) of
                              [] -> ok;
                              [{Pid, Timeline}]  ->
-                                   NewValue = {Msg, sys:get_state(Pid)},
-                                   ets:delete(epl_timeline, Pid),
-                                   ets:insert(epl_timeline, {Pid, [NewValue | Timeline]})
+                                   case Msg of
+                                     {system, _,_} -> ok;
+                                     _ ->
+                                       NewValue = {Msg, sys:get_state(Pid)},
+                                       ets:delete(epl_timeline, Pid),
+                                       ets:insert(epl_timeline, {Pid, [NewValue | Timeline]})
+                                     end
                          end,
                          case ets:lookup(epl_receive, Pid) of
                              [] -> ets:insert(epl_receive, {Pid, 1, Size});
