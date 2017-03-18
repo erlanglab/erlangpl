@@ -21,10 +21,6 @@
           changes = [],
           tracked_pid
          }).
--record(revolution, {
-          state,
-          message
-         }).
 
 %% ===================================================================
 %% API functions
@@ -42,15 +38,17 @@ timeline(Tracker) ->
 
 init(Pid) ->
     epl_tracer:subscribe(),
-    epl_tracer:trace_pid(Pid),
+    epl_tracer:track_timeline(Pid),
     {ok, #state{tracked_pid = Pid}}.
 
 handle_call(timeline, _, State = #state{changes=Changes}) ->
     {reply, Changes, State}.
 
-handle_info(Message, State) ->
-    io:fwrite("~62p~n",[Message]),
-    {noreply, State}.
+handle_info({data, _, Data}, State = #state{changes = Changes}) ->
+    [{timeline, NewChanges}] = lists:filter(fun ({timeline,_}) -> true;
+                                                (_) -> false end, Data),
+    Merged = NewChanges ++ Changes,
+    {noreply, State#state{changes = Merged}}.
 
 terminate(_Reason, _State) ->
     ok.
