@@ -17,7 +17,8 @@
          unsubscribe/0,
          unsubscribe/1,
          command/2,
-         trace_pid/1]).
+         trace_pid/1,
+         track_timeline/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -58,6 +59,9 @@ command(Fun, Args) ->
 trace_pid(Pid) ->
     gen_server:call(?MODULE, {trace_pid, Pid}).
 
+track_timeline(Pid) ->
+    gen_server:cast(?MODULE, {track_timeline, Pid}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -66,6 +70,7 @@ init(Node) ->
         "fun (F, Ref, init) ->
                  %% create neccessary tables
                  EtsOptions = [named_table, ordered_set, private],
+                 epl_timeline  = ets:new(epl_timeline, [named_table, set, private]),
                  epl_receive   = ets:new(epl_receive,   EtsOptions),
                  epl_send      = ets:new(epl_send,      EtsOptions),
                  epl_send_self = ets:new(epl_send_self, EtsOptions),
@@ -82,6 +87,13 @@ init(Node) ->
                      {trace_ts, Pid, 'receive', Msg, _TS} ->
                          %% we count received messages and their sizes
                          Size = erts_debug:flat_size(Msg),
+                         case ets:lookup(epl_timeline, Pid) of
+                             [] -> ok;
+                             [{Pid, Timeline}]  ->
+                                   NewValue = {Msg, sys:get_state(Pid)},
+                                   ets:delete(epl_timeline, Pid),
+                                   ets:insert(epl_timeline, {Pid, [NewValue | Timeline]})
+                         end,
                          case ets:lookup(epl_receive, Pid) of
                              [] -> ets:insert(epl_receive, {Pid, 1, Size});
                              _  -> ets:update_counter(epl_receive,
@@ -160,6 +172,9 @@ init(Node) ->
                                  || {Key, Fun, Args} <- List],
                          Pid ! {Ref, Proplist},
                          F(F, Ref, Trace);
+                     {Ref, Pid, {track_timeline, Tracked}} ->
+                         ets:insert(epl_timeline, {Tracked, []}),
+                         F(F, Ref, Trace);
                      M ->
                          %% if we receive an unknown message
                          %% we stop tracing and exit
@@ -178,6 +193,9 @@ init(Node) ->
 
     {ok, #state{ref = Ref, remote_pid = RemotePid}, ?POLL}.
 
+handle_cast({track_timeline, Pid}, State = #state{remote_pid = RPid, ref = Ref}) ->
+    RPid ! {Ref, self(), {track_timeline, Pid}},
+    {noreply, State, ?POLL};
 handle_cast(Request, _State) ->
     exit({not_implemented, Request}).
 
@@ -211,6 +229,7 @@ handle_info(timeout,
          {memory_total,  fun erlang:memory/1, [total]},
          {spawn,         fun ets:tab2list/1, [epl_spawn]},
          {spawn_,        fun ets:delete_all_objects/1, [epl_spawn]},
+         {timeline,      fun ets:tab2list/1, [epl_timeline]},
          {exit,          fun ets:tab2list/1, [epl_exit]},
          {exit_,         fun ets:delete_all_objects/1, [epl_exit]},
          {send,          fun ets:tab2list/1, [epl_send]},
