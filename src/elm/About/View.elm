@@ -20,6 +20,16 @@ description =
      """
 
 
+viewVersion : String -> Html Msg
+viewVersion version =
+    text <|
+        "Erlang Performance Lab"
+            ++ if String.length version > 0 then
+                " v" ++ version
+               else
+                version
+
+
 view : Model -> Html Msg
 view ( logo, version ) =
     div [ class "About text-center" ]
@@ -28,7 +38,7 @@ view ( logo, version ) =
             ]
         , div [ class "content" ]
             [ h2 [ class "text-center" ]
-                [ text <| "Erlang Performance Lab v" ++ version
+                [ viewVersion version
                 ]
             , h5 [ class "text-center" ] [ text "tool for developers working with the Erlang VM (BEAM).\n" ]
             , span [] <| viewText description

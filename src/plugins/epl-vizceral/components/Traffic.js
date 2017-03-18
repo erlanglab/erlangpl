@@ -91,7 +91,7 @@ class Traffic extends Component {
                   showLabels={true}
                   match={this.props.search}
                   allowDraggingOfNodes={true}
-                  targetFramerate={30}
+                  targetFramerate={25}
                 />
                 <div
                   className="loader"

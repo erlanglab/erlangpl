@@ -16,6 +16,8 @@
 }
 
 .TrafficTools input {
+  height: 100%;
+  box-sizing: border-box;
   border: none;
   background-color: #21252b;
 }
