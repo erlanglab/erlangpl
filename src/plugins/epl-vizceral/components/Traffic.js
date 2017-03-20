@@ -10,7 +10,7 @@ import './Traffic.css';
 import TrafficTools from './TrafficTools';
 import * as actions from '../actions';
 
-import sampleData from '../sample_data.json';
+/* import sampleData from '../sample_data.json';*/
 
 class Traffic extends Component {
   state: {
@@ -30,16 +30,16 @@ class Traffic extends Component {
 
   // TODO (baransu) remove dispatching dummy data once we have server connection
   componentDidMount() {
-    // setTimeout(
-    //   () => {
-    //     this.props.updateTrafficData(sampleData);
-    //   },
-    //   1500
-    // );
+    /* setTimeout(
+     *   () => {
+     *     this.props.updateTrafficData(sampleData);
+     *   },
+     *   1500
+     * );*/
   }
 
   handleViewChange = (data: any) => {
-    const sidePanelLevel = 2;
+    const sidePanelLevel = 3;
     let anim;
     const { view, graph } = data;
     if (
