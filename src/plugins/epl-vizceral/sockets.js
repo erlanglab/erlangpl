@@ -1,5 +1,7 @@
 // @flow
+import * as actions from './actions';
 import { onWithStore } from '../../sockets';
+
 export default onWithStore((store, on) => {
   return on(
     'epl_traffic_EPL',
@@ -7,8 +9,7 @@ export default onWithStore((store, on) => {
       'traffic-info': data => {
         console.log(data);
         // dispatch some action to store this
-        /* console.log('apps-info', data);
-         * store.dispatch(actions.updateAppsInfo(data));*/
+        store.dispatch(actions.updateTrafficData(data));
       }
     },
     () => {

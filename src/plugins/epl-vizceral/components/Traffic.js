@@ -30,12 +30,12 @@ class Traffic extends Component {
 
   // TODO (baransu) remove dispatching dummy data once we have server connection
   componentDidMount() {
-    setTimeout(
-      () => {
-        this.props.updateTrafficData(sampleData);
-      },
-      1500
-    );
+    // setTimeout(
+    //   () => {
+    //     this.props.updateTrafficData(sampleData);
+    //   },
+    //   1500
+    // );
   }
 
   handleViewChange = (data: any) => {
