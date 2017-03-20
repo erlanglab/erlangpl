@@ -19,7 +19,8 @@
 
 -record(state, {
           changes = [],
-          tracked_pid
+          tracked_pid,
+          pid_as_list
          }).
 
 %% ===================================================================
@@ -39,12 +40,12 @@ timeline(Tracker) ->
 init(Pid) ->
     epl_tracer:subscribe(),
     epl_tracer:track_timeline(Pid),
-    {ok, #state{tracked_pid = Pid}}.
+    {ok, #state{tracked_pid = Pid, pid_as_list = pid_to_list(Pid) }}.
 
 handle_call(timeline, _, State = #state{changes=Changes}) ->
     {reply, Changes, State}.
 
-handle_info({data, _, Data}, State = #state{changes = Changes, tracked_pid = PID}) ->
+handle_info({data, _, Data}, State = #state{changes = Changes, pid_as_list = PID}) ->
     Merged = parse_data(Data, PID) ++ Changes,
     {noreply, State#state{changes = Merged}}.
 
@@ -59,14 +60,19 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 
 parse_data(Data,Pid) ->
+    ListOfProcessHistories = strip_to_timeline(Data),
+    strip_to_raw_data(ListOfProcessHistories, Pid).
+
+strip_to_timeline(Data) ->
     case lists:keyfind(timeline, 1, Data) of
         false -> [];
         [] -> [];
-        {timeline, Timelines } ->
-            io:fwrite("~62p | ~62p ~n", [Pid, Timelines]),
-            case lists:keyfind(Pid, 1, Timelines) of
-                false ->
-                    ["kurwa"];
-                RawData -> RawData
-            end
+        {timeline, Timelines } -> Timelines
+    end.
+
+strip_to_raw_data(Data, Pid) ->
+
+    case lists:keyfind(Pid, 1, Data) of
+        false -> [];
+        {_,RawData} -> RawData
     end.

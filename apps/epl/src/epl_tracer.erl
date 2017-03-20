@@ -70,7 +70,9 @@ init(Node) ->
         "fun (F, Ref, init) ->
                  %% create neccessary tables
                  EtsOptions = [named_table, ordered_set, private],
-                 epl_timeline  = ets:new(epl_timeline, [named_table, set, private]),
+                 %% timeline needs to tables, one for caching messages, second for storing tracked pids
+                 epl_timeline_cache  = ets:new(epl_timeline_cache, [named_table, set, private]),
+                 epl_timeline_pids  = ets:new(epl_timeline_pids, [named_table, set, private]),
                  epl_receive   = ets:new(epl_receive,   EtsOptions),
                  epl_send      = ets:new(epl_send,      EtsOptions),
                  epl_send_self = ets:new(epl_send_self, EtsOptions),
@@ -87,16 +89,21 @@ init(Node) ->
                      {trace_ts, Pid, 'receive', Msg, _TS} ->
                          %% we count received messages and their sizes
                          Size = erts_debug:flat_size(Msg),
-                         case ets:lookup(epl_timeline, Pid) of
+                         case ets:lookup(epl_timeline_pids, Pid) of
                              [] -> ok;
-                             [{Pid, Timeline}]  ->
-                                   case Msg of
+                             _ ->
+                                 TimelineOld = case ets:lookup(epl_timeline_cache, Pid) of
+                                                   [] -> [];
+                                                   [{Pid, Timeline}]  -> Timeline
+
+                                               end,
+                                 NewValue = {Msg, sys:get_state(Pid)},
+                                 case Msg of
                                      {system, _,_} -> ok;
                                      _ ->
-                                       NewValue = {Msg, sys:get_state(Pid)},
-                                       ets:delete(epl_timeline, Pid),
-                                       ets:insert(epl_timeline, {Pid, [NewValue | Timeline]})
-                                     end
+                                         ets:delete(epl_timeline_cache, Pid),
+                                         ets:insert(epl_timeline_cache, {Pid, [NewValue | TimelineOld]})
+                                 end
                          end,
                          case ets:lookup(epl_receive, Pid) of
                              [] -> ets:insert(epl_receive, {Pid, 1, Size});
@@ -177,7 +184,7 @@ init(Node) ->
                          Pid ! {Ref, Proplist},
                          F(F, Ref, Trace);
                      {Ref, Pid, {track_timeline, Tracked}} ->
-                         ets:insert(epl_timeline, {Tracked, []}),
+                         ets:insert(epl_timeline_pids, {Tracked, []}),
                          F(F, Ref, Trace);
                      M ->
                          %% if we receive an unknown message
@@ -233,7 +240,8 @@ handle_info(timeout,
          {memory_total,  fun erlang:memory/1, [total]},
          {spawn,         fun ets:tab2list/1, [epl_spawn]},
          {spawn_,        fun ets:delete_all_objects/1, [epl_spawn]},
-         {timeline,      fun ets:tab2list/1, [epl_timeline]},
+         {timeline,      fun ets:tab2list/1, [epl_timeline_cache]},
+         {timeline_,     fun ets:delete_all_objects/1, [epl_timeline_cache]},
          {exit,          fun ets:tab2list/1, [epl_exit]},
          {exit_,         fun ets:delete_all_objects/1, [epl_exit]},
          {send,          fun ets:tab2list/1, [epl_send]},
@@ -251,7 +259,7 @@ handle_info(timeout,
     receive
         {Ref, Proplist} when is_list(Proplist) ->
             %% assert all ets tables were cleared
-            EtsTables = [spawn_, exit_, send_, send_self_, receive_, trace_],
+            EtsTables = [spawn_, exit_, send_, send_self_, receive_, trace_, timeline_],
             [{Key, true} = lists:keyfind(Key, 1, Proplist)
              || Key <- EtsTables],
 
@@ -261,6 +269,10 @@ handle_info(timeout,
                                     end,
                                     Proplist,
                                     EtsTables),
+
+            {value, {timeline, Timelines}, PropsListWithoutFaultyTimelines } = lists:keytake(timeline, 1, Proplist1),
+            PidsAsLists = lists:map(fun({Key, Value}) -> {pid_to_list(Key), Value} end, Timelines),
+            Proplist2 = [{timeline, PidsAsLists} | PropsListWithoutFaultyTimelines],
 
 
             %% [{process_count,34},
@@ -283,7 +295,7 @@ handle_info(timeout,
             %%             {<5984.30.0>,2,24}]}]
 
             Key = {node(RPid), os:timestamp()},
-            [Pid ! {data, Key, Proplist1} || Pid <- Subs],
+            [Pid ! {data, Key, Proplist2} || Pid <- Subs],
 
             {noreply, State, ?POLL}
     after 5000 ->
