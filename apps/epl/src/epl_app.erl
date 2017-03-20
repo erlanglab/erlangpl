@@ -55,6 +55,9 @@ start(_StartType, _StartArgs) ->
     %% Start EPL Dashboard
     {ok, _} = epl_sup:start_child(epl_dashboard, []),
 
+    %% Start EPL Dashboard
+    {ok, _} = epl_sup:start_child(epl_traffic, []),
+
     %% load plugins
     PluginApps = plugins(Args),
 
