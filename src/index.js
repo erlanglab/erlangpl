@@ -47,7 +47,7 @@ createSockets(
     [
       eplDashboard.sockets,
       eplSupTree.sockets,
-      /*       eplVizceral.sockets,*/
+      eplVizceral.sockets,
       core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
     ],
     store

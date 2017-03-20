@@ -66,7 +66,6 @@ class Traffic extends Component {
   };
 
   render() {
-    /*     console.log(this.props.nodeInfo);*/
     const sidePanelWidth = 30;
 
     return (
