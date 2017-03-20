@@ -2,7 +2,7 @@
 import { onWithStore } from '../../sockets';
 export default onWithStore((store, on) => {
   return on(
-    'epl_dashboard_EPL',
+    'epl_traffic_EPL',
     {
       'traffic-info': data => {
         console.log(data);
