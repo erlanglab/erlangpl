@@ -3,7 +3,7 @@
 [![Code formatting](https://img.shields.io/badge/code%20formatting-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![Code formatting](https://img.shields.io/badge/code%20formatting-elm--format-ff69b4.svg)](https://github.com/avh4/elm-format)
 
-The Erlang Performance Lab UI is under heavy development towards replacement for current [erlangpl](https://github.com/erlanglab/erlangpl) frontend.
+> UI form Erlang Performance Lab
 
 ## Getting started
 
