@@ -61,10 +61,9 @@ describe('traffic reducer', () => {
       ]
     };
 
-    expect(reducer(INITIAL_STATE, actions.updateTrafficData(data))).toEqual({
-      ...INITIAL_STATE,
-      data
-    });
+    expect(
+      reducer(INITIAL_STATE, actions.updateTrafficData(data))
+    ).toMatchSnapshot();
   });
 
   it('should handle UPDATE_TRAFFIC_VIEW', () => {

@@ -1,0 +1,64 @@
+exports[`traffic reducer should handle UPDATE_TRAFFIC_DATA 1`] = `
+Object {
+  "data": Object {
+    "connections": Array [
+      Object {
+        "class": "normal",
+        "metrics": Object {
+          "danger": 92.37,
+          "normal": 26037.626,
+        },
+        "notices": Array [],
+        "source": "INTERNET",
+        "target": "us-east-1",
+      },
+    ],
+    "name": "edge",
+    "nodes": Array [
+      Object {
+        "class": "normal",
+        "name": "INTERNET",
+        "nodes": Array [],
+        "renderer": "region",
+      },
+      Object {
+        "class": "normal",
+        "connections": Array [
+          Object {
+            "class": "normal",
+            "metrics": Object {
+              "danger": 116.524,
+              "normal": 15598.906,
+            },
+            "source": "INTERNET",
+            "target": "proxy-prod",
+          },
+        ],
+        "maxVolume": 50000,
+        "name": "us-east-1",
+        "nodes": Array [
+          Object {
+            "class": "normal",
+            "connections": Array [],
+            "name": "INTERNET",
+            "nodes": Array [],
+            "renderer": "focused",
+          },
+          Object {
+            "class": "normal",
+            "connections": Array [],
+            "name": "proxy-prod",
+            "nodes": Array [],
+            "renderer": "focused",
+          },
+        ],
+        "renderer": "region",
+        "updated": 1466838546805,
+      },
+    ],
+    "renderer": "global",
+  },
+  "search": "",
+  "view": Array [],
+}
+`;

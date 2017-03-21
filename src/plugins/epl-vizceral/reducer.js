@@ -14,14 +14,14 @@ const denamify = (name: string) => {
   return name.replace('_at_', '@').replace(/_/g, '.');
 };
 
-const denamifyNode = ({ nodes, connections, ...node }) => {
+const denamifyNode = ({ nodes = [], connections = [], ...node }) => {
   return {
     ...node,
     connections: connections.map(({ target, ...connection }) => ({
       ...connection,
       target: denamify(target)
     })),
-    nodes: nodes.map(({ name, nodes, ...node }) => ({
+    nodes: nodes.map(({ name, nodes = [], ...node }) => ({
       ...node,
       name: denamify(name),
       nodes: nodes.map(denamifyNode)
