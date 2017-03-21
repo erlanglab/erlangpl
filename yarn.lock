@@ -1759,13 +1759,13 @@ electron-to-chromium@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.2.3.tgz#4b4d04d237c301f72e2d15c2137b2b79f9f5ab76"
 
-elm-webpack-loader@4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-4.1.1.tgz#6c8b5f88e36c6885955e7de0e7df8a3c7aab1871"
+elm-webpack-loader@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-4.3.0.tgz#796d391794b44aac6b865d9a5d045b597e486117"
   dependencies:
     elm "^0.18.0"
     glob "^7.1.1"
-    loader-utils "^0.2.11"
+    loader-utils "^1.0.2"
     node-elm-compiler "^4.2.1"
     yargs "^6.5.0"
 
@@ -3316,6 +3316,14 @@ loader-utils@0.2.x, loader-utils@^0.2.11, loader-utils@^0.2.16, loader-utils@^0.
     emojis-list "^2.0.0"
     json5 "^0.5.0"
     object-assign "^4.0.1"
+
+loader-utils@^1.0.2:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.1.0.tgz#c98aef488bcceda2ffb5e2de646d6a754429f5cd"
+  dependencies:
+    big.js "^3.1.3"
+    emojis-list "^2.0.0"
+    json5 "^0.5.0"
 
 lodash-es@^4.2.0, lodash-es@^4.2.1:
   version "4.17.4"

@@ -24,8 +24,6 @@ This is possible because of [react-elm-components](https://github.com/evancz/rea
 
 You can write any separate component in Elm and then wrap it into React component which can be integrated with whole application. Elm code should be placed in `src/elm` and every component whould have main file in this directory and all files related to this component in directory with the same name. React wrapper file should have the same name as Elm component and `flow` should be disabled for this file.
 
-Right now Webpack and Elm integration is not ideal. Webpack is only watching for files in `src/elm` and only this files can trigger recompile. We are trying to figure out solution to this problem for better Elm experience.
-
 ```elm
 -- src/elm/About.elm
 
