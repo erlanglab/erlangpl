@@ -83,15 +83,16 @@ handle_info({data, _, _}, State = #state{subscribers = Subs,
            fun({Node, NewIn, NewOut}, V) ->
                    NodeBin = atom_to_binary(Node, latin1),
                    {OldIn, OldOut} = get_in_out(Node, OldCounters),
-                   push_region_connection(
-                     <<"INTERNET">>, NodeBin, {NewIn-OldIn, 0, 0}, #{}, V)
+                   push_region_connection(<<"INTERNET">>, NodeBin,
+                                          {NewOut-OldOut, NewIn-OldIn, 0},
+                                          #{}, V)
            end, V2, NewCounters),
 
     %% push an update to all subscribed WebSockets
     JSON = epl_json:encode(V3, <<"traffic-info">>),
 
     [Pid ! {data, JSON} || Pid <- Subs],
-    {noreply, State}.
+    {noreply, State#state{counters = NewCounters}}.
 
 terminate(_Reason, _State) ->
     ok.
@@ -146,10 +147,10 @@ binarify(Name) when is_list(Name) ->
 binarify(Name) -> Name.
 
 namify(Name) ->
-    Name1 = binary:replace(binarify(Name), <<"@">>, <<"0">>),
+    Name1 = binary:replace(binarify(Name), <<"@">>, <<"_at_">>),
     Name2 = binary:replace(binarify(Name1), <<"<">>, <<"">>),
     Name3 = binary:replace(binarify(Name2), <<">">>, <<"">>),
-    binary:replace(binarify(Name3), <<".">>, <<"-">>, [global]).
+    binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]).
 
 
 %% ---------------------- Regions ---------------------
