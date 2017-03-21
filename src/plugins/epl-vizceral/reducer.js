@@ -10,11 +10,30 @@ export const INITIAL_STATE = {
   view: []
 };
 
+const denamify = (name: string) => {
+  return name.replace('_at_', '@').replace(/_/g, '.');
+};
+
+const denamifyNode = ({ nodes, connections, ...node }) => {
+  return {
+    ...node,
+    connections: connections.map(({ target, ...connection }) => ({
+      ...connection,
+      target: denamify(target)
+    })),
+    nodes: nodes.map(({ name, nodes, ...node }) => ({
+      ...node,
+      name: denamify(name),
+      nodes: nodes.map(denamifyNode)
+    }))
+  };
+};
+
 const reducer = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === t.UPDATE_TRAFFIC_DATA) {
     return {
       ...state,
-      data: action.data
+      data: denamifyNode(action.data)
     };
   }
 
