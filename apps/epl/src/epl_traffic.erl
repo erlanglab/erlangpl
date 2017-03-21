@@ -71,22 +71,21 @@ handle_info({data, _, _}, State = #state{subscribers = Subs,
     %% region named "INTERNET" is mandatory
     V1 = push_region(<<"INTERNET">>, new()),
 
-    Nodes = nodes(connected),
     %% add as many regions as there are nodes in the cluster
-    V2 = lists:foldl(fun(Node, V) ->
+    V2 = lists:foldl(fun({Node,_,_}, V) ->
                              NodeBin = atom_to_binary(Node, latin1),
                              push_region(NodeBin, V)
-                     end, V1, Nodes),
+                     end, V1, NewCounters),
 
     %% add links between "INTERNET" and all nodes
     %% and compute delta between old and new net_kernel counters
-    V3 = lists:foldl(fun(Node, V) ->
-                             NodeBin = atom_to_binary(Node, latin1),
-                             {OldIn, _OldOut} = get_in_out(Node, OldCounters),
-                             {NewIn, _NewOut} = get_in_out(Node, NewCounters),
-                             push_region_connection(
-                               <<"INTERNET">>, NodeBin, {NewIn-OldIn, 0, 0}, #{}, V)
-                     end, V2, Nodes),
+    V3 = lists:foldl(
+           fun({Node, NewIn, NewOut}, V) ->
+                   NodeBin = atom_to_binary(Node, latin1),
+                   {OldIn, OldOut} = get_in_out(Node, OldCounters),
+                   push_region_connection(
+                     <<"INTERNET">>, NodeBin, {NewIn-OldIn, 0, 0}, #{}, V)
+           end, V2, NewCounters),
 
     %% push an update to all subscribed WebSockets
     JSON = epl_json:encode(V3, <<"traffic-info">>),
