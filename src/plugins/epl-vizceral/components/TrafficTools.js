@@ -4,6 +4,10 @@ import { connect } from 'react-redux';
 
 import './TrafficTools.css';
 
+const denamify = (name: string) => {
+  return name.replace('_at_', '@').replace(/_/g, '.');
+};
+
 class TrafficTools extends Component {
   handleClick(index: number) {
     const view = this.props.view.slice(0, index);
@@ -21,7 +25,7 @@ class TrafficTools extends Component {
             className="TrafficTools-route"
             onClick={() => this.handleClick(index)}
           >
-            {`${v}/`}
+            {`${denamify(v)}/`}
           </a>
         ))}
         <input
