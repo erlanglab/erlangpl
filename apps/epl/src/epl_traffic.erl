@@ -59,40 +59,28 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = [Pid|Subs]}};
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = lists:delete(Pid, Subs)}};
-handle_cast(_Msg, State) ->
-    {noreply, State}.
+handle_cast(Request, _State) ->
+    exit({not_implemented, Request}).
 
-handle_info({data, _, _}, State = #state{subscribers = Subs,
-                                         counters = OldCounters}) ->
-    %% traverse all connected nodes and read their net_kernel counters
-    NewCounters = get_traffic_counters(),
+handle_info({data, {_Node, _Timestamp}, Proplist},
+            State = #state{subscribers = Subs, counters = OldCounters}) ->
 
-    %% start creating a map, which represents the Vizceral JSON document
-    %% region named "INTERNET" is mandatory
-    V1 = push_region(<<"INTERNET">>, new()),
+    Viz = new(),
 
-    %% add as many regions as there are nodes in the cluster
-    V2 = lists:foldl(fun({Node,_,_}, V) ->
-                             NodeBin = atom_to_binary(Node, latin1),
-                             push_region(NodeBin, V)
-                     end, V1, NewCounters),
+    {Viz1, NewCounters} = update_traffic_graph(OldCounters, Viz),
 
-    %% add links between "INTERNET" and all nodes
-    %% and compute delta between old and new net_kernel counters
-    V3 = lists:foldl(
-           fun({Node, NewIn, NewOut}, V) ->
-                   NodeBin = atom_to_binary(Node, latin1),
-                   {OldIn, OldOut} = get_in_out(Node, OldCounters),
-                   push_region_connection(<<"INTERNET">>, NodeBin,
-                                          {NewOut-OldOut, NewIn-OldIn, 0},
-                                          #{}, V)
-           end, V2, NewCounters),
+    %% By convention we use <<"INTERNET">> as a name of the region,
+    %% which represents the observed node
+    Viz2 = get_message_passing_counters(<<"INTERNET">>, Proplist, Viz1),
 
     %% push an update to all subscribed WebSockets
-    JSON = epl_json:encode(V3, <<"traffic-info">>),
+    JSON = epl_json:encode(Viz2, <<"traffic-info">>),
 
     [Pid ! {data, JSON} || Pid <- Subs],
-    {noreply, State#state{counters = NewCounters}}.
+    {noreply, State#state{counters = NewCounters}};
+handle_info(Request, _State) ->
+    exit({not_implemented, Request}).
+
 
 terminate(_Reason, _State) ->
     ok.
@@ -103,6 +91,44 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+get_message_passing_counters(Node, Proplist, Vizceral) ->
+    lists:foldl(
+      fun({send, Send}, V) ->
+              %% Examples of send trace:
+              %% {{global_name_server,<13104.13.0>},0,1}
+              %% {#Port<13104.431>,<13104.28.0>},0,72}
+              %% {{<13104.12.0>,{alias,'erlangpl@127.0.0.1'}},2,0}
+              update_message_passing_graph(Node, Send, V);
+         (_, V) ->
+              V
+      end,
+      Vizceral,
+      Proplist).
+
+update_message_passing_graph(Node, Send, Vizceral) ->
+    %% Below is a workaround for how Vizceral requires the INTERNET
+    %% node to appear in its graph
+    {{RootVertex, _}, _, _} = hd(Send),
+    Viz1 = push_focused(<<"INTERNET">>, Node, Vizceral),
+    Viz2 = push_focused(RootVertex, Node, Viz1),
+    Viz3 = push_focused_connection(
+                  <<"INTERNET">>, RootVertex, Node, {0,0,0}, #{}, Viz2),
+
+    %% Update Vizceral graph with verticies representing processes
+    %% and edges representing message passing
+    lists:foldl(
+      fun({{P1, P2}, Count1, Count2}, V)
+            when not is_tuple(P1), not is_tuple(P2) ->
+              V1 = push_focused(P1, Node, V),
+              V2 = push_focused(P2, Node, V1),
+              V3 = push_focused_connection(P1, P2, Node,
+                                           {Count1,0,0}, #{}, V2),
+              push_focused_connection(P2, P1, Node,
+                                      {Count2,0,0}, #{}, V3);
+         (_, V) ->
+              V
+      end, Viz3, Send).
+
 get_traffic_counters() ->
     {ok, NodesInfo} = command(fun net_kernel:nodes_info/0),
 
@@ -111,6 +137,31 @@ get_traffic_counters() ->
     [{NodeName, NodeIn, NodeOut} ||
         {NodeName, [{owner,_}, {state,up}, {address, _}, {type,normal},
                     {in,NodeIn}, {out,NodeOut}]} <- NodesInfo].
+
+update_traffic_graph(OldCounters, Vizceral) ->
+    %% traverse all connected nodes and read their net_kernel counters
+    NewCounters = get_traffic_counters(),
+
+    %% start creating a map, which represents the Vizceral JSON document
+    %% region named <<"INTERNET">> represents the observed node
+    V1 = push_region(<<"INTERNET">>, Vizceral),
+
+    %% add as many regions as there are nodes in the cluster
+    V2 = lists:foldl(fun({Node,_,_}, V) ->
+                             push_region(binarify(Node), V)
+                     end, V1, NewCounters),
+
+    %% add links between "INTERNET" and all nodes
+    %% and compute delta between old and new net_kernel counters
+    V3 = lists:foldl(
+           fun({Node, NewIn, NewOut}, V) ->
+                   {OldIn, OldOut} = get_in_out(Node, OldCounters),
+                   push_region_connection(<<"INTERNET">>, binarify(Node),
+                                          {NewOut-OldOut, NewIn-OldIn, 0},
+                                          #{}, V)
+           end, V2, NewCounters),
+
+    {V3, NewCounters}.
 
 get_in_out(Node, Counters) ->
     case lists:keyfind(Node, 1, Counters) of
@@ -144,29 +195,40 @@ entity(Renderer, Name, Nodes, Additional) ->
 
 binarify(Name) when is_list(Name) ->
     list_to_binary(Name);
-binarify(Name) -> Name.
+binarify(Name) when is_atom(Name) ->
+    atom_to_binary(Name, latin1);
+binarify(Name) when is_pid(Name) ->
+    list_to_binary(pid_to_list(Name));
+binarify(Name) when is_port(Name) ->
+    list_to_binary(erlang:port_to_list(Name));
+binarify(Name) when is_binary(Name) ->
+    Name.
 
-namify(Name) ->
+
+namify(Name) when is_binary(Name) ->
     Name1 = binary:replace(binarify(Name), <<"@">>, <<"_at_">>),
     Name2 = binary:replace(binarify(Name1), <<"<">>, <<"">>),
     Name3 = binary:replace(binarify(Name2), <<">">>, <<"">>),
-    binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]).
+    binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]);
+namify(Name) ->
+    namify(binarify(Name)).
+
 
 
 %% ---------------------- Regions ---------------------
-push_region(Name, Vizcerl) ->
-    push_region(Name, #{}, Vizcerl).
-push_region(Name, Additional, Vizcerl) ->
+push_region(Name, Vizceral) ->
+    push_region(Name, #{}, Vizceral).
+push_region(Name, Additional, Vizceral) ->
     A = maps:merge(#{
                       connections => [],
                       maxVolume => 5000
                     },
                    Additional),
-    push_node(region, Name, A, Vizcerl).
+    push_node(region, Name, A, Vizceral).
 
-pull_region(Name, Vizcerl) ->
-    {Region, Newlist} = pull_node(Name, Vizcerl),
-    {Region, maps:merge(Vizcerl, #{nodes => Newlist})}.
+pull_region(Name, Vizceral) ->
+    {Region, Newlist} = pull_node(Name, Vizceral),
+    {Region, maps:merge(Vizceral, #{nodes => Newlist})}.
 
 %% ---------------------- Nodes -----------------------
 push_node(Renderer, Name, Additional, Entity) ->
@@ -195,8 +257,25 @@ push_connection(Source, Target, {N, W, D} , Additional, To) ->
    }, Additional),
   maps:merge(To, #{connections => [New | Connections]}).
 
-push_region_connection(Source, Target, {N, W, D}, Additional, Vizcerl) ->
+push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
   %% Will crash on nonexisting
-  pull_region(Source, Vizcerl),
-  pull_region(Target, Vizcerl),
-  push_connection(Source, Target, {N, W, D}, Additional, Vizcerl).
+  pull_region(Source, Vizceral),
+  pull_region(Target, Vizceral),
+  push_connection(Source, Target, {N, W, D}, Additional, Vizceral).
+
+push_focused_connection(Source, Target, RegionName, {N, W, D}, Additional, Vizceral) ->
+    {Region, NewV} = pull_region(RegionName, Vizceral),
+    NewR = push_connection(Source, Target, {N,W,D}, Additional, Region),
+    push_region("", NewR, NewV).
+
+%% ---------------------- Focused ---------------------
+push_focused(Name, Region, Vizceral) ->
+    push_focused(Name, Region, #{} ,Vizceral).
+push_focused(Name, RegionName, Additional, Vizceral) ->
+    #{nodes := Nodes} = Vizceral,
+    {[Region], Rest} = lists:partition(
+                         fun(A) ->
+                                 maps:get(name, A) == namify(RegionName)
+                         end, Nodes),
+    NewRegion = push_node(focused, Name, Additional, Region),
+    maps:merge(Vizceral, #{nodes => [NewRegion | Rest]}).
