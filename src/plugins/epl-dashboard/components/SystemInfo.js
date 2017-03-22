@@ -22,7 +22,7 @@ const SystemInfo = ({ info }) => {
       'full sweep',
       info.garbageCollection ? info.garbageCollection.fullsweepAfter : undefined
     ],
-    ['proces limit', info.processLimit],
+    ['process limit', info.processLimit],
     ['thread', info.threads ? 'true' : 'false'],
     ['async threads', info.threadPoolSize],
     ['port limit', info.portLimit]
