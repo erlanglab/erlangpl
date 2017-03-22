@@ -1,13 +1,15 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 
 import './TrafficTools.css';
 
 class TrafficTools extends Component {
   handleClick(index: number) {
     const view = this.props.view.slice(0, index);
-    this.props.setView(view);
+    const path = `/traffic${view.length > 0 ? '/' : ''}${view.join('/')}`;
+    this.props.push(path);
   }
 
   render() {
@@ -38,6 +40,7 @@ import * as actions from '../actions';
 export default connect(
   state => ({ search: state.eplVizceral.search, view: state.eplVizceral.view }),
   {
+    push,
     setView: actions.updateTrafficView,
     setSearch: actions.updateTrafficSearch
   }

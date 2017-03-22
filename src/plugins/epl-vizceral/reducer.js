@@ -37,12 +37,18 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
     };
   }
 
-  if (action.type === t.UPDATE_TRAFFIC_VIEW) {
-    return {
-      ...state,
-      search: '',
-      view: action.view
-    };
+  if (action.type === '@@router/LOCATION_CHANGE') {
+    const { pathname } = action.payload;
+    const view = pathname
+      .replace(/\/traffic(\/?)/, '')
+      .split('/')
+      .filter(a => a.length > 0);
+    if (view.toString() !== state.view.toString()) {
+      return {
+        ...state,
+        view
+      };
+    }
   }
 
   if (action.type === t.UPDATE_TRAFFIC_SEARCH) {

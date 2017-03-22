@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
 import { Motion, spring } from 'react-motion';
+import { push } from 'react-router-redux';
 
 import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
@@ -68,16 +69,16 @@ class Traffic extends Component {
       graph: graph !== null
     });
 
-    this.props.updateTrafficView(view);
+    const path = `/traffic${view.length > 0 ? '/' : ''}${view.join('/')}`;
+    this.props.push(path);
   };
 
   selectCentralNode = () => {
-    this.props.updateTrafficView(['INTERNET']);
+    this.props.push('/traffic/INTERNET');
   };
 
   render() {
     const sidePanelWidth = 30;
-
     return (
       <div className="Traffic">
         <TrafficTools className="Traffic-tools" />
@@ -165,7 +166,7 @@ export default connect(
     };
   },
   {
-    updateTrafficData: actions.updateTrafficData,
-    updateTrafficView: actions.updateTrafficView
+    push,
+    updateTrafficData: actions.updateTrafficData
   }
 )(Traffic);

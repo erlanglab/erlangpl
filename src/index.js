@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import { render } from 'react-dom';
-import throttle from 'lodash/throttle';
 
 import App from './App';
 import { combineSockets, createSockets } from './sockets';
@@ -19,24 +18,6 @@ import eplVizceral from './plugins/epl-vizceral';
 
 import core from './core';
 import store, { history } from './store';
-
-store.subscribe(
-  throttle(
-    () => {
-      const currentView = store.getState().eplVizceral.view.join('/');
-      const { pathname } = window.location;
-      const correctView = `/traffic${currentView.length > 0 ? '/' : ''}${currentView}`;
-      if (pathname.match(/^\/traffic/) && pathname !== correctView) {
-        history.push(correctView);
-      }
-    },
-    100
-  )
-);
-
-// sync url with store and traffic view (vizceral)
-const view = core.utils.syncGraphViewWithHistory(history.location);
-store.dispatch(eplVizceral.actions.updateTrafficView(view));
 
 /* register new handlers
    every plugin should return array of handlers which will be passed to

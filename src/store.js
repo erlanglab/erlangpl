@@ -1,25 +1,21 @@
 // @flow
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import { routerMiddleware } from 'react-router-redux';
+import createHistory from 'history/createBrowserHistory';
 
 import rootReducer from './reducer';
 
 const INITIAL_STATE = {};
 
+export const history = createHistory();
+
+const middleware = routerMiddleware(history);
+
 const store = createStore(
   rootReducer,
   INITIAL_STATE,
-  window.__REDUX_DEVTOOLS_EXTENSION__ &&
-    window.__REDUX_DEVTOOLS_EXTENSION__() /*, middleware */
+  applyMiddleware(middleware),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
-
-import createHistory from 'history/createBrowserHistory';
-import { syncHistoryWithStore } from 'react-router-redux';
-
-export const create = (store: mixed) =>
-  syncHistoryWithStore(createHistory(), store);
-
-export const history = create(store);
-
-// TODO (baransu) initial data dispatch?
 
 export default store;

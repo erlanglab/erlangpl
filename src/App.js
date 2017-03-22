@@ -1,7 +1,8 @@
 // @flow
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'react-router-redux';
 
 import './App.css';
 
@@ -25,7 +26,7 @@ const tabs = [
 const App = ({ store, history }: { store: mixed, history: mixed }) => {
   return (
     <Provider store={store}>
-      <Router history={history}>
+      <ConnectedRouter history={history}>
         <div className="App">
 
           <Navigation tabs={tabs} />
@@ -42,7 +43,7 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
           </div>
           <Footer />
         </div>
-      </Router>
+      </ConnectedRouter>
     </Provider>
   );
 };
