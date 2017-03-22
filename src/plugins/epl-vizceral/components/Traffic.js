@@ -16,26 +16,32 @@ class Traffic extends Component {
   state: {
     start: number,
     end: number,
+    height: number,
+    width: number,
     graph: boolean
   };
+
+  vizceral: any;
 
   constructor(props) {
     super(props);
     this.state = {
+      height: 0,
+      width: 0,
       start: 0,
       end: 0,
       graph: false
     };
   }
 
-  // TODO (baransu) remove dispatching dummy data once we have server connection
+  resize = () => {
+    const { clientWidth, clientHeight } = this.vizceral.refs.vizCanvas;
+    this.setState({ width: clientWidth, height: clientHeight });
+  };
+
   componentDidMount() {
-    /* setTimeout(
-     *   () => {
-     *     this.props.updateTrafficData(sampleData);
-     *   },
-     *   1500
-     * );*/
+    this.resize();
+    window.addEventListener('resize', this.resize);
   }
 
   handleViewChange = (data: any) => {
@@ -65,6 +71,10 @@ class Traffic extends Component {
     this.props.updateTrafficView(view);
   };
 
+  selectCentralNode = () => {
+    this.props.updateTrafficView(['INTERNET']);
+  };
+
   render() {
     const sidePanelWidth = 30;
 
@@ -83,7 +93,19 @@ class Traffic extends Component {
                 className="Traffic-panel"
                 style={{ width: `${100 - sidePanelWidth * x}%`, float: 'left' }}
               >
+
+                {this.props.view.length === 0 &&
+                  <div
+                    className="fake-click"
+                    style={{
+                      width: this.state.height / 5,
+                      height: this.state.height / 5
+                    }}
+                    onClick={this.selectCentralNode}
+                  />}
+
                 <Vizceral
+                  ref={node => this.vizceral = node}
                   traffic={this.props.data}
                   view={this.props.view}
                   viewChanged={this.handleViewChange}
@@ -99,7 +121,7 @@ class Traffic extends Component {
                     opacity: y
                   }}
                 >
-                  <div className="text-center" style={{ paddingTop: '25%' }}>
+                  <div className="text-center">
                     <div className="spinner">
                       <div className="bounce1" />
                       <div className="bounce2" />

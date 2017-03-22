@@ -253,7 +253,7 @@ class SupTree extends Component {
 
         {this.state.first &&
           <div className="loader">
-            <div className="text-center" style={{ paddingTop: '25%' }}>
+            <div className="text-center">
               <div className="spinner">
                 <div className="bounce1" />
                 <div className="bounce2" />

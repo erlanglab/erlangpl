@@ -23,6 +23,16 @@
   overflow: hidden;
 }
 
+.Traffic .fake-click {
+  background-color: transparent;
+  position: absolute;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
 .Traffic-tools {
   height: 45px;
   line-height: 45px;
@@ -34,6 +44,7 @@
 }
 
 .Traffic-panel {
+  position: relative;
   padding: 10px;
   height: 100%;
   box-sizing: border-box;
@@ -47,6 +58,13 @@
   position: absolute;
   left: 0;
   top: 45px;
+}
+
+.Traffic .loader > div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .Traffic .loader-img {
