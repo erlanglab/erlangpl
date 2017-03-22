@@ -65,12 +65,4 @@ describe('traffic reducer', () => {
       reducer(INITIAL_STATE, actions.updateTrafficData(data))
     ).toMatchSnapshot();
   });
-
-  it('should handle UPDATE_TRAFFIC_VIEW', () => {
-    const view = ['us-west-1', 'server'];
-    expect(reducer(INITIAL_STATE, actions.updateTrafficView(view))).toEqual({
-      ...INITIAL_STATE,
-      view
-    });
-  });
 });
