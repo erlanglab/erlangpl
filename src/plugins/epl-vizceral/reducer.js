@@ -31,9 +31,11 @@ const denamifyNode = ({ nodes = [], connections = [], ...node }) => {
 
 const reducer = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === t.UPDATE_TRAFFIC_DATA) {
+    const data = denamifyNode(action.data);
+    /*     console.log('data', JSON.stringify(data));*/
     return {
       ...state,
-      data: denamifyNode(action.data)
+      data
     };
   }
 
