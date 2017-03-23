@@ -28,6 +28,7 @@ class SupTree extends Component {
     hStart: number,
     hEnd: number,
     selected: { id: string, color: number, type: string },
+    appsNodes: Array<*>,
     apps: Array<string>,
     first: boolean,
     all: Array<string>
@@ -46,6 +47,7 @@ class SupTree extends Component {
       hStart: 50,
       hEnd: 50,
       selected: { id: 'Applications', color: 0, type: '' },
+      appsNodes: [],
       apps: [],
       all: [],
       first: true
@@ -137,13 +139,17 @@ class SupTree extends Component {
 
     const { all } = this.state;
 
+    let appsNodes = []; //this.state.appsNodes;
+
     const list = Object.keys(props.tree).reduce(
       (acc, app) => {
         const parent = props.tree[app];
         if (Object.keys(parent).length) {
           if (all.indexOf(parent.id) < 0) {
             const app = this.state.graph.addNode(parent.id, { ...parent });
-            this.state.layout.pinNode(app, true);
+            if (!this.state.appsNodes.includes(app)) {
+              appsNodes.push(app);
+            }
           }
 
           return acc
@@ -169,7 +175,9 @@ class SupTree extends Component {
     // simple diffing to remove non existing nodes
     difference(all, list).forEach(id => this.state.graph.removeNode(id));
 
+    appsNodes.forEach(app => this.state.layout.pinNode(app, true));
     this.setState({
+      appsNodes,
       apps: Object.keys(props.tree),
       all: list
     });
