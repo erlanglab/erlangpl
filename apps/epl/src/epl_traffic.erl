@@ -25,7 +25,8 @@
          code_change/3]).
 
 -record(state, {subscribers = [],
-                counters = []}).
+                traffic = [],
+                msg_pass = #{}}).
 
 %%%===================================================================
 %%% API functions
@@ -49,8 +50,8 @@ init([]) ->
     ok = epl:subscribe(),
 
     %% Initialise counters, so that later we can calculate deltas
-    Counters = get_traffic_counters(),
-    {ok, #state{counters = Counters}}.
+    TrafficCounters = get_traffic_counters(),
+    {ok, #state{traffic = TrafficCounters}}.
 
 handle_call(Request, _From, _State) ->
     exit({not_implemented, Request}).
@@ -63,21 +64,22 @@ handle_cast(Request, _State) ->
     exit({not_implemented, Request}).
 
 handle_info({data, {_Node, _Timestamp}, Proplist},
-            State = #state{subscribers = Subs, counters = OldCounters}) ->
+            State = #state{subscribers = Subs,
+                           traffic = OldTraffic,
+                           msg_pass = OldMsgPass}) ->
 
-    Viz = new(),
-
-    {Viz1, NewCounters} = update_traffic_graph(OldCounters, Viz),
+    {Viz1, NewTraffic} = update_traffic_graph(OldTraffic, new()),
 
     %% By convention we use <<"INTERNET">> as a name of the region,
     %% which represents the observed node
-    Viz2 = get_message_passing_counters(<<"INTERNET">>, Proplist, Viz1),
+    Viz2 = get_message_passing_counters(<<"INTERNET">>, Proplist,
+                                        Viz1, OldMsgPass),
 
     %% push an update to all subscribed WebSockets
     JSON = epl_json:encode(Viz2, <<"traffic-info">>),
 
     [Pid ! {data, JSON} || Pid <- Subs],
-    {noreply, State#state{counters = NewCounters}};
+    {noreply, State#state{traffic = NewTraffic}};
 handle_info(Request, _State) ->
     exit({not_implemented, Request}).
 
@@ -91,28 +93,28 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-get_message_passing_counters(Node, Proplist, Vizceral) ->
+get_message_passing_counters(Node, Proplist, Vizceral, OldMsgPass) ->
     lists:foldl(
       fun({send, Send}, V) ->
               %% Examples of send trace:
               %% {{global_name_server,<13104.13.0>},0,1}
               %% {#Port<13104.431>,<13104.28.0>},0,72}
               %% {{<13104.12.0>,{alias,'erlangpl@127.0.0.1'}},2,0}
-              update_message_passing_graph(Node, Send, V);
+              update_message_passing_graph(Node, Send, V, OldMsgPass);
          (_, V) ->
               V
       end,
       Vizceral,
       Proplist).
 
-update_message_passing_graph(Node, Send, Vizceral) ->
+update_message_passing_graph(Node, Send, Vizceral, OldMsgPass) ->
     %% Below is a workaround for how Vizceral requires the INTERNET
     %% node to appear in its graph
     {{RootVertex, _}, _, _} = hd(Send),
     Viz1 = push_focused(<<"INTERNET">>, Node, Vizceral),
     Viz2 = push_focused(RootVertex, Node, Viz1),
     Viz3 = push_focused_connection(
-                  <<"INTERNET">>, RootVertex, Node, {0,0,0}, #{}, Viz2),
+             <<"INTERNET">>, RootVertex, Node, {0,0,0}, Viz2),
 
     %% Update Vizceral graph with verticies representing processes
     %% and edges representing message passing
@@ -121,10 +123,8 @@ update_message_passing_graph(Node, Send, Vizceral) ->
             when not is_tuple(P1), not is_tuple(P2) ->
               V1 = push_focused(P1, Node, V),
               V2 = push_focused(P2, Node, V1),
-              V3 = push_focused_connection(P1, P2, Node,
-                                           {Count1,0,0}, #{}, V2),
-              push_focused_connection(P2, P1, Node,
-                                      {Count2,0,0}, #{}, V3);
+              V3 = push_focused_connection(P1, P2, Node, {Count1,0,0}, V2),
+              push_focused_connection(P2, P1, Node, {Count2,0,0}, V3);
          (_, V) ->
               V
       end, Viz3, Send).
@@ -218,6 +218,7 @@ namify(Name) ->
 %% ---------------------- Regions ---------------------
 push_region(Name, Vizceral) ->
     push_region(Name, #{}, Vizceral).
+
 push_region(Name, Additional, Vizceral) ->
     A = maps:merge(#{
                       connections => [],
@@ -235,6 +236,7 @@ push_node(Renderer, Name, Additional, Entity) ->
     #{nodes := Nodes} = Entity,
     Newnode = entity(Renderer, Name, [], Additional),
     maps:merge(Entity, #{nodes => [Newnode | Nodes]}).
+
 pull_node(Name, Entity) ->
     #{nodes := Nodes} = Entity,
     {[Node], Rest} = lists:partition(
@@ -245,16 +247,14 @@ pull_node(Name, Entity) ->
 
 %% ------------------- Connections --------------------
 push_connection(Source, Target, {N, W, D} , Additional, To) ->
-  #{connections := Connections} = To,
-  New = maps:merge(#{
-    source => namify(Source),
-    target => namify(Target),
-    metrics => #{
-      normal => N,
-      danger => D,
-      warning => W
-     }
-   }, Additional),
+    #{connections := Connections} = To,
+    New = maps:merge(Additional,
+                     #{source => namify(Source),
+                       target => namify(Target),
+                       metrics => #{normal => N,
+                                    danger => D,
+                                    warning => W}
+                      }),
   maps:merge(To, #{connections => [New | Connections]}).
 
 push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
@@ -263,14 +263,18 @@ push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
   pull_region(Target, Vizceral),
   push_connection(Source, Target, {N, W, D}, Additional, Vizceral).
 
-push_focused_connection(Source, Target, RegionName, {N, W, D}, Additional, Vizceral) ->
+push_focused_connection(S, T, RN, NWD, Vizceral) ->
+    push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
+
+push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
     {Region, NewV} = pull_region(RegionName, Vizceral),
-    NewR = push_connection(Source, Target, {N,W,D}, Additional, Region),
-    push_region("", NewR, NewV).
+    NewR = push_connection(Source, Target, {N,W,D}, A, Region),
+    push_region(RegionName, NewR, NewV).
 
 %% ---------------------- Focused ---------------------
 push_focused(Name, Region, Vizceral) ->
     push_focused(Name, Region, #{} ,Vizceral).
+
 push_focused(Name, RegionName, Additional, Vizceral) ->
     #{nodes := Nodes} = Vizceral,
     {[Region], Rest} = lists:partition(
