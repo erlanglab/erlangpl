@@ -91,10 +91,8 @@ class SupTree extends Component {
 
     setTimeout(
       () => {
-        this.setState(
-          { renderer, graph, graphics, layout, events },
-          () => this.propagateGraph()
-        );
+        this.setState({ renderer, graph, graphics, layout, events }, () =>
+          this.propagateGraph());
       },
       10
     );
@@ -141,30 +139,33 @@ class SupTree extends Component {
 
     const { all } = this.state;
 
-    let appsNodes = this.state.appsNodes;
+    let appsNodes = []; //this.state.appsNodes;
 
-    const list = Object.keys(props.tree).reduce((acc, app) => {
-      const parent = props.tree[app];
-      if (Object.keys(parent).length) {
-        if (all.indexOf(parent.id) < 0) {
-          const app = this.state.graph.addNode(parent.id, { ...parent });
-          if (!appsNodes.includes(app)) {
-            appsNodes.push(app);
+    const list = Object.keys(props.tree).reduce(
+      (acc, app) => {
+        const parent = props.tree[app];
+        if (Object.keys(parent).length) {
+          if (all.indexOf(parent.id) < 0) {
+            const app = this.state.graph.addNode(parent.id, { ...parent });
+            if (!this.state.appsNodes.includes(app)) {
+              appsNodes.push(app);
+            }
           }
+
+          return acc
+            .concat(parent.id)
+            .concat(
+              parent.children.reduce(
+                (acc, child) => acc.concat(this.mapChild(child, parent)),
+                []
+              )
+            );
         }
 
-        return acc
-          .concat(parent.id)
-          .concat(
-            parent.children.reduce(
-              (acc, child) => acc.concat(this.mapChild(child, parent)),
-              []
-            )
-          );
-      }
-
-      return acc;
-    }, []);
+        return acc;
+      },
+      []
+    );
 
     if (this.state.first && Object.keys(props.tree).length) {
       this.state.renderer.run();
@@ -252,7 +253,7 @@ class SupTree extends Component {
 
         {this.state.first &&
           <div className="loader">
-            <div className="text-center" style={{ paddingTop: '25%' }}>
+            <div className="text-center">
               <div className="spinner">
                 <div className="bounce1" />
                 <div className="bounce2" />
@@ -301,37 +302,40 @@ class SupTree extends Component {
                         </button>
                       </ListGroupItem>
                       {Object.keys(this.props.tree).map(
-                        (app, key) => Object.keys(this.props.tree[app]).length
-                          ? <ListGroupItem
-                              key={key}
-                              className="application-link"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={this.state.apps.includes(app)}
-                                onChange={() =>
-                                  this.handleAppClick(
-                                    app,
-                                    this.props.tree[app].id
-                                  )}
-                              />
-                              <a
-                                style={{ marginLeft: '5px' }}
-                                onClick={() =>
-                                  this.selectNode(
-                                    this.props.tree[app].id,
-                                    true
-                                  )}
+                        (app, key) =>
+                          Object.keys(this.props.tree[app]).length
+                            ? <ListGroupItem
+                                key={key}
+                                className="application-link"
                               >
-                                {app}
-                              </a>
-                            </ListGroupItem>
-                          : <ListGroupItem
-                              key={key}
-                              className="application-link"
-                            >
-                              <span style={{ marginLeft: '17px' }}>{app}</span>
-                            </ListGroupItem>
+                                <input
+                                  type="checkbox"
+                                  checked={this.state.apps.includes(app)}
+                                  onChange={() =>
+                                    this.handleAppClick(
+                                      app,
+                                      this.props.tree[app].id
+                                    )}
+                                />
+                                <a
+                                  style={{ marginLeft: '5px' }}
+                                  onClick={() =>
+                                    this.selectNode(
+                                      this.props.tree[app].id,
+                                      true
+                                    )}
+                                >
+                                  {app}
+                                </a>
+                              </ListGroupItem>
+                            : <ListGroupItem
+                                key={key}
+                                className="application-link"
+                              >
+                                <span style={{ marginLeft: '17px' }}>
+                                  {app}
+                                </span>
+                              </ListGroupItem>
                       )}
                     </ListGroup>
                   </div>}
@@ -346,7 +350,6 @@ class SupTree extends Component {
                         JSON.stringify(this.props.nodeInfo, null, 2)}
                     </code>
                   </pre>
-
                 </div>
               </div>
             )}

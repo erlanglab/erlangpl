@@ -61,17 +61,8 @@ describe('traffic reducer', () => {
       ]
     };
 
-    expect(reducer(INITIAL_STATE, actions.updateTrafficData(data))).toEqual({
-      ...INITIAL_STATE,
-      data
-    });
-  });
-
-  it('should handle UPDATE_TRAFFIC_VIEW', () => {
-    const view = ['us-west-1', 'server'];
-    expect(reducer(INITIAL_STATE, actions.updateTrafficView(view))).toEqual({
-      ...INITIAL_STATE,
-      view
-    });
+    expect(
+      reducer(INITIAL_STATE, actions.updateTrafficData(data))
+    ).toMatchSnapshot();
   });
 });

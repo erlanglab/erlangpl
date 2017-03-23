@@ -88,6 +88,13 @@
   bottom: 30px;
 }
 
+.SupTree .loader > div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .SupTree .node-info {
   width: 100%;
   overflow-y: scroll;

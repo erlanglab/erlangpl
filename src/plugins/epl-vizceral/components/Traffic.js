@@ -3,9 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
 import { Motion, spring } from 'react-motion';
-
-import loaderLogo from '../images/erlanglab_logo_alpha_250.png';
-import loaderText from '../images/erlangpl_test_1.jpg';
+import { push } from 'react-router-redux';
 
 import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
@@ -13,29 +11,51 @@ import './Traffic.css';
 import TrafficTools from './TrafficTools';
 import * as actions from '../actions';
 
+/* import sampleData from '../sample_data.json';*/
+
 class Traffic extends Component {
   state: {
     start: number,
     end: number,
+    height: number,
+    width: number,
     graph: boolean
   };
+
+  vizceral: any;
 
   constructor(props) {
     super(props);
     this.state = {
+      height: 0,
+      width: 0,
       start: 0,
       end: 0,
       graph: false
     };
   }
 
-  handleViewChange(data: any) {
+  resize = () => {
+    const { clientWidth, clientHeight } = this.vizceral.refs.vizCanvas;
+    this.setState({ width: clientWidth, height: clientHeight });
+  };
+
+  componentDidMount() {
+    this.resize();
+    window.addEventListener('resize', this.resize);
+  }
+
+  handleViewChange = (data: any) => {
+    const sidePanelLevel = 3;
     let anim;
     const { view, graph } = data;
-    if (view.length > 0 && this.props.view.length === 0) {
+    if (
+      view.length > sidePanelLevel - 1 &&
+      this.props.view.length === sidePanelLevel - 1
+    ) {
       //open
       anim = { end: 1, start: 0 };
-    } else if (this.props.view.length > 0) {
+    } else if (this.props.view.length > sidePanelLevel - 1) {
       //stay open
       anim = { end: 1, start: 1 };
     } else {
@@ -49,12 +69,16 @@ class Traffic extends Component {
       graph: graph !== null
     });
 
-    this.props.updateTrafficView(view);
-  }
+    const path = `/traffic${view.length > 0 ? '/' : ''}${view.join('/')}`;
+    this.props.push(path);
+  };
+
+  selectCentralNode = () => {
+    this.props.push('/traffic/INTERNET');
+  };
 
   render() {
     const sidePanelWidth = 30;
-
     return (
       <div className="Traffic">
         <TrafficTools className="Traffic-tools" />
@@ -70,13 +94,26 @@ class Traffic extends Component {
                 className="Traffic-panel"
                 style={{ width: `${100 - sidePanelWidth * x}%`, float: 'left' }}
               >
+
+                {this.props.view.length === 0 &&
+                  <div
+                    className="fake-click"
+                    style={{
+                      width: this.state.height / 5,
+                      height: this.state.height / 5
+                    }}
+                    onClick={this.selectCentralNode}
+                  />}
+
                 <Vizceral
+                  ref={node => this.vizceral = node}
                   traffic={this.props.data}
                   view={this.props.view}
-                  viewChanged={event => this.handleViewChange(event)}
+                  viewChanged={this.handleViewChange}
                   showLabels={true}
+                  match={this.props.search}
                   allowDraggingOfNodes={true}
-                  targetFramerate={30}
+                  targetFramerate={25}
                 />
                 <div
                   className="loader"
@@ -85,29 +122,31 @@ class Traffic extends Component {
                     opacity: y
                   }}
                 >
-                  <div className="loader-img">
-                    <img
-                      src={loaderLogo}
-                      style={{ width: '75px', height: '75px' }}
-                      alt="Erlang Performance Lab"
-                    />
-                    <img
-                      style={{ width: '540px', height: '75px' }}
-                      src={loaderText}
-                      alt="Erlang Performance Lab"
-                    />
+                  <div className="text-center">
+                    <div className="spinner">
+                      <div className="bounce1" />
+                      <div className="bounce2" />
+                      <div className="bounce3" />
+                    </div>
+                    <span>Gathering cluster data</span>
                   </div>
                 </div>
               </div>
               <div
-                className="Traffic-panel text-center"
+                className="Traffic-panel"
                 style={{
                   width: `${sidePanelWidth * x}%`,
                   opacity: x,
                   float: 'right'
                 }}
               >
-                <h3>side panel content</h3>
+                <pre style={{ height: '100%' }}>
+                  <code>
+                    {this.props.nodeInfo
+                      ? JSON.stringify(this.props.nodeInfo, null, 2)
+                      : 'No info available'}
+                  </code>
+                </pre>
               </div>
             </div>
           )}
@@ -120,11 +159,14 @@ class Traffic extends Component {
 export default connect(
   state => {
     return {
-      data: state.traffic.data,
-      view: state.traffic.view
+      search: state.eplVizceral.search,
+      nodeInfo: state.eplSupTree.nodeInfo,
+      data: state.eplVizceral.data,
+      view: state.eplVizceral.view
     };
   },
   {
-    updateTrafficView: actions.updateTrafficView
+    push,
+    updateTrafficData: actions.updateTrafficData
   }
 )(Traffic);

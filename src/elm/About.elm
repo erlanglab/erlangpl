@@ -9,7 +9,7 @@ import Json.Decode as Decode
 
 init : String -> ( Model, Cmd Msg )
 init logo =
-    ( ( logo, "0.4.0" ), getTodos )
+    ( ( logo, "" ), getTodos )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -23,6 +23,16 @@
   overflow: hidden;
 }
 
+.Traffic .fake-click {
+  background-color: transparent;
+  position: absolute;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
 .Traffic-tools {
   height: 45px;
   line-height: 45px;
@@ -34,7 +44,11 @@
 }
 
 .Traffic-panel {
+  position: relative;
+  padding: 10px;
   height: 100%;
+  box-sizing: border-box;
+  border-left: 1px solid #21252b;
 }
 
 .Traffic .loader {
@@ -46,6 +60,13 @@
   top: 45px;
 }
 
+.Traffic .loader > div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .Traffic .loader-img {
   position: absolute;
   width: 615px;
@@ -54,7 +75,19 @@
   top: calc(50% - 40px);
 }
 
-/* TODO (baransu) figure out what's the purpose of this classes */
+.Traffic pre {
+  padding: 10px 0px;
+  margin: 0px;
+  border: none;
+  border-radius: 0px;
+  color: inherit;
+  background-color: #282c34;
+}
+
+.Traffic h3 {
+  margin: 5px;
+}
+
 .color-normal, .severity0 {
   color: var(--colorNormal);
 }

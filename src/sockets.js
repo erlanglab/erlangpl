@@ -94,23 +94,32 @@ export const createSockets = (sockets: any) => {
     const { hostname } = window.location;
     let ws = new WebSocket(`ws://${hostname}:8000/${route}`);
 
-    const handlers = Object.keys(sockets[route].topics).reduce((acc, topic) => {
-      if (Array.isArray(sockets[route].topics[topic])) {
-        return {
-          ...acc,
-          [topic]: sockets[route].topics[topic]
-        };
-      }
-      return acc;
-    }, {});
+    const handlers = Object.keys(sockets[route].topics).reduce(
+      (acc, topic) => {
+        if (Array.isArray(sockets[route].topics[topic])) {
+          return {
+            ...acc,
+            [topic]: sockets[route].topics[topic]
+          };
+        }
+        return acc;
+      },
+      {}
+    );
 
-    ws.onopen = () => sockets[route].__builtIn.onopen.forEach(c => {
-      if (typeof c === 'function') c();
-    });
+    ws.onopen = () => {
+      console.log(`${route} - connection opened`);
+      sockets[route].__builtIn.onopen.forEach(c => {
+        if (typeof c === 'function') c();
+      });
+    };
 
-    ws.onclose = () => sockets[route].__builtIn.onclose.forEach(c => {
-      if (typeof c === 'function') c();
-    });
+    ws.onclose = () => {
+      console.log(`${route} - connection closed`);
+      sockets[route].__builtIn.onclose.forEach(c => {
+        if (typeof c === 'function') c();
+      });
+    };
 
     ws.onmessage = (msg: any) => {
       const { topic, data } = JSON.parse(msg.data);

@@ -14,3 +14,14 @@
   color: white;
   cursor: pointer;
 }
+
+.TrafficTools input {
+  height: 100%;
+  box-sizing: border-box;
+  border: none;
+  background-color: #21252b;
+}
+
+.TrafficTools input:focus {
+  border: 1px solid #8fbf47;
+}
