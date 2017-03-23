@@ -108,26 +108,48 @@ get_message_passing_counters(Node, Proplist, Vizceral, OldMsgPass) ->
       Proplist).
 
 update_message_passing_graph(Node, Send, Vizceral, OldMsgPass) ->
-    %% Below is a workaround for how Vizceral requires the INTERNET
-    %% node to appear in its graph
-    {{RootVertex, _}, _, _} = hd(Send),
-    Viz1 = push_focused(<<"INTERNET">>, Node, Vizceral),
-    Viz2 = push_focused(RootVertex, Node, Viz1),
-    Viz3 = push_focused_connection(
-             <<"INTERNET">>, RootVertex, Node, {0,0,0}, Viz2),
+    %% the INTERNET node represents the source of ingress traffic
+    Vizceral1 = push_focused(<<"INTERNET">>, Node, Vizceral),
 
-    %% Update Vizceral graph with verticies representing processes
-    %% and edges representing message passing
     lists:foldl(
-      fun({{P1, P2}, Count1, Count2}, V)
-            when not is_tuple(P1), not is_tuple(P2) ->
-              V1 = push_focused(P1, Node, V),
-              V2 = push_focused(P2, Node, V1),
-              V3 = push_focused_connection(P1, P2, Node, {Count1,0,0}, V2),
-              push_focused_connection(P2, P1, Node, {Count2,0,0}, V3);
-         (_, V) ->
-              V
-      end, Viz3, Send).
+      fun({{ID1, ID2}, Count1, Count2}, V) ->
+              P1 = get_PID_from_trace_event(ID1),
+              P2 = get_PID_from_trace_event(ID2),
+              update_messge_passing_graph(Node, P1, P2, Count1, Count2, V)
+      end, Vizceral1, Send).
+
+get_PID_from_trace_event({P,_}) -> P;
+get_PID_from_trace_event(P)     -> P.
+
+update_messge_passing_graph(Node, P1, P2, Count1, Count2, V) ->
+    %% Add verticies representing processes and ports
+    %% and edges representing message passing
+    V1 = update_msg_pass_processes(Node, P1, P2, Count1, Count2, V),
+
+    %% Add edges between <<"INTERNET">> and ports
+    %% to represent ingress traffic
+    update_msg_pass_ports(Node, P1, P2, Count1, Count2, V1).
+
+update_msg_pass_processes(Node, P1, P2, C1, C2, V) ->
+    V1 = push_focused(P1, Node, V),
+    V2 = push_focused(P2, Node, V1),
+    V3 = push_focused_connection(P1, P2, Node, {C1,0,0}, V2),
+    push_focused_connection(P2, P1, Node, {C2,0,0}, V3).
+
+update_msg_pass_ports(Node, P1, P2, C1, C2, V) ->
+    V1 = if is_port(P1) ->
+                 push_focused_connection(<<"INTERNET">>, P1,
+                                         Node, {C1,0,0}, V);
+            true ->
+                 V
+         end,
+
+    if is_port(P2) ->
+            push_focused_connection(<<"INTERNET">>, P2,
+                                    Node, {C2,0,0}, V1);
+       true ->
+            V1
+    end.
 
 get_traffic_counters() ->
     {ok, NodesInfo} = command(fun net_kernel:nodes_info/0),
