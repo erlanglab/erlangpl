@@ -51,6 +51,33 @@ $ iex --name foo@127.0.0.1 -S mix
 $ erlangpl --node foo@127.0.0.1
 ```
 
+### Mnesia cluster
+You can generate messages between nodes by querying a distributed database Mnesia.
+
+To setup a Mnesia cluster, start several Erlang nodes with unique names e.g. `a@`, `b@`, `c@`, etc. and start the database on all of them:
+```
+erl -name a@127.0.0.1
+(a@127.0.0.1)1> mnesia:start().
+```
+Then create a `test_table` and configure it to be replicated on all nodes:
+```
+(a@127.0.0.1)2> mnesia:change_config(extra_db_nodes, ['b@127.0.0.1']).
+(a@127.0.0.1)3> mnesia:change_config(extra_db_nodes, ['c@127.0.0.1']).
+(a@127.0.0.1)4> mnesia:change_config(extra_db_nodes, ['d@127.0.0.1']).
+(a@127.0.0.1)5> mnesia:create_table(test_table, []).
+(a@127.0.0.1)6> [mnesia:add_table_copy(test_table, Node, ram_copies) || Node <- nodes()].
+```
+
+Here are some behaviours you can test:
+```
+[begin mnesia:transaction(fun() -> mnesia:write({test_table, Key, "value"}) end), timer:sleep(10) end || Key <- lists:seq(1,2000)].
+[begin mnesia:sync_dirty(fun() -> mnesia:write({test_table, Key, "value"}) end), timer:sleep(10) end || Key <- lists:seq(1,2000)].
+[begin mnesia:dirty_write({test_table, Key, "value"}), timer:sleep(10) end || Key <- lists:seq(1,2000)].
+```
+
+Videos from the following experiments were posted on [YouTube](https://www.youtube.com/channel/UCGkcbu799cC1rtMaQtAajpg)
+
+
 ## Running development release
 
 You can also start the tool as a regular Erlang release and connect to its console to debug the tool itself.
