@@ -75,7 +75,7 @@ Here are some behaviours you can test:
 [begin mnesia:dirty_write({test_table, Key, "value"}), timer:sleep(10) end || Key <- lists:seq(1,2000)].
 ```
 
-Videos from the following experiments were posted on [YouTube](https://www.youtube.com/channel/UCGkcbu799cC1rtMaQtAajpg)
+Videos from those experiments were posted on [YouTube](https://www.youtube.com/channel/UCGkcbu799cC1rtMaQtAajpg)
 
 
 ## Running development release
