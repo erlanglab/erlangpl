@@ -56,11 +56,18 @@ You can generate messages between nodes by querying a distributed database Mnesi
 
 To setup a Mnesia cluster, start several Erlang nodes with unique names e.g. `a@`, `b@`, `c@`, etc. and start the database on all of them:
 ```
-erl -name a@127.0.0.1
-(a@127.0.0.1)1> mnesia:start().
+$ erl -name a@127.0.0.1 -setcookie mnesia_cluster -run mnesia start \
+ -detached -noshell -noinput
+$ erl -name b@127.0.0.1 -setcookie mnesia_cluster -run mnesia start \
+ -detached -noshell -noinput
+$ erl -name c@127.0.0.1 -setcookie mnesia_cluster -run mnesia start \
+ -detached -noshell -noinput
+$ erl -name d@127.0.0.1 -setcookie mnesia_cluster -run mnesia start \
+-detached -noshell -noinput
 ```
 Then create a `test_table` and configure it to be replicated on all nodes:
 ```
+erl -name maint@127.0.0.1 -setcookie mnesia_cluster -remsh a@127.0.0.1
 (a@127.0.0.1)2> mnesia:change_config(extra_db_nodes, ['b@127.0.0.1']).
 (a@127.0.0.1)3> mnesia:change_config(extra_db_nodes, ['c@127.0.0.1']).
 (a@127.0.0.1)4> mnesia:change_config(extra_db_nodes, ['d@127.0.0.1']).
@@ -68,11 +75,21 @@ Then create a `test_table` and configure it to be replicated on all nodes:
 (a@127.0.0.1)6> [mnesia:add_table_copy(test_table, Node, ram_copies) || Node <- nodes()].
 ```
 
-Here are some behaviours you can test:
+Start the Erlang performance lab tool:
+```
+$ $ ./erlangpl --node a@127.0.0.1 --cookie mnesia_cluster
+```
+
+Here's some mnesia activities to add some information the performance lab dashboard:
 ```
 [begin mnesia:transaction(fun() -> mnesia:write({test_table, Key, "value"}) end), timer:sleep(10) end || Key <- lists:seq(1,2000)].
 [begin mnesia:sync_dirty(fun() -> mnesia:write({test_table, Key, "value"}) end), timer:sleep(10) end || Key <- lists:seq(1,2000)].
 [begin mnesia:dirty_write({test_table, Key, "value"}), timer:sleep(10) end || Key <- lists:seq(1,2000)].
+```
+
+Stopping the demo mnesia cluster:
+```
+ps aux | grep "[a|b|c|d]@127.0.0.1" | awk '{ print $2 }' | xargs kill
 ```
 
 Videos from those experiments were posted on [YouTube](https://www.youtube.com/channel/UCGkcbu799cC1rtMaQtAajpg)
