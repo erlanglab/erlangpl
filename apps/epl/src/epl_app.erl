@@ -405,7 +405,10 @@ plugins(Args) ->
 scan_plugins([Plugin | Rest], PluginApps) ->
     %% start an application if .app file exists
     %% TODO: What if there is no .app file? Shall we load .beam anyway?
-    EbinFiles = filelib:wildcard(Plugin ++ "/ebin/*"),
+    EbinPath = filename:join(Plugin, "ebin"),
+    ?INFO("Adding path ~s~n", [EbinPath]),
+    true = code:add_path(EbinPath),
+    EbinFiles = filelib:wildcard(EbinPath ++ "/*"),
     Fun = fun(File, App) ->
                   case filename:extension(File) of
                       ".app" ->
@@ -431,9 +434,6 @@ scan_plugins([], PluginApps) ->
     PluginApps.
 
 load_plugin(AppName, AppPath) ->
-    ?INFO("Adding path ~s~n", [AppPath]),
-    true = code:add_path(AppPath),
-
     %% Load all files from priv directory to ets
     PluginPrivDir = filename:join([AppPath, "../priv"]),
     filelib:fold_files(PluginPrivDir, "", true,
