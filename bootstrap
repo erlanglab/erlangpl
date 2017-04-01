@@ -47,16 +47,61 @@ get_files() ->
 
     %% include all compiled modules and the .app file
     Beams = [filelib:fold_files(Dir, "\\.app$|\\.beam$", true, Fun, [])
-	     || Dir <- Apps],
+             || Dir <- Apps] ++ elixir_beams(),
 
     %% include all contents of the priv dirs
     %% except for .js.map files, which are heavy but unnecessary
     Privs = [filelib:fold_files(filename:join([Dir, "priv"]),
                                 "^((?!\\.js\\.map).)*$", true, Fun, [])
-	     || Dir <- Apps],
+             || Dir <- Apps],
 
     lists:flatten([Beams, Privs]).
 
 file_contents(Filename) ->
     {ok, Bin} = file:read_file(Filename),
     Bin.
+
+elixir_beams() ->
+    Args = init:get_plain_arguments(),
+    Path = get_elixir_ebin_path(Args),
+    case Path of
+        undefined ->
+            [];
+        Ebin ->
+            Paths = filelib:wildcard(filename:join(Ebin, "*")),
+            [read_elixir_beam(BeamPath) || BeamPath <- Paths]
+    end.
+
+get_elixir_ebin_path(Args) ->
+    ElixirRoot = find_in_args(Args),
+    case ensure_elixir_root(ElixirRoot) of
+        undefined ->
+            undefined;
+        Path ->
+            filename:join([Path, "lib", "elixir", "ebin"])
+    end.
+
+find_in_args(["--with-elixir", Path]) ->
+    filename:absname(Path);
+find_in_args([_ | Tail]) ->
+    find_in_args(Tail);
+find_in_args([]) ->
+    undefined.
+
+read_elixir_beam(Path) ->
+    Contents = file_contents(Path),
+    Filename = filename:basename(Path),
+    {filename:join(["elixir", "ebin", Filename]), Contents}.
+
+ensure_elixir_root(undefined) ->
+    undefined;
+ensure_elixir_root(Path) ->
+    AppFile = filename:join([Path, "lib", "elixir", "ebin", "elixir.app"]),
+    case filelib:is_regular(AppFile) of
+        true ->
+            Path;
+        false ->
+            io:format("ERROR: path provided to --with-elixir option is not "
+                      "Elixir root path~n"),
+            undefined
+    end.
