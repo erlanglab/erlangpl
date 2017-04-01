@@ -182,7 +182,7 @@ run5(PluginApps, Args) ->
     GetHandlers = fun({_,preloaded}, Acc) ->
                           Acc;
                      ({Mod, Path}, Acc) ->
-                          case re:run(Path,"_EPL.beam\$",[global]) of
+                          case re:run(Path,"EPL.beam\$",[global]) of
                               {match,_} -> [Mod | Acc];
                               nomatch   -> Acc
                           end
