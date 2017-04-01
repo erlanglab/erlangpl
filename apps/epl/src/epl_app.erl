@@ -44,6 +44,9 @@ start(_StartType, _StartArgs) ->
     %% Load priv files to ets
     ok = run4(),
 
+    %% Try to start Elixir
+    maybe_start_elixir(Args),
+
     insert_node_name(Node),
 
     %% Start top supervisor
@@ -244,7 +247,8 @@ option_spec_list() ->
      {version, $V, "version",   undefined, "Show version information"},
      {sname,   $s, "sname",     string,    "Start with a shortname"},
      {name,    $l, "name",      string,    "Start with a longname, default "
-                                           "erlangpl@127.0.0.1"}
+                                           "erlangpl@127.0.0.1"},
+     {elixir_path, $e, "with-elixir", string, "Path to Elixir root directory"}
     ].
 
 %% show version information and halt
@@ -460,3 +464,17 @@ insert_node_name(Node) ->
                         <<NodeBin/binary, $&>>,
                         [{return,binary}]),
     ets:insert(epl_priv, {IndexHtml, NewBin}).
+
+maybe_start_elixir(Args) ->
+    case proplists:lookup(elixir_path, Args) of
+        none ->
+            ok;
+        {elixir_path, Path} ->
+            code:add_patha(filename:join([Path, "lib", "elixir", "ebin"]))
+    end,
+    case application:ensure_all_started(elixir) of
+        {ok, _} ->
+            ?DEBUG("Successfully loaded and started Elixir~n", []);
+        _ ->
+            ?DEBUG("Couldn't start Elixir~n", [])
+    end.
