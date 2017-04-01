@@ -44,8 +44,7 @@ class SupTree extends Component {
       events: null,
 
       collapse: false,
-      hStart: 50,
-      hEnd: 50,
+      height: [50, 50],
       selected: { id: 'Applications', color: 0, type: '' },
       appsNodes: [],
       apps: [],
@@ -94,7 +93,7 @@ class SupTree extends Component {
         this.setState({ renderer, graph, graphics, layout, events }, () =>
           this.propagateGraph());
       },
-      10
+      0
     );
   }
 
@@ -242,8 +241,7 @@ class SupTree extends Component {
   toggleCollapse = () => {
     this.setState(({ collapse, hEnd, hStart }) => ({
       collapse: !collapse,
-      hEnd: collapse ? 50 : 0,
-      hStart: collapse ? 0 : 50
+      height: collapse ? [50, 0] : [0, 50]
     }));
   };
 
@@ -281,8 +279,8 @@ class SupTree extends Component {
           </div>
 
           <Motion
-            defaultStyle={{ height: this.state.hStart }}
-            style={{ height: spring(this.state.hEnd) }}
+            defaultStyle={{ height: this.state.height[0] }}
+            style={{ height: spring(this.state.height[1]) }}
             children={({ height }) => (
               <div className="side-content" style={{}}>
 

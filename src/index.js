@@ -1,6 +1,16 @@
 // @flow
 import React from 'react';
 import { render } from 'react-dom';
+console.log(new Image('/epl-plugin/test.png'));
+// TODO handle this in separate file, excluded in production build
+
+// loading plugins
+import './plugins';
+const plugins = Object.keys(window)
+  .filter(key => {
+    return key.match(/^__EPL_/);
+  })
+  .map(key => console.log('Loaded:', key.replace('__EPL_', '')) || window[key]);
 
 import App from './App';
 import { combineSockets, createSockets } from './sockets';
