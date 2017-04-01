@@ -48,7 +48,7 @@ $ iex --name foo@127.0.0.1 -S mix
 ```
 
 ```
-$ erlangpl --node foo@127.0.0.1
+$ ./erlangpl --node foo@127.0.0.1
 ```
 
 ### Mnesia cluster
