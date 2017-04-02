@@ -100,7 +100,7 @@ module.exports = {
       // Otherwise, it acts like the "file" loader.
       {
         exclude: [
-          /\.html$/,
+          /\.(html|ejs)$/,
           /\.(js|jsx)$/,
           /\.css$/,
           /\.json$/,
@@ -180,6 +180,7 @@ module.exports = {
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
+      plugins: [{ script: 'script', style: 'style' }],
       template: paths.appHtml
     }),
     // Makes some environment variables available to the JS code, for example:

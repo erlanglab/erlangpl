@@ -5,7 +5,6 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var ManifestPlugin = require('webpack-manifest-plugin');
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-var url = require('url');
 var paths = require('./paths');
 var getClientEnvironment = require('./env');
 
@@ -103,7 +102,7 @@ module.exports = {
       // Otherwise, it acts like the "file" loader.
       {
         exclude: [
-          /\.html$/,
+          /\.(html|ejs)$/,
           /\.(js|jsx)$/,
           /\.css$/,
           /\.json$/,
@@ -190,6 +189,7 @@ module.exports = {
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
+      plugins: [],
       template: paths.appHtml,
       minify: {
         removeComments: true,
