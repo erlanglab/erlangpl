@@ -59,7 +59,13 @@ get_files() ->
 
 file_contents(Filename) ->
     {ok, Bin} = file:read_file(Filename),
-    Bin.
+    case filename:extension(Filename) of
+        ".beam" ->
+            {ok, {_, Stripped}} = beam_lib:strip(Bin),
+            Stripped;
+        _ ->
+            Bin
+    end.
 
 elixir_beams() ->
     Args = init:get_plain_arguments(),
