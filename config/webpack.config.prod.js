@@ -40,7 +40,6 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths // Making sure that
 
 var utils = require('./utils');
 var plugins = utils.pluginsProd;
-
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.

@@ -3,11 +3,17 @@ var path = require('path');
 var packageJSON = require('../package.json');
 
 function getPlugins(mode) {
-  return packageJSON.plugins.map(plugin => {
+  const a = packageJSON.plugins.map(plugin => {
     const pluginDirectory = `./node_modules/${plugin}/${mode}`;
     let p = { media: null, name: plugin, styles: [], scripts: [] };
     const media = `${pluginDirectory}/${plugin}`;
-    if (fs.readdirSync(media).length) p.media = media;
+
+    try {
+      const mediaFolder = fs.readdirSync(media);
+      if (mediaFolder.length) p.media = media;
+    } catch (e) {
+      // noop
+    }
 
     fs.readdirSync(pluginDirectory).forEach(file => {
       const ext = path.extname(file);
@@ -18,6 +24,7 @@ function getPlugins(mode) {
     });
     return p;
   });
+  return a;
 }
 
 const pluginsDev = getPlugins('dev');
