@@ -107,5 +107,8 @@
   },
   "eslintConfig": {
     "extends": "react-app"
-  }
+  },
+  "plugins": [
+    "epl-plugin"
+  ]
 }

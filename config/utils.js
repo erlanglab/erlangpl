@@ -1,17 +1,29 @@
+var fs = require('fs');
+var path = require('path');
 var packageJSON = require('../package.json');
 
-function getPlugins() {
-  return Object.keys(packageJSON.dependencies)
-    .concat(Object.keys(packageJSON.devDependencies))
-    .reduce(
-      (acc, p) => {
-        if (p !== 'epl-scripts' && p.match(/^epl-/)) return acc.concat(p);
-        return acc;
-      },
-      []
-    );
+function getPlugins(mode) {
+  return packageJSON.plugins.map(plugin => {
+    const pluginDirectory = `./node_modules/${plugin}/${mode}`;
+    let p = { media: null, name: plugin, styles: [], scripts: [] };
+    const media = `${pluginDirectory}/${plugin}`;
+    if (fs.readdirSync(media).length) p.media = media;
+
+    fs.readdirSync(pluginDirectory).forEach(file => {
+      const ext = path.extname(file);
+      if (ext === '.js')
+        p.scripts.push({ name: file, dir: `${pluginDirectory}/${file}` });
+      if (ext === '.css')
+        p.styles.push({ name: file, dir: `${pluginDirectory}/${file}` });
+    });
+    return p;
+  });
 }
 
+const pluginsDev = getPlugins('dev');
+const pluginsProd = getPlugins('build');
+
 module.exports = {
-  getPlugins: getPlugins
+  pluginsDev: pluginsDev,
+  pluginsProd: pluginsProd
 };

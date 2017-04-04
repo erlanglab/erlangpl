@@ -6,11 +6,21 @@
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
 
     <title>Erlang Performance Lab</title>
-    <!-- generates list of plugins in prodution build -->
-    <!-- <% for(var i=0; i < htmlWebpackPlugin.options.plugins.length; i++) {%>
-         <script src="<%= htmlWebpackPlugin.options.plugins[i].script %>"></script>
-         <link src="<%= htmlWebpackPlugin.options.plugins[i].style %>">
-         <% } %> -->
+
+    <!-- generates list of plugins -->
+    <% var plugins = htmlWebpackPlugin.options.plugins %>
+    <% for(var i = 0; i < plugins.length; i++) {%>
+      <% var name = plugins[i].name %>
+      <% var scripts = plugins[i].scripts %>
+      <% var styles = plugins[i].styles %>
+      <% for(var j = 0; j < scripts.length; j++) %>
+      <script type="text/javascript"
+        src="/<%= name + "/" + scripts[i].name %>"></script>
+      <% for(var j = 0; j < styles.length; j++) %>
+      <link
+        rel="stylesheet"
+        href="/<%= name + "/" + styles[i].name %>">
+    <% } %>
   </head>
   <body>
     <div id="root"></div>

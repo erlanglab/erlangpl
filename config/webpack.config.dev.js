@@ -18,7 +18,8 @@ var publicUrl = '';
 var env = getClientEnvironment(publicUrl);
 
 var utils = require('./utils');
-var plugins = utils.getPlugins();
+var plugins = utils.pluginsDev;
+
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
@@ -180,7 +181,7 @@ module.exports = {
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
-      plugins: [{ script: 'script', style: 'style' }],
+      plugins: [],
       template: paths.appHtml
     }),
     // Makes some environment variables available to the JS code, for example:
@@ -199,12 +200,19 @@ module.exports = {
     new WatchMissingNodeModulesPlugin(paths.appNodeModules),
 
     new CopyWebpackPlugin(
-      plugins
-        ? plugins.map(plugin => ({
-            from: `./node_modules/${plugin}/dev/${plugin}/`,
-            to: `${plugin}/`
-          }))
-        : [],
+      plugins.reduce(
+        (acc, plugin) => {
+          let tmp = [];
+          if (plugin.media)
+            tmp.push({
+              from: `${plugin.media}/`,
+              to: `${plugin.name}/`
+            });
+
+          return acc.concat(tmp);
+        },
+        []
+      ),
       { debug: 'info' }
     )
   ],

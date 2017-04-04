@@ -39,7 +39,7 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths // Making sure that
   : undefined;
 
 var utils = require('./utils');
-var plugins = utils.getPlugins();
+var plugins = utils.pluginsProd;
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -189,7 +189,7 @@ module.exports = {
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
-      plugins: [],
+      plugins: plugins,
       template: paths.appHtml,
       minify: {
         removeComments: true,
@@ -237,12 +237,26 @@ module.exports = {
     }),
 
     new CopyWebpackPlugin(
-      plugins
-        ? plugins.map(plugin => ({
-            from: `./node_modules/${plugin}/build/${plugin}/`,
-            to: `${plugin}/`
-          }))
-        : [],
+      plugins.reduce(
+        (acc, plugin) => {
+          let tmp = [];
+          if (plugin.media)
+            tmp.push({
+              from: `${plugin.media}/`,
+              to: `${plugin.name}/`
+            });
+
+          return acc.concat(
+            tmp.concat(
+              plugin.styles.concat(plugin.scripts).map(file => ({
+                from: file.dir,
+                to: `${plugin.name}/`
+              }))
+            )
+          );
+        },
+        []
+      ),
       { debug: 'info' }
     )
   ],
