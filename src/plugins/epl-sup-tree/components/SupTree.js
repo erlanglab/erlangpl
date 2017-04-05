@@ -25,8 +25,7 @@ class SupTree extends Component {
     events: any,
 
     collapse: boolean,
-    hStart: number,
-    hEnd: number,
+    height: Array<number>,
     selected: { id: string, color: number, type: string },
     appsNodes: Array<*>,
     apps: Array<string>,
