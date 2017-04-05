@@ -47,8 +47,6 @@ start(_StartType, _StartArgs) ->
     %% Try to start Elixir
     maybe_start_elixir(Args),
 
-    insert_node_name(Node),
-
     %% Start top supervisor
     {ok, Pid} = epl_sup:start_link(),
 
@@ -194,18 +192,6 @@ run5(PluginApps, Args) ->
     %% Call EPL plugin callback functions to initialize plugins
     Pids = [{M, {ok, _} = epl_sup:start_child(M, [Node])}
             || M <- PluginModules],
-
-    lists:foreach(
-      fun(M) ->
-              {ok, PluginConf} = M:init(Node),
-              case proplists:lookup(menu_item, PluginConf) of
-                  none ->
-                      ?WARN("Plugin ~p:init/1 does not return menu_item attribute~n", [M]);
-                  {menu_item, PluginMenu} ->
-                      epl:add_plugin_menu(PluginMenu)
-              end
-      end,
-      PluginModules),
 
     ?INFO("Started plugins: ~p~n", [Pids]),
 
@@ -455,15 +441,6 @@ load_plugin_priv(File, App) ->
         true ->
             App
     end.
-
-insert_node_name(Node) ->
-    IndexHtml = <<"epl/priv/htdocs/index.html">>,
-    NodeBin = list_to_binary(atom_to_list(Node)),
-    [{_, Bin}] = ets:lookup(epl_priv, IndexHtml),
-    NewBin = re:replace(Bin, <<"<!--NODE-->">>,
-                        <<NodeBin/binary, $&>>,
-                        [{return,binary}]),
-    ets:insert(epl_priv, {IndexHtml, NewBin}).
 
 maybe_start_elixir(Args) ->
     case proplists:lookup(elixir_path, Args) of
