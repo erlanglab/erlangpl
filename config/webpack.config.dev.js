@@ -18,7 +18,7 @@ var publicUrl = '';
 var env = getClientEnvironment(publicUrl);
 
 var utils = require('./utils');
-var plugins = utils.pluginsDev;
+var plugins = utils.pluginsDev();
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.

@@ -1,9 +1,10 @@
 var fs = require('fs');
 var path = require('path');
+var chalk = require('chalk');
 var packageJSON = require('../package.json');
 
 function getPlugins(mode) {
-  const a = packageJSON.plugins.map(plugin => {
+  return packageJSON.plugins.map(plugin => {
     const pluginDirectory = `./node_modules/${plugin}/${mode}`;
     let p = { media: null, name: plugin, styles: [], scripts: [] };
     const media = `${pluginDirectory}/${plugin}`;
@@ -15,22 +16,26 @@ function getPlugins(mode) {
       // noop
     }
 
-    fs.readdirSync(pluginDirectory).forEach(file => {
-      const ext = path.extname(file);
-      if (ext === '.js')
-        p.scripts.push({ name: file, dir: `${pluginDirectory}/${file}` });
-      if (ext === '.css')
-        p.styles.push({ name: file, dir: `${pluginDirectory}/${file}` });
-    });
+    try {
+      fs.readdirSync(pluginDirectory).forEach(file => {
+        const ext = path.extname(file);
+        if (ext === '.js')
+          p.scripts.push({ name: file, dir: `${pluginDirectory}/${file}` });
+        if (ext === '.css')
+          p.styles.push({ name: file, dir: `${pluginDirectory}/${file}` });
+      });
+    } catch (e) {
+      console.warn(
+        chalk.red(
+          `Could not find source for ${chalk.red.bold(plugin)} in node_modules`
+        )
+      );
+    }
     return p;
   });
-  return a;
 }
 
-const pluginsDev = getPlugins('dev');
-const pluginsProd = getPlugins('build');
-
 module.exports = {
-  pluginsDev: pluginsDev,
-  pluginsProd: pluginsProd
+  pluginsDev: () => getPlugins('dev'),
+  pluginsProd: () => getPlugins('build')
 };

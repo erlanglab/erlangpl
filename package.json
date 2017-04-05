@@ -51,7 +51,6 @@
   "dependencies": {
     "bootstrap": "3",
     "copy-webpack-plugin": "^4.0.1",
-    "epl-plugin": "file:../epl-plugin",
     "font-awesome": "^4.7.0",
     "humps": "^2.0.0",
     "lodash": "^4.17.4",
