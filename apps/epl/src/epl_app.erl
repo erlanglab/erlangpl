@@ -187,13 +187,6 @@ run5(PluginApps, Args) ->
                   end,
 
     PluginModules = lists:foldl(GetHandlers, [], LoadedModules),
-    Node = epl:lookup(node),
-
-    %% Call EPL plugin callback functions to initialize plugins
-    Pids = [{M, {ok, _} = epl_sup:start_child(M, [Node])}
-            || M <- PluginModules],
-
-    ?INFO("Started plugins: ~p~n", [Pids]),
 
     %% Configure cowboy with paths to plugin module and plugin priv files
     CowboyHandlers =
