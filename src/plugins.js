@@ -2,10 +2,6 @@ if (process.env.NODE_ENV !== 'production') {
   // we're importing script and styles from given plugin
   // this method should be only used in development
   // for production specify your plugin in package.json
-  require('epl-plugin/dev');
-  require('epl-plugin/dev/style.css');
-
-  // add plugins in development mode here
   // require('epl-plugin/dev');
   // require('epl-plugin/dev/style.css');
 }
