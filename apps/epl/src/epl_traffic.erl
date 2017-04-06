@@ -303,5 +303,5 @@ push_focused(Name, RegionName, Additional, Vizceral) ->
                          fun(A) ->
                                  maps:get(name, A) == namify(RegionName)
                          end, Nodes),
-    NewRegion = push_node(focused, Name, Additional, Region),
+    NewRegion = push_node(focusedChild, Name, Additional, Region),
     maps:merge(Vizceral, #{nodes => [NewRegion | Rest]}).
