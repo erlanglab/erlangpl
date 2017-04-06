@@ -25,7 +25,7 @@ const denamifyNode = ({ nodes = [], connections = [], ...node }) => {
     nodes: nodes.map(({ name, displayName, nodes = [], ...node }) => ({
       ...node,
       name: denamify(name),
-      displayName: denamify(displayName),
+      displayName: denamify(displayName || name),
       nodes: nodes.map(denamifyNode)
     }))
   };
