@@ -23,16 +23,6 @@
   overflow: hidden;
 }
 
-.Traffic .fake-click {
-  background-color: transparent;
-  position: absolute;
-  margin: 0;
-  top: 50%;
-  left: 50%;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-}
-
 .Traffic-tools {
   height: 45px;
   line-height: 45px;
