@@ -246,7 +246,6 @@ push_region(Name, Additional, Vizceral) ->
     %% Vizceral has backward compatibility and in region view INTERNET node is
     %% default entryNode if other isn't specified
     A = maps:merge(#{
-                      %% entryNode => <<"INTERNET">>,
                       connections => [],
                       maxVolume => 5000
                     },
@@ -287,8 +286,10 @@ push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
     %% Will crash on nonexisting
     pull_region(Source, Vizceral),
     pull_region(Target, Vizceral),
+    %% Outgoing traffic
     Viz = push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
-    push_connection(Target, Source, {W, 0, D}, Additional, Viz).
+    %% Incoming  traffic
+    push_connection(Target, Source, {0, W, D}, Additional, Viz).
 
 push_focused_connection(S, T, RN, NWD, Vizceral) ->
     push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
