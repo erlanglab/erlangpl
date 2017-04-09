@@ -289,7 +289,7 @@ push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
     %% Outgoing traffic
     Viz = push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
     %% Incoming  traffic
-    push_connection(Target, Source, {0, W, D}, Additional, Viz).
+    push_connection(Target, Source, {W, 0, D}, Additional, Viz).
 
 push_focused_connection(S, T, RN, NWD, Vizceral) ->
     push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
