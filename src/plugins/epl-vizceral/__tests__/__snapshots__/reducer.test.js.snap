@@ -17,6 +17,7 @@ Object {
     "nodes": Array [
       Object {
         "class": "normal",
+        "displayName": "INTERNET",
         "name": "INTERNET",
         "nodes": Array [],
         "renderer": "region",
@@ -34,6 +35,7 @@ Object {
             "target": "proxy-prod",
           },
         ],
+        "displayName": "us-east-1",
         "maxVolume": 50000,
         "name": "us-east-1",
         "nodes": Array [

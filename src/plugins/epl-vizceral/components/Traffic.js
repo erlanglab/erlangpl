@@ -73,10 +73,6 @@ class Traffic extends Component {
     this.props.push(path);
   };
 
-  selectCentralNode = () => {
-    this.props.push('/traffic/INTERNET');
-  };
-
   render() {
     const sidePanelWidth = 30;
     return (
@@ -94,16 +90,6 @@ class Traffic extends Component {
                 className="Traffic-panel"
                 style={{ width: `${100 - sidePanelWidth * x}%`, float: 'left' }}
               >
-
-                {this.props.view.length === 0 &&
-                  <div
-                    className="fake-click"
-                    style={{
-                      width: this.state.height / 5,
-                      height: this.state.height / 5
-                    }}
-                    onClick={this.selectCentralNode}
-                  />}
 
                 <Vizceral
                   ref={node => this.vizceral = node}
