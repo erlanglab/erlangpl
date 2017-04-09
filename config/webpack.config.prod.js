@@ -4,7 +4,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var ManifestPlugin = require('webpack-manifest-plugin');
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-var url = require('url');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 var paths = require('./paths');
 var getClientEnvironment = require('./env');
 
@@ -37,6 +37,9 @@ const cssFilename = 'static/css/[name].[contenthash:8].css';
 const extractTextPluginOptions = shouldUseRelativeAssetPaths // Making sure that the publicPath goes back to to build folder.
   ? { publicPath: Array(cssFilename.split('/').length).join('../') }
   : undefined;
+
+var utils = require('./utils');
+var plugins = utils.pluginsProd();
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -99,7 +102,7 @@ module.exports = {
       // Otherwise, it acts like the "file" loader.
       {
         exclude: [
-          /\.html$/,
+          /\.(html|ejs)$/,
           /\.(js|jsx)$/,
           /\.css$/,
           /\.json$/,
@@ -186,6 +189,7 @@ module.exports = {
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
+      plugins: plugins,
       template: paths.appHtml,
       minify: {
         removeComments: true,
@@ -230,7 +234,31 @@ module.exports = {
     // having to parse `index.html`.
     new ManifestPlugin({
       fileName: 'asset-manifest.json'
-    })
+    }),
+
+    new CopyWebpackPlugin(
+      plugins.reduce(
+        (acc, plugin) => {
+          let tmp = [];
+          if (plugin.media)
+            tmp.push({
+              from: `${plugin.media}/`,
+              to: `${plugin.name}/`
+            });
+
+          return acc.concat(
+            tmp.concat(
+              plugin.styles.concat(plugin.scripts).map(file => ({
+                from: file.dir,
+                to: `${plugin.name}/`
+              }))
+            )
+          );
+        },
+        []
+      ),
+      { debug: 'info' }
+    )
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.

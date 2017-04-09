@@ -45,6 +45,10 @@ class Traffic extends Component {
     window.addEventListener('resize', this.resize);
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resize);
+  }
+
   handleViewChange = (data: any) => {
     const sidePanelLevel = 3;
     let anim;

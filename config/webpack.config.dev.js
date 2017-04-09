@@ -4,9 +4,9 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 var getClientEnvironment = require('./env');
 var paths = require('./paths');
-
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
 var publicPath = '/';
@@ -16,6 +16,9 @@ var publicPath = '/';
 var publicUrl = '';
 // Get environment variables to inject into our app.
 var env = getClientEnvironment(publicUrl);
+
+var utils = require('./utils');
+var plugins = utils.pluginsDev();
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -98,7 +101,7 @@ module.exports = {
       // Otherwise, it acts like the "file" loader.
       {
         exclude: [
-          /\.html$/,
+          /\.(html|ejs)$/,
           /\.(js|jsx)$/,
           /\.css$/,
           /\.json$/,
@@ -178,6 +181,7 @@ module.exports = {
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
+      plugins: [],
       template: paths.appHtml
     }),
     // Makes some environment variables available to the JS code, for example:
@@ -193,7 +197,24 @@ module.exports = {
     // to restart the development server for Webpack to discover it. This plugin
     // makes the discovery automatic so you don't have to restart.
     // See https://github.com/facebookincubator/create-react-app/issues/186
-    new WatchMissingNodeModulesPlugin(paths.appNodeModules)
+    new WatchMissingNodeModulesPlugin(paths.appNodeModules),
+
+    new CopyWebpackPlugin(
+      plugins.reduce(
+        (acc, plugin) => {
+          let tmp = [];
+          if (plugin.media)
+            tmp.push({
+              from: `${plugin.media}/`,
+              to: `${plugin.name}/`
+            });
+
+          return acc.concat(tmp);
+        },
+        []
+      ),
+      { debug: 'info' }
+    )
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.

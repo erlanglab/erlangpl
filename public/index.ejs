@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+
+    <title>Erlang Performance Lab</title>
+
+    <!-- injects plugins scripts and styles -->
+    <% var plugins = htmlWebpackPlugin.options.plugins %>
+    <% for(var i = 0; i < plugins.length; i++) {%>
+      <% var n = plugins[i].name %>
+      <% var scripts = plugins[i].scripts %>
+      <% var styles = plugins[i].styles %>
+      <% for(var j = 0; j < scripts.length; j++) {%>
+        <script type="text/javascript"
+          src="/<%= n + "/" + scripts[j].name %>"></script>
+      <% } %>
+      <% for(var k = 0; k < styles.length; k++) { %>
+        <link
+          rel="stylesheet"
+          href="/<%= n + "/" + styles[k].name %>">
+      <% } %>
+    <% } %>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
