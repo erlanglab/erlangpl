@@ -1,7 +1,7 @@
 {application, epl,
  [
   {description, "Erlang Performance Lab"},
-  {vsn, "0.5.0"},
+  {vsn, "0.6.0"},
   {registered, []},
   {applications, [
                   kernel,
