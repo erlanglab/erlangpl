@@ -63,16 +63,16 @@ handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_cast(Request, _State) ->
     exit({not_implemented, Request}).
 
-handle_info({data, {_Node, _Timestamp}, Proplist},
+handle_info({data, {Node, _Timestamp}, Proplist},
             State = #state{subscribers = Subs,
                            traffic = OldTraffic,
                            msg_pass = OldMsgPass}) ->
 
-    {Viz1, NewTraffic} = update_traffic_graph(OldTraffic, new()),
+    {Viz1, NewTraffic} = update_traffic_graph(Node, OldTraffic, new(Node)),
 
-    %% By convention we use <<"INTERNET">> as a name of the region,
-    %% which represents the observed node
-    Viz2 = get_message_passing_counters(<<"INTERNET">>, Proplist,
+
+    %% We're starting from observed node which is our graph entry point
+    Viz2 = get_message_passing_counters(Node, Proplist,
                                         Viz1, OldMsgPass),
 
     %% push an update to all subscribed WebSockets
@@ -107,7 +107,7 @@ get_message_passing_counters(Node, Proplist, Vizceral, OldMsgPass) ->
       Vizceral,
       Proplist).
 
-update_message_passing_graph(Node, Send, Vizceral, OldMsgPass) ->
+update_message_passing_graph(Node, Send, Vizceral, _OldMsgPass) ->
     %% the INTERNET node represents the source of ingress traffic
     Vizceral1 = push_focused(<<"INTERNET">>, Node, Vizceral),
 
@@ -160,13 +160,13 @@ get_traffic_counters() ->
         {NodeName, [{owner,_}, {state,up}, {address, _}, {type,normal},
                     {in,NodeIn}, {out,NodeOut}]} <- NodesInfo].
 
-update_traffic_graph(OldCounters, Vizceral) ->
+update_traffic_graph(EntryNode, OldCounters, Vizceral) ->
     %% traverse all connected nodes and read their net_kernel counters
     NewCounters = get_traffic_counters(),
 
     %% start creating a map, which represents the Vizceral JSON document
     %% region named <<"INTERNET">> represents the observed node
-    V1 = push_region(<<"INTERNET">>, Vizceral),
+    V1 = push_region(EntryNode, Vizceral),
 
     %% add as many regions as there are nodes in the cluster
     V2 = lists:foldl(fun({Node,_,_}, V) ->
@@ -178,7 +178,7 @@ update_traffic_graph(OldCounters, Vizceral) ->
     V3 = lists:foldl(
            fun({Node, NewIn, NewOut}, V) ->
                    {OldIn, OldOut} = get_in_out(Node, OldCounters),
-                   push_region_connection(<<"INTERNET">>, binarify(Node),
+                   push_region_connection(EntryNode, binarify(Node),
                                           {NewOut-OldOut, NewIn-OldIn, 0},
                                           #{}, V)
            end, V2, NewCounters),
@@ -203,8 +203,8 @@ command(Fun, Args) ->
 %%%===================================================================
 %%% functions manipulating Vizceral map
 %%%===================================================================
-new() ->
-    entity(global, "edge", [], #{connections => []}).
+new(EntryNode) ->
+    entity(global, "edge", [], #{connections => [], entryNode => EntryNode}).
 
 entity(Renderer, Name, Nodes, Additional) ->
     Map = #{
@@ -242,6 +242,9 @@ push_region(Name, Vizceral) ->
     push_region(Name, #{}, Vizceral).
 
 push_region(Name, Additional, Vizceral) ->
+    %% We assume that INTERNET is entryNode for every region
+    %% Vizceral has backward compatibility and in region view INTERNET node is
+    %% default entryNode if other isn't specified
     A = maps:merge(#{
                       connections => [],
                       maxVolume => 5000
@@ -280,10 +283,13 @@ push_connection(Source, Target, {N, W, D} , Additional, To) ->
   maps:merge(To, #{connections => [New | Connections]}).
 
 push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
-  %% Will crash on nonexisting
-  pull_region(Source, Vizceral),
-  pull_region(Target, Vizceral),
-  push_connection(Source, Target, {N, W, D}, Additional, Vizceral).
+    %% Will crash on nonexisting
+    pull_region(Source, Vizceral),
+    pull_region(Target, Vizceral),
+    %% Outgoing traffic
+    Viz = push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
+    %% Incoming  traffic
+    push_connection(Target, Source, {W, 0, D}, Additional, Viz).
 
 push_focused_connection(S, T, RN, NWD, Vizceral) ->
     push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
@@ -303,5 +309,5 @@ push_focused(Name, RegionName, Additional, Vizceral) ->
                          fun(A) ->
                                  maps:get(name, A) == namify(RegionName)
                          end, Nodes),
-    NewRegion = push_node(focused, Name, Additional, Region),
+    NewRegion = push_node(focusedChild, Name, Additional, Region),
     maps:merge(Vizceral, #{nodes => [NewRegion | Rest]}).
