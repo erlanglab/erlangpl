@@ -1,4 +1,10 @@
-language: node_js
+language: erlang
+otp_release:
+  - 18.2.1
+  - 18.1
+  - 18.0
+  - 17.5
+  - R16B03
 
 node_js:
   - 6
@@ -10,3 +16,4 @@ cache:
 script:
   - npm run flow
   - CI=true npm run test
+  - make test
