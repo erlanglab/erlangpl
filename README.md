@@ -1,5 +1,4 @@
-# Erlang Performance Lab
-[![Build Status](https://travis-ci.org/erlanglab/erlangpl.svg?branch=master)](https://travis-ci.org/erlanglab/erlangpl)
+# Erlang Performance Lab [![Build Status](https://travis-ci.org/erlanglab/erlangpl.svg?branch=master)](https://travis-ci.org/erlanglab/erlangpl)
 
 > Tool for developers working with systems running on the Erlang VM (BEAM). It helps with performance analysis.
 
@@ -127,10 +126,10 @@ Now, application can be found at `localhost:3000` and will be listening for mess
 Although `erlangpl-ui` is written in React we belive in Elm power. Because of that we support Elm in out build process.
 This is possible because of [react-elm-components](https://github.com/evancz/react-elm-components) and [elm-webpack](https://github.com/elm-community/elm-webpack-loader). 
 
-You can write any separate component in Elm and then wrap it into React component which can be integrated with whole application. Elm code should be placed in `src/elm` and every component whould have main file in this directory and all files related to this component in directory with the same name. React wrapper file should have the same name as Elm component and `flow` should be disabled for this file.
+You can write any separate component in Elm and then wrap it into React component which can be integrated with whole application. Elm code should be placed in `ui/src/elm` and every component whould have main file in this directory and all files related to this component in directory with the same name. React wrapper file should have the same name as Elm component and `flow` should be disabled for this file.
 
 ```elm
--- src/elm/About.elm
+-- ui/src/elm/About.elm
 
 module About exposing (..)
 
@@ -142,7 +141,7 @@ main =
 
 
 ```javascript
-// src/about/components/About.js
+// ui/src/about/components/About.js
 
 import React from 'react';
 import Elm from 'react-elm-components';
