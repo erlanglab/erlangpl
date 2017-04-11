@@ -30,5 +30,5 @@ rebar:
 
 ui:
 	rm -rf apps/epl/priv/htdocs
-	cd ui && yarn && yarn build && cd ../
-	mv ui/build apps/epl/priv/htdocs
+	yarn && yarn build
+	mv build apps/epl/priv/htdocs

@@ -1,11 +1,12 @@
 var fs = require('fs');
 var path = require('path');
 var chalk = require('chalk');
-var packageJSON = require('../package.json');
+var paths = require('./paths');
+var packageJSON = require(paths.appPackageJson);
 
 function getPlugins(mode) {
   return packageJSON.plugins.map(plugin => {
-    const pluginDirectory = `./node_modules/${plugin}/${mode}`;
+    const pluginDirectory = `${paths.appNodeModules}/${plugin}/${mode}`;
     let p = { media: null, name: plugin, styles: [], scripts: [] };
     const media = `${pluginDirectory}/${plugin}`;
 

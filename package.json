@@ -1,6 +1,6 @@
 {
-  "name": "erlangpl-ui",
-  "version": "0.3.0",
+  "name": "erlangpl",
+  "version": "0.6.0",
   "private": true,
   "devDependencies": {
     "autoprefixer": "6.7.2",
@@ -71,26 +71,27 @@
   },
   "scripts": {
     "flow": "flow",
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "coverage": "node ui/scripts/test.js --env=jsdom --coverage",
+    "start": "node ui/scripts/start.js",
+    "build": "node ui/scripts/build.js",
+    "test": "node ui/scripts/test.js --env=jsdom"
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}"
+      "ui/src/**/*.{js,jsx}"
     ],
     "setupFiles": [
-      "<rootDir>/config/polyfills.js"
+      "<rootDir>/ui/config/polyfills.js"
     ],
     "testPathIgnorePatterns": [
-      "<rootDir>[/\\\\](build|docs|node_modules|scripts)[/\\\\]"
+      "<rootDir>[/\\\\]ui[/\\\\](build|docs|node_modules|scripts)[/\\\\]"
     ],
     "testEnvironment": "node",
     "testURL": "http://localhost",
     "transform": {
       "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
-      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+      "^.+\\.css$": "<rootDir>/ui/config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/ui/config/jest/fileTransform.js"
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
