@@ -30,4 +30,4 @@ before_script:
 script:
   - npm run flow
   - CI=true npm run test
-  - make test
+  - make compile && rm -rf .git && make test
