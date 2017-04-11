@@ -1,0 +1,10 @@
+[ignore]
+<PROJECT_ROOT>/node_modules/fbjs/.*
+<PROJECT_ROOT>/node_modules/find-elm-dependencies/.*
+<PROJECT_ROOT>/node_modules/elm-webpack-loader/.*
+
+[include]
+
+[libs]
+
+[options]

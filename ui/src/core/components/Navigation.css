@@ -1,0 +1,20 @@
+.Navigation {
+  background-color: #21252b;
+  height: 100%;
+  width: 60px;
+  float: left;
+}
+
+.Navigation .item {
+  padding-top: 15px;
+  height: 60px;
+  text-align: center;
+}
+
+.Navigation i {
+  color: #9da5b4;
+}
+
+.Navigation .active i {
+  color: white;
+}

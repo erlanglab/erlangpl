@@ -1,4 +1,4 @@
-.PHONY: all clean deps distclean doc test compile
+.PHONY: all clean deps distclean doc test compile ui
 
 # allow rebar binary to be set via environment variable
 REBAR ?= ./rebar
@@ -28,7 +28,7 @@ rebar:
 	curl https://raw.githubusercontent.com/wiki/rebar/rebar/rebar > rebar
 	chmod +x $@
 
-build-ui:
+ui:
 	rm -rf apps/epl/priv/htdocs
-	cd erlangpl-ui && yarn && yarn build && cd ../
-	mv erlangpl-ui/build apps/epl/priv/htdocs
+	yarn && yarn build
+	mv build apps/epl/priv/htdocs
