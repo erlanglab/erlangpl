@@ -1,20 +1,30 @@
 language: erlang
-otp_release:
-  - 19.3
-  - 18.2.1
-  - 18.1
-  - 18.0
-  - 17.5
-  - R16B03
+sudo: false
 
-node_js:
-  - 6
+os: linux
+otp_release: 18.0
+
+matrix:
+  include:
+    - os: linux
+      otp_release: 18.1
+    - os: linux
+      otp_release: 18.2
+    - os: linux
+      otp_release: 18.3
+    - os: linux
+      otp_release: 19.0
+    - os: linux
+      otp_release: 19.1
+    - os: linux
+      otp_release: 19.2
 
 cache:
   directories:
     - node_modules
 
 before_script:
+  - nvm install 6.2 && nvm use 6.2
   - npm install
 
 script:
