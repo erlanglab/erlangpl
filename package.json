@@ -51,6 +51,8 @@
   "dependencies": {
     "bootstrap": "3",
     "copy-webpack-plugin": "^4.0.1",
+    "d3-flame-graph": "^0.4.2",
+    "d3-tip": "^0.7.1",
     "font-awesome": "^4.7.0",
     "humps": "^2.0.0",
     "lodash": "^4.17.4",

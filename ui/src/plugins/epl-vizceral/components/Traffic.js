@@ -9,9 +9,8 @@ import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
 
 import TrafficTools from './TrafficTools';
+import BottomPanel from './BottomPanel';
 import * as actions from '../actions';
-
-/* import sampleData from '../sample_data.json';*/
 
 class Traffic extends Component {
   state: {
@@ -50,7 +49,7 @@ class Traffic extends Component {
   }
 
   handleViewChange = (data: any) => {
-    const sidePanelLevel = 3;
+    const sidePanelLevel = 2;
     let anim;
     const { view, graph } = data;
     if (
@@ -78,7 +77,7 @@ class Traffic extends Component {
   };
 
   render() {
-    const sidePanelWidth = 30;
+    const sidePanelWidth = 45;
     return (
       <div className="Traffic">
         <TrafficTools className="Traffic-tools" />
@@ -92,7 +91,7 @@ class Traffic extends Component {
             <div className="Traffic-container">
               <div
                 className="Traffic-panel"
-                style={{ width: `${100 - sidePanelWidth * x}%`, float: 'left' }}
+                style={{ height: `${100 - sidePanelWidth * x}%` }}
               >
 
                 <Vizceral
@@ -122,22 +121,14 @@ class Traffic extends Component {
                   </div>
                 </div>
               </div>
-              <div
-                className="Traffic-panel"
+              <BottomPanel
+                height={320}
                 style={{
-                  width: `${sidePanelWidth * x}%`,
-                  opacity: x,
-                  float: 'right'
+                  /*                   backgroundColor: 'white',*/
+                  height: `${sidePanelWidth * x}%`,
+                  opacity: x
                 }}
-              >
-                <pre style={{ height: '100%' }}>
-                  <code>
-                    {this.props.nodeInfo
-                      ? JSON.stringify(this.props.nodeInfo, null, 2)
-                      : 'No info available'}
-                  </code>
-                </pre>
-              </div>
+              />
             </div>
           )}
         />

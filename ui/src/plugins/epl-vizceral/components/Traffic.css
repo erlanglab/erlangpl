@@ -35,7 +35,7 @@
 
 .Traffic-panel {
   position: relative;
-  height: 100%;
+  width: 100%;
   box-sizing: border-box;
   border-left: 1px solid #21252b;
 }
