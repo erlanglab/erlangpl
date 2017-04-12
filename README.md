@@ -55,7 +55,7 @@ Usage: erlangpl [-n <node>] [-c <cookie>] [-p <plugin>] [-h]
 $ ./erlangpl -n testnode@127.0.0.1 -c YOURCOOKIE
 ```
 
-Once started, try visiting http://localhost:8000/
+Once started, try visiting http://localhost:37575/
 
 ## Examples
 
@@ -119,7 +119,7 @@ We are recomending [yarn](https://yarnpkg.com/lang/en/) for that.
 yarn && yarn start
 ```
 
-Now, application can be found at `localhost:3000` and will be listening for messages from `localhost:8000` where you have to have [erlangpl](https://github.com/erlanglab/erlangpl) running. 
+Now, application can be found at `localhost:3000` and will be listening for messages from `localhost:37575` where you have to have [erlangpl](https://github.com/erlanglab/erlangpl) running. 
 
 #### Writing Elm code
 
