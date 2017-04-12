@@ -91,8 +91,13 @@ let socketsArray = [];
 
 export const createSockets = (sockets: any) => {
   socketsArray = Object.keys(sockets).map(route => {
-    const { hostname } = window.location;
-    let ws = new WebSocket(`ws://${hostname}:8000/${route}`);
+    let { hostname, port } = window.location;
+
+    if (process.env.NODE_ENV !== 'production') {
+      port = 37575;
+    }
+
+    let ws = new WebSocket(`ws://${hostname}:${port}/${route}`);
 
     const handlers = Object.keys(sockets[route].topics).reduce(
       (acc, topic) => {
