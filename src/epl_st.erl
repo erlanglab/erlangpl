@@ -96,13 +96,22 @@ generate_sup_tree({_Name, Pid, worker, _Mods}) ->
     worker_node(Pid);
 generate_sup_tree({_Name, Pid, supervisor, _Mods}) ->
     Children = command(fun supervisor:which_children/1, [Pid]),
-    sup_node(Pid, lists:map(fun generate_sup_tree/1, Children));
+    sup_node(Pid, generate_children(Children));
 generate_sup_tree(undefined) ->
     #{};
 generate_sup_tree(MasterPid) ->
     {SupPid, _SupName} = command(fun application_master:get_child/1, [MasterPid]),
     Children = command(fun supervisor:which_children/1, [SupPid]),
-    sup_node(SupPid, lists:map(fun generate_sup_tree/1, Children)).
+    sup_node(SupPid, generate_children(Children)).
+
+generate_children(Children) ->
+    lists:filtermap(
+      fun({_, undefined, _, _}) ->
+              false;
+         (Child) ->
+              {true, generate_sup_tree(Child)}
+      end,
+      Children).
 
 worker_node(Pid) ->
     tree_node(Pid, worker, []).
