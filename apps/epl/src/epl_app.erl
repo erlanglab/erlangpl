@@ -201,7 +201,7 @@ run5(PluginApps, Args) ->
                  ]),
 
     Port = case proplists:lookup(port, Args) of
-               none -> 8000;
+               none -> 37575;
                {port, N} when is_list(N) -> list_to_integer(N);
                {port, N} when is_integer(N) -> N
            end,
