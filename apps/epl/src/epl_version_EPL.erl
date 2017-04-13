@@ -7,23 +7,10 @@
 
 -module(epl_version_EPL).
 
-%% EPL plugin callbacks
--export([start_link/1,
-         init/1]).
-
 %% cowboy handler callbacks
 -export([init/3,
          handle/2,
          terminate/3]).
-
-%%%===================================================================
-%%% EPL plugin callbacks
-%%%===================================================================
-start_link(_Options) ->
-    {ok, spawn(fun() -> receive _ -> ok end end)}.
-
-init(_Options) ->
-    {ok, [{menu_item, <<"">>}, {author, <<"">>}]}.
 
 %%%===================================================================
 %%% cowboy handler callbacks

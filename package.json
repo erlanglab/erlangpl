@@ -1,0 +1,112 @@
+{
+  "name": "erlangpl",
+  "version": "0.6.1",
+  "private": true,
+  "devDependencies": {
+    "autoprefixer": "6.7.2",
+    "babel-core": "6.22.1",
+    "babel-eslint": "7.1.1",
+    "babel-jest": "18.0.0",
+    "babel-loader": "6.2.10",
+    "babel-preset-react-app": "^2.1.0",
+    "babel-runtime": "^6.20.0",
+    "case-sensitive-paths-webpack-plugin": "1.1.4",
+    "chalk": "1.1.3",
+    "connect-history-api-fallback": "1.3.0",
+    "cross-spawn": "4.0.2",
+    "css-loader": "0.26.1",
+    "detect-port": "1.0.1",
+    "dotenv": "2.0.0",
+    "elm-webpack-loader": "^4.3.0",
+    "eslint": "3.8.1",
+    "eslint-config-react-app": "^0.5.1",
+    "eslint-loader": "1.6.0",
+    "eslint-plugin-flowtype": "2.21.0",
+    "eslint-plugin-import": "2.0.1",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "6.4.1",
+    "extract-text-webpack-plugin": "1.0.1",
+    "file-loader": "0.10.0",
+    "filesize": "3.3.0",
+    "flow-bin": "^0.39.0",
+    "fs-extra": "0.30.0",
+    "gzip-size": "3.0.0",
+    "html-webpack-plugin": "2.24.0",
+    "http-proxy-middleware": "0.17.3",
+    "jest": "18.1.0",
+    "json-loader": "0.5.4",
+    "object-assign": "4.1.1",
+    "postcss-loader": "1.2.2",
+    "promise": "7.1.1",
+    "react-dev-utils": "^0.5.0",
+    "recursive-readdir": "2.1.0",
+    "strip-ansi": "3.0.1",
+    "style-loader": "0.13.1",
+    "url-loader": "0.5.7",
+    "webpack": "1.14.0",
+    "webpack-dev-server": "1.16.2",
+    "webpack-manifest-plugin": "1.1.0",
+    "whatwg-fetch": "2.0.2"
+  },
+  "dependencies": {
+    "bootstrap": "3",
+    "copy-webpack-plugin": "^4.0.1",
+    "font-awesome": "^4.7.0",
+    "humps": "^2.0.0",
+    "lodash": "^4.17.4",
+    "react": "^15.4.2",
+    "react-bootstrap": "^0.30.7",
+    "react-dom": "^15.4.2",
+    "react-elm-components": "^1.0.1",
+    "react-measure": "^1.4.5",
+    "react-motion": "^0.4.7",
+    "react-redux": "^5.0.2",
+    "react-router-dom": "^4.0.0",
+    "react-router-redux": "next",
+    "react-virtualized": "^9.0.4",
+    "recharts": "^0.21.2",
+    "redux": "^3.6.0",
+    "vivagraphjs": "^0.8.2",
+    "vizceral-react": "4.4.0"
+  },
+  "scripts": {
+    "flow": "flow",
+    "coverage": "node ui/scripts/test.js --env=jsdom --coverage",
+    "start": "node ui/scripts/start.js",
+    "build": "node ui/scripts/build.js",
+    "test": "node ui/scripts/test.js --env=jsdom"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "ui/src/**/*.{js,jsx}"
+    ],
+    "setupFiles": [
+      "<rootDir>/ui/config/polyfills.js"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>[/\\\\]ui[/\\\\](build|docs|node_modules|scripts)[/\\\\]"
+    ],
+    "testEnvironment": "node",
+    "testURL": "http://localhost",
+    "transform": {
+      "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
+      "^.+\\.css$": "<rootDir>/ui/config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/ui/config/jest/fileTransform.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
+    ],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web"
+    }
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "plugins": []
+}

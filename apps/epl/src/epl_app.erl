@@ -44,7 +44,8 @@ start(_StartType, _StartArgs) ->
     %% Load priv files to ets
     ok = run4(),
 
-    insert_node_name(Node),
+    %% Try to start Elixir
+    maybe_start_elixir(Args),
 
     %% Start top supervisor
     {ok, Pid} = epl_sup:start_link(),
@@ -54,6 +55,9 @@ start(_StartType, _StartArgs) ->
 
     %% Start EPL Dashboard
     {ok, _} = epl_sup:start_child(epl_dashboard, []),
+
+    %% Start EPL Dashboard
+    {ok, _} = epl_sup:start_child(epl_traffic, []),
 
     %% load plugins
     PluginApps = plugins(Args),
@@ -176,32 +180,13 @@ run5(PluginApps, Args) ->
     GetHandlers = fun({_,preloaded}, Acc) ->
                           Acc;
                      ({Mod, Path}, Acc) ->
-                          case re:run(Path,"_EPL.beam\$",[global]) of
+                          case re:run(Path,"EPL.beam\$",[global]) of
                               {match,_} -> [Mod | Acc];
                               nomatch   -> Acc
                           end
                   end,
 
     PluginModules = lists:foldl(GetHandlers, [], LoadedModules),
-    Node = epl:lookup(node),
-
-    %% Call EPL plugin callback functions to initialize plugins
-    Pids = [{M, {ok, _} = epl_sup:start_child(M, [Node])}
-            || M <- PluginModules],
-
-    lists:foreach(
-      fun(M) ->
-              {ok, PluginConf} = M:init(Node),
-              case proplists:lookup(menu_item, PluginConf) of
-                  none ->
-                      ?WARN("Plugin ~p:init/1 does not return menu_item attribute~n", [M]);
-                  {menu_item, PluginMenu} ->
-                      epl:add_plugin_menu(PluginMenu)
-              end
-      end,
-      PluginModules),
-
-    ?INFO("Started plugins: ~p~n", [Pids]),
 
     %% Configure cowboy with paths to plugin module and plugin priv files
     CowboyHandlers =
@@ -216,7 +201,7 @@ run5(PluginApps, Args) ->
                  ]),
 
     Port = case proplists:lookup(port, Args) of
-               none -> 8000;
+               none -> 37575;
                {port, N} when is_list(N) -> list_to_integer(N);
                {port, N} when is_integer(N) -> N
            end,
@@ -241,7 +226,8 @@ option_spec_list() ->
      {version, $V, "version",   undefined, "Show version information"},
      {sname,   $s, "sname",     string,    "Start with a shortname"},
      {name,    $l, "name",      string,    "Start with a longname, default "
-                                           "erlangpl@127.0.0.1"}
+                                           "erlangpl@127.0.0.1"},
+     {elixir_path, $e, "with-elixir", string, "Path to Elixir root directory"}
     ].
 
 %% show version information and halt
@@ -398,7 +384,10 @@ plugins(Args) ->
 scan_plugins([Plugin | Rest], PluginApps) ->
     %% start an application if .app file exists
     %% TODO: What if there is no .app file? Shall we load .beam anyway?
-    EbinFiles = filelib:wildcard(Plugin ++ "/ebin/*"),
+    EbinPath = filename:join(Plugin, "ebin"),
+    ?INFO("Adding path ~s~n", [EbinPath]),
+    true = code:add_path(EbinPath),
+    EbinFiles = filelib:wildcard(EbinPath ++ "/*"),
     Fun = fun(File, App) ->
                   case filename:extension(File) of
                       ".app" ->
@@ -424,9 +413,6 @@ scan_plugins([], PluginApps) ->
     PluginApps.
 
 load_plugin(AppName, AppPath) ->
-    ?INFO("Adding path ~s~n", [AppPath]),
-    true = code:add_path(AppPath),
-
     %% Load all files from priv directory to ets
     PluginPrivDir = filename:join([AppPath, "../priv"]),
     filelib:fold_files(PluginPrivDir, "", true,
@@ -449,11 +435,16 @@ load_plugin_priv(File, App) ->
             App
     end.
 
-insert_node_name(Node) ->
-    IndexHtml = <<"epl/priv/htdocs/index.html">>,
-    NodeBin = list_to_binary(atom_to_list(Node)),
-    [{_, Bin}] = ets:lookup(epl_priv, IndexHtml),
-    NewBin = re:replace(Bin, <<"<!--NODE-->">>,
-                        <<NodeBin/binary, $&>>,
-                        [{return,binary}]),
-    ets:insert(epl_priv, {IndexHtml, NewBin}).
+maybe_start_elixir(Args) ->
+    case proplists:lookup(elixir_path, Args) of
+        none ->
+            ok;
+        {elixir_path, Path} ->
+            code:add_patha(filename:join([Path, "lib", "elixir", "ebin"]))
+    end,
+    case application:ensure_all_started(elixir) of
+        {ok, _} ->
+            ?DEBUG("Successfully loaded and started Elixir~n", []);
+        _ ->
+            ?DEBUG("Couldn't start Elixir~n", [])
+    end.

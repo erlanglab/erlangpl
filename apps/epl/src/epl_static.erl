@@ -28,17 +28,29 @@ handle(Req, PathPrefix) ->
                            Bin, Req),
             {ok, Req2, PathPrefix};
         [] ->
-            %% if file not found, serve /index.html
-            IndexPath = <<"epl/priv/htdocs/index.html">>,
-            [{_, IndexBin}] = epl:lookup(IndexPath),
-            {ok, Req2} = cowboy_req:reply(
-                           200, [content_type(IndexPath)],
-                           IndexBin, Req),
-            {ok, Req2, PathPrefix}
+            {ok, Resp} = serve_index_or_not_found(Req),
+            {ok, Resp, PathPrefix}
     end.
 
 terminate(_Reason, _Req, _State) ->
     ok.
+
+serve_index_or_not_found(Req) ->
+    IndexPath = <<"epl/priv/htdocs/index.html">>,
+    {RespCode, Headers, Body} =
+        case epl:lookup(IndexPath) of
+            [{_, IndexBin}] ->
+                {200, [content_type(IndexPath)], IndexBin};
+            _ ->
+                {404, [content_type(<<".txt">>)], page_not_found()}
+        end,
+    cowboy_req:reply(
+      RespCode, Headers,
+      Body, Req).
+
+page_not_found() ->
+    <<"Page not found\n\n",
+      "If you've built ErlangPL manually, make sure you've built UI properly">>.
 
 content_type(FilePath) ->
     case filename:extension(FilePath) of

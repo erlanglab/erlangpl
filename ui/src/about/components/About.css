@@ -1,0 +1,23 @@
+.About {
+}
+
+.About .header {
+  width: 100%;
+}
+
+.About img {
+  height: 150px;
+}
+
+.About .content {
+  width: 80%;
+  margin-left: 10%;
+  padding: 10px;
+}
+
+
+.About a {
+  color: #1F79B7;
+  margin-left: 5px;
+  display: inline-block;
+}

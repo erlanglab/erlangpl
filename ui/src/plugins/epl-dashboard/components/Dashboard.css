@@ -1,0 +1,46 @@
+.Dashboard {
+  height: 100%;
+  color: #9da5b4;
+}
+
+.Dashboard-navigation {
+  background-color: #21252b;
+  height: 42px;
+  width: 100%;
+  border-bottom: 1px solid #21252b !important;
+}
+
+.Dashboard-navigation a {
+  color: #7d8490;
+  border-left: 2px solid transparent !important;
+}
+
+.Dashboard-navigation a:hover {
+  color: #7d8490;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.Dashboard-active a {
+  background-color: #282c34 !important;
+  border-left: 2px solid #8FBF47 !important;
+  border-bottom-color: #282c34 !important;
+  border-top-color: #282c34 !important;
+  border-right-color: #282c34 !important;
+  color: #a6aebb !important;
+}
+
+.Dashboard-active a:hover {
+  background-color: #282c34 !important;
+  border-left: 2px solid #8FBF47 !important;
+  border-bottom-color: #282c34 !important;
+  border-top-color: #282c34 !important;
+  border-right-color: #282c34 !important;
+  color: #a6aebb !important;
+}
+
+.Dashboard-grid {
+  background-color: #282c34;
+  overflow-y: scroll;
+  height: calc(100% - 42px);
+}

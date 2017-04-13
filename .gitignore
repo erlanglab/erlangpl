@@ -1,5 +1,28 @@
-apps/epl/.rebar
-apps/epl/ebin
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+
+# Testing
+/coverage
+
+# production
+/build
+
+# Misc
+.DS_Store
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Elm
+/elm-stuff
+
+# Erlang
+
+apps/**/.rebar
+apps/**/ebin
 apps/epl/priv/htdocs/
 deps
 erlangpl
