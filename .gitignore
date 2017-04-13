@@ -21,8 +21,8 @@ yarn-error.log*
 
 # Erlang
 
-apps/epl/.rebar
-apps/epl/ebin
+apps/**/.rebar
+apps/**/ebin
 apps/epl/priv/htdocs/
 deps
 erlangpl
