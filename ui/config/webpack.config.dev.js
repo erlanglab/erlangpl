@@ -200,19 +200,16 @@ module.exports = {
     new WatchMissingNodeModulesPlugin(paths.appNodeModules),
 
     new CopyWebpackPlugin(
-      plugins.reduce(
-        (acc, plugin) => {
-          let tmp = [];
-          if (plugin.media)
-            tmp.push({
-              from: `${plugin.media}/`,
-              to: `${plugin.name}/`
-            });
+      plugins.reduce((acc, plugin) => {
+        let tmp = [];
+        if (plugin.media)
+          tmp.push({
+            from: `${plugin.media}/`,
+            to: `${plugin.name}/`
+          });
 
-          return acc.concat(tmp);
-        },
-        []
-      ),
+        return acc.concat(tmp);
+      }, []),
       { debug: 'info' }
     )
   ],

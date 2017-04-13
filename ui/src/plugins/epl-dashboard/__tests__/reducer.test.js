@@ -36,10 +36,8 @@ describe('systemOverview reducer', () => {
       memoryTotal: undefined,
       processCount: undefined
     };
-    const state = reducer(
-      undefined,
-      actions.updateSystemInfo(info)
-    ).systemOverview;
+    const state = reducer(undefined, actions.updateSystemInfo(info))
+      .systemOverview;
     expect(state.receive).toHaveLength(0);
     expect(state.memoryTotal).toHaveLength(0);
     expect(state.processCount).toHaveLength(0);

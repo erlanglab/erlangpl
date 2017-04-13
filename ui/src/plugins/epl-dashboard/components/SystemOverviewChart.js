@@ -24,19 +24,17 @@ type Props = {
   xAxisDataKey?: string
 };
 
-const SystemOverviewChart = (
-  {
-    data,
-    color,
-    title,
-    width,
-    height,
-    dataKey,
-    xAxisDataKey,
-    loaderText,
-    domain
-  }: Props
-) => {
+const SystemOverviewChart = ({
+  data,
+  color,
+  title,
+  width,
+  height,
+  dataKey,
+  xAxisDataKey,
+  loaderText,
+  domain
+}: Props) => {
   return (
     <Col xs={12}>
       <h5 className="SystemInfo-list-header">
