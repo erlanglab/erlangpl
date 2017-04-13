@@ -1,11 +1,12 @@
 {application, epl_st,
  [{description, "EPL plugin for visualising applications' supervision trees"},
-  {vsn, "0.1.0"},
+  {vsn, "0.1.1"},
   {registered, []},
   {mod, {epl_st_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    epl
    ]},
   {env,[]},
   {modules, []},
