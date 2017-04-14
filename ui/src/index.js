@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 
 import App from './App';
-import { combineSockets, createSockets } from './sockets';
+import { onWithStore, combineSockets, createSockets } from './sockets';
 
 // CSS imports
 import 'bootstrap/dist/css/bootstrap.css';
@@ -19,6 +19,14 @@ import eplVizceral from './plugins/epl-vizceral';
 import core from './core';
 import store, { history } from './store';
 
+const handler = onWithStore((store, on) => {
+  return on('epl_timeline_EPL', {
+    timeline: data => {
+      console.log(data);
+    }
+  });
+});
+
 /* register new handlers
    every plugin should return array of handlers which will be passed to
    combineSockets in main application
@@ -29,6 +37,7 @@ createSockets(
       eplDashboard.sockets,
       eplSupTree.sockets,
       eplVizceral.sockets,
+      handler,
       core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
     ],
     store
