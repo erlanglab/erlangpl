@@ -5,23 +5,20 @@
 
 -export([
          start_link/1,
-         timeline/1
-        ]).
+         timeline/1]).
 
 -export([
          init/1,
          handle_call/3,
          handle_info/2,
          terminate/2,
-         code_change/3
-        ]).
+         code_change/3]).
 
 
 -record(state, {
           changes = [],
           tracked_pid,
-          pid_as_list
-         }).
+          pid_as_list}).
 
 %% ===================================================================
 %% API functions

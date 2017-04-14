@@ -21,7 +21,7 @@ import store, { history } from './store';
 
 const handler = onWithStore((store, on) => {
   return on('epl_timeline_EPL', {
-    timeline: data => {
+    'timeline-info': data => {
       console.log(data);
     }
   });

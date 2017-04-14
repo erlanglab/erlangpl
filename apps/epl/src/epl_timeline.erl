@@ -10,7 +10,8 @@
 %% API
 -export([start_link/0,
          subscribe/0,
-         unsubscribe/0]).
+         unsubscribe/0,
+         add_timeline/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -20,7 +21,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {subscribers = []}).
+-record(state, {subscribers = [], timelines = []}).
 
 %%%===================================================================
 %%% API functions
@@ -34,6 +35,9 @@ subscribe() ->
 
 unsubscribe() ->
     gen_server:cast(?MODULE, {unsubscribe, self()}).
+
+add_timeline(Pid) ->
+    get_server:cast(?MODULE, {add_timeline, Pid}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -50,11 +54,15 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = [Pid|Subs]}};
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = lists:delete(Pid, Subs)}};
+handle_cast({add_timeline, Pid}, State = #state{timelines = Timelines}) ->
+    {ok, Timeline} = epl_timeline_observer:start_link(list_to_pid(Pid)),
+    {noreply, State#state{timelines = [Timeline|Timelines]}};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-handle_info({data, _, _}, State = #state{subscribers = Subs}) ->
-    JSON = epl_json:encode(#{}, <<"timeline">>),
+handle_info({data, _, _}, State = #state{subscribers = Subs, timelines = Timelines}) ->
+    States = lists:map(fun(TS) -> epl_timeline_observer:timeline(TS) end, Timelines),
+    JSON = epl_json:encode(#{states => States}, <<"timeline-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
 

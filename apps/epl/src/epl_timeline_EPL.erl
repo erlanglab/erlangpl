@@ -24,8 +24,13 @@ init({tcp, http}, _Req, _Opts) ->
 websocket_init(_TransportName, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
-websocket_handle(_Data, _Req, _State) ->
-    {ok, Req, State}.
+websocket_handle({text, Pid}, Req, State) ->
+    io:fwrite("Pid: ~s~n", [Pid]),
+    epl_timeline:add_timeline(Pid),
+    {ok, Req, State};
+
+websocket_handle(Data, _Req, _State) ->
+    exit({not_implemented, Data}).
 
 websocket_info({data, Data}, Req, State) ->
     {reply, {text, Data}, Req, State};
