@@ -11,7 +11,7 @@
 -export([start_link/0,
          subscribe/0,
          unsubscribe/0,
-         add_timeline/1]).
+         add/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -21,7 +21,8 @@
          terminate/2,
          code_change/3]).
 
--record(state, {subscribers = [], timelines = []}).
+-record(state, {subscribers = [],
+                timelines = []}).
 
 %%%===================================================================
 %%% API functions
@@ -36,8 +37,11 @@ subscribe() ->
 unsubscribe() ->
     gen_server:cast(?MODULE, {unsubscribe, self()}).
 
-add_timeline(Pid) ->
-    get_server:cast(?MODULE, {add_timeline, Pid}).
+add(Pid) when is_list(Pid) ->
+    gen_server:cast(?MODULE, {add_timeline, Pid});
+
+add(Pid) when is_binary(Pid) ->
+    add(binary_to_list(Pid)).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -62,7 +66,7 @@ handle_cast(_Msg, State) ->
 
 handle_info({data, _, _}, State = #state{subscribers = Subs, timelines = Timelines}) ->
     States = lists:map(fun(TS) -> epl_timeline_observer:timeline(TS) end, Timelines),
-    JSON = epl_json:encode(#{states => States}, <<"timeline-info">>),
+    JSON = epl_json:encode(States, <<"timeline-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
 

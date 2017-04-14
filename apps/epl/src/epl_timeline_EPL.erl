@@ -25,8 +25,7 @@ websocket_init(_TransportName, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
 websocket_handle({text, Pid}, Req, State) ->
-    io:fwrite("Pid: ~s~n", [Pid]),
-    epl_timeline:add_timeline(Pid),
+    epl_timeline:add(Pid),
     {ok, Req, State};
 
 websocket_handle(Data, _Req, _State) ->
