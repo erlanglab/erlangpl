@@ -1,0 +1,93 @@
+.Timeline {
+  width: 100%;
+  height: 100%;
+}
+
+.Timeline .pane {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.Timeline .left-panel {
+  width: 20%;
+  padding-top: 15px;
+  float: left;
+  border-right: 1px solid #21252b;
+  overflow-x: hidden;
+}
+
+.Timeline .pid {
+  text-align: center;
+  cursor: pointer;
+  padding: 10px 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid black;
+}
+
+.Timeline .pid.active {
+  background-color: #8fbf47;
+  color: black;
+}
+
+.Timeline .right-panel {
+  width: 80%;
+  float: right;
+}
+
+.Timeline .state {
+  oveflow: auto;
+  float: right;
+  width: 70%;
+  height: calc(100%);
+}
+
+.Timeline .messages {
+  float: left;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 30%;
+  height: calc(100%);
+  text-overflow: ellipsis;
+}
+
+.Timeline .message {
+  padding: 10px 5px;
+  box-sizing: border-box;
+  border-bottom: 1px solid black;
+  width: calc(100%);
+}
+
+.Timeline .message:hover {
+  background-color: #21252b;
+}
+
+.Timeline .message.active {
+  background-color: #8fbf47;
+  color: black;
+}
+
+.Timeline pre {
+  padding: 10px;
+  overflow: scroll;
+  height: 100%;
+  width: 100%;
+}
+
+.Timeline input {
+  margin-bottom: 15px;
+  color: #9da5b4;
+  padding: 10px 5px;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  background-color: #21252b;
+  border-radius: 4px;
+  border: 1px solid #9da5b4;
+
+}
+
+.Timeline input:focus {
+  outline: none;
+  border: 1px solid #8fbf47;
+ }

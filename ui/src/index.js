@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 
 import App from './App';
-import { onWithStore, combineSockets, createSockets } from './sockets';
+import { combineSockets, createSockets } from './sockets';
 
 // CSS imports
 import 'bootstrap/dist/css/bootstrap.css';
@@ -15,17 +15,10 @@ import './index.css';
 import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
+import eplTimeline from './plugins/epl-timeline';
 
 import core from './core';
 import store, { history } from './store';
-
-const handler = onWithStore((store, on) => {
-  return on('epl_timeline_EPL', {
-    'timeline-info': data => {
-      console.log(data);
-    }
-  });
-});
 
 /* register new handlers
    every plugin should return array of handlers which will be passed to
@@ -37,7 +30,7 @@ createSockets(
       eplDashboard.sockets,
       eplSupTree.sockets,
       eplVizceral.sockets,
-      handler,
+      eplTimeline.sockets,
       core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
     ],
     store

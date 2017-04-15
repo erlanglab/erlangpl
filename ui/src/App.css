@@ -11,9 +11,18 @@
   margin-left: 60px;
 }
 
+.App pre {
+  padding: 10px 0px;
+  margin: 0px;
+  border: none;
+  border-radius: 0px;
+  color: inherit;
+  background-color: #282c34;
+}
 
 ::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {

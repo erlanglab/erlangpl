@@ -5,6 +5,7 @@ import Viva from 'vivagraphjs';
 import difference from 'lodash/difference';
 import { Motion, spring } from 'react-motion';
 import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { push } from 'react-router-redux';
 
 import { send } from '../../../sockets';
 import './SupTree.css';
@@ -112,7 +113,6 @@ class SupTree extends Component {
     }
 
     send('epl_st_EPL', id);
-    send('epl_timeline_EPL', id);
 
     this.setState({ selected: { id, color, type: node.node.data.type } });
   }
@@ -241,6 +241,11 @@ class SupTree extends Component {
     }));
   };
 
+  addToTimeline = (pid: string) => {
+    send('epl_timeline_EPL', pid);
+    this.props.push('/timeline');
+  };
+
   render() {
     return (
       <div className="SupTree">
@@ -260,8 +265,14 @@ class SupTree extends Component {
         <div className="graph" ref={node => this.div = node} />
         <div className="side-panel">
 
-          <div className="head" onClick={this.toggleCollapse}>
+          <div className="head">
+            {this.state.selected.id !== 'Applications' &&
+              <i
+                onClick={() => this.addToTimeline(this.state.selected.id)}
+                className="timeline fa fa-repeat"
+              />}
             <h4
+              onClick={this.toggleCollapse}
               className="text-center"
               style={{
                 color: COLORS[this.state.selected.type] || 'inherit'
@@ -270,7 +281,8 @@ class SupTree extends Component {
               {this.state.selected.id}
             </h4>
             <i
-              className={`fa fa-angle-${this.state.collapse ? 'down' : 'up'}`}
+              onClick={this.toggleCollapse}
+              className={`collapse fa fa-angle-${this.state.collapse ? 'down' : 'up'}`}
             />
           </div>
 
@@ -359,5 +371,5 @@ export default connect(
     tree: state.eplSupTree.tree,
     nodeInfo: state.eplSupTree.nodeInfo
   }),
-  {}
+  { push }
 )(SupTree);

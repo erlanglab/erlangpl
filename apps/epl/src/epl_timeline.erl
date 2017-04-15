@@ -51,13 +51,13 @@ init([]) ->
     {ok, #state{}}.
 
 handle_call(_Request, _From, State) ->
-    Reply = ok,
-    {reply, Reply, State}.
+    {reply, ok, State}.
 
 handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = [Pid|Subs]}};
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
-    {noreply, State#state{subscribers = lists:delete(Pid, Subs)}};
+    NextSubs = lists:delete(Pid, Subs),
+    {noreply, State#state{subscribers = NextSubs}};
 handle_cast({add_timeline, Pid}, State = #state{timelines = Timelines}) ->
     T = case lists:any(fun({P, _}) -> P == Pid end, Timelines) of
         true -> Timelines;
@@ -72,10 +72,9 @@ handle_cast(_Msg, State) ->
 handle_info({data, _, _}, State = #state{subscribers = Subs, timelines = Timelines}) ->
     T = lists:map(fun({Pid, T}) ->
                           Timeline = epl_timeline_observer:timeline(T),
-                          io:fwrite("State~p~n", [Timeline]),
                           #{pid => epl:to_bin(Pid),
                             timeline => lists:map(fun({M, S}) ->
-                                                          #{messages => to_string(M),
+                                                          #{message => to_string(M),
                                                             state => to_string(S)}
                                                   end, Timeline)}
                   end, Timelines),
