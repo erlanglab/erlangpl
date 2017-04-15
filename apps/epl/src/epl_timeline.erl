@@ -59,8 +59,13 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = lists:delete(Pid, Subs)}};
 handle_cast({add_timeline, Pid}, State = #state{timelines = Timelines}) ->
-    {ok, Timeline} = epl_timeline_observer:start_link(list_to_pid(Pid)),
-    {noreply, State#state{timelines = [{Pid, Timeline}|Timelines]}};
+    T = case lists:any(fun({P, _}) -> P == Pid end, Timelines) of
+        true -> Timelines;
+        _    ->
+                {ok, Timeline} = epl_timeline_observer:start_link(list_to_pid(Pid)),
+                [{Pid, Timeline}|Timelines]
+        end,
+    {noreply, State#state{timelines = T}};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -74,7 +79,7 @@ handle_info({data, _, _}, State = #state{subscribers = Subs, timelines = Timelin
                                                             state => to_string(S)}
                                                   end, Timeline)}
                   end, Timelines),
-    JSON = epl_json:encode(#{data => T}, <<"timeline-info">>),
+    JSON = epl_json:encode(#{timelines => T}, <<"timeline-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
 
