@@ -60,13 +60,21 @@ handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     {noreply, State#state{subscribers = lists:delete(Pid, Subs)}};
 handle_cast({add_timeline, Pid}, State = #state{timelines = Timelines}) ->
     {ok, Timeline} = epl_timeline_observer:start_link(list_to_pid(Pid)),
-    {noreply, State#state{timelines = [Timeline|Timelines]}};
+    {noreply, State#state{timelines = [{Pid, Timeline}|Timelines]}};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({data, _, _}, State = #state{subscribers = Subs, timelines = Timelines}) ->
-    States = lists:map(fun(TS) -> epl_timeline_observer:timeline(TS) end, Timelines),
-    JSON = epl_json:encode(States, <<"timeline-info">>),
+    T = lists:map(fun({Pid, T}) ->
+                          Timeline = epl_timeline_observer:timeline(T),
+                          io:fwrite("State~p~n", [Timeline]),
+                          #{pid => epl:to_bin(Pid),
+                            timeline => lists:map(fun({M, S}) ->
+                                                          #{messages => to_string(M),
+                                                            state => to_string(S)}
+                                                  end, Timeline)}
+                  end, Timelines),
+    JSON = epl_json:encode(#{data => T}, <<"timeline-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
 
@@ -75,3 +83,11 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%%%===================================================================
+%%% Internal functions
+%%%===================================================================
+
+to_string(Data) ->
+    S = io_lib:format("~p",[Data]),
+    epl:to_bin(lists:flatten(S)).

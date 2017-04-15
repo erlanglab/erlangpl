@@ -68,7 +68,6 @@ strip_to_timeline(Data) ->
     end.
 
 strip_to_raw_data(Data, Pid) ->
-
     case lists:keyfind(Pid, 1, Data) of
         false -> [];
         {_,RawData} -> RawData
