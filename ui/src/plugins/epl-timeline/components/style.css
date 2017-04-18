@@ -4,16 +4,9 @@
 }
 
 .Timeline .pane {
-  height: 100%;
+  height: calc(100% - 45px);
+  width: 100%;
   box-sizing: border-box;
-}
-
-.Timeline .left-panel {
-  width: 20%;
-  padding-top: 15px;
-  float: left;
-  border-right: 1px solid #21252b;
-  overflow-x: hidden;
 }
 
 .Timeline .pid {
@@ -30,15 +23,10 @@
   color: black;
 }
 
-.Timeline .right-panel {
-  width: 80%;
-  float: right;
-}
-
 .Timeline .state {
   oveflow: auto;
   float: right;
-  width: 70%;
+  width: 75%;
   height: calc(100%);
 }
 
@@ -46,7 +34,7 @@
   float: left;
   overflow-x: hidden;
   overflow-y: auto;
-  width: 30%;
+  width: 25%;
   height: calc(100%);
   text-overflow: ellipsis;
 }
@@ -90,4 +78,4 @@
 .Timeline input:focus {
   outline: none;
   border: 1px solid #8fbf47;
- }
+}

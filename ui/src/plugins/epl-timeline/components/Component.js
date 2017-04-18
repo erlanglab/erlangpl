@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import hljs from 'highlightjs';
+import { Link } from 'react-router-dom';
 
 import { send } from '../../../sockets';
 import * as actions from '../actions';
@@ -35,11 +36,21 @@ class Component_ extends Component {
   };
 
   componentDidMount() {
+    this.props.pid === null &&
+      this.props.timelines.length &&
+      this.props.setCurrentPid(this.props.timelines[0].pid);
+
     window.addEventListener('keyup', this.changeByArrows, false);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keyup', this.changeByArrows, false);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    nextProps.pid === null &&
+      nextProps.timelines.length &&
+      nextProps.setCurrentPid(nextProps.timelines[0].pid);
   }
 
   // this can cause perf issues
@@ -62,58 +73,54 @@ class Component_ extends Component {
     const currentState = currentTimeline[this.props.msg];
     return (
       <div className="Timeline">
-        <div className="pane left-panel">
-          <input
-            placeholder="PID to track"
-            value={this.state.add}
-            onKeyDown={this.addPid.bind(this)}
-            onChange={event => this.setState({ add: event.target.value })}
-          />
-          <input
-            placeholder="Search"
-            value={this.state.search}
-            onKeyDown={this.addPid.bind(this)}
-            onChange={event => this.setState({ search: event.target.value })}
-          />
-
+        <ul className="Dashboard-navigation nav nav-tabs">
           {this.props.timelines.map(({ pid, timeline }) => (
-            <div
-              className={`pid ${pid === this.props.pid ? 'active' : ''}`}
-              onClick={() => this.props.setCurrentPid(pid)}
+            <li
               key={pid}
+              className={`nav-item ${pid === this.props.pid ? 'Dashboard-active' : ''}`}
+              onClick={() => this.props.setCurrentPid(pid)}
             >
-              {pid}
-              {' '}
-              |
-              {' '}
-              {timeline.length < 1000 ? timeline.length : '999+'}
-            </div>
-          ))}
-        </div>
-        <div className="pane right-panel">
-          <div className="messages">
-            {currentTimeline.map((t, index) => (
-              <div
-                key={index}
-                className={`message ${index === this.props.msg ? 'active' : ''}`}
-                onClick={() => this.props.setCurrentMsg(index)}
-              >
-                <span style={{ fontStyle: 'bold' }}>
-                  {index}
+              <Link to={`/timeline/${pid}`}>
+                {pid}
+                <span className="badge" style={{ marginLeft: '5px' }}>
+                  {timeline.length < 1000 ? timeline.length : '999+'}
                 </span>
-                <br />
-                {t.message}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {currentState
+          ? <div className="pane">
+              <div className="messages">
+                {currentTimeline.map((t, index) => (
+                  <div
+                    key={index}
+                    className={`message ${index === this.props.msg ? 'active' : ''}`}
+                    onClick={() => this.props.setCurrentMsg(index)}
+                  >
+                    <span style={{ fontStyle: 'bold' }}>
+                      {index}
+                    </span>
+                    <br />
+                    {t.message}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="state">
-            <pre style={{ textAlign: currentState ? 'left' : 'center' }}>
-              <code className="erlang" ref={node => this.code = node}>
-                {currentState ? currentState.state : 'No changes tracked'}
-              </code>
-            </pre>
-          </div>
-        </div>
+              <div className="state">
+                <pre style={{ textAlign: currentState ? 'left' : 'center' }}>
+                  <code className="erlang" ref={node => this.code = node}>
+                    {currentState}
+                  </code>
+                </pre>
+              </div>
+            </div>
+          : <div
+              className="pane"
+              style={{ textAlign: 'center', marginTop: '20px' }}
+            >
+              No changes tracked
+            </div>}
       </div>
     );
   }
