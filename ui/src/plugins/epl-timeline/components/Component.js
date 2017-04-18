@@ -82,7 +82,10 @@ class Component_ extends Component {
             >
               <Link to={`/timeline/${pid}`}>
                 {pid}
-                <span className="badge" style={{ marginLeft: '5px' }}>
+                <span
+                  className="badge"
+                  style={{ backgroundColor: '#8fbf47', marginLeft: '5px' }}
+                >
                   {timeline.length < 1000 ? timeline.length : '999+'}
                 </span>
               </Link>
@@ -110,7 +113,7 @@ class Component_ extends Component {
               <div className="state">
                 <pre style={{ textAlign: currentState ? 'left' : 'center' }}>
                   <code className="erlang" ref={node => this.code = node}>
-                    {currentState}
+                    {currentState.state}
                   </code>
                 </pre>
               </div>

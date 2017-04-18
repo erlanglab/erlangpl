@@ -79,3 +79,8 @@
   outline: none;
   border: 1px solid #8fbf47;
 }
+
+.Timeline .nav-tabs > li {
+  float: none;
+  display: inline-block;
+}

@@ -6,9 +6,10 @@
 .Dashboard-navigation {
   white-space: nowrap !important;
   overflow-x: auto !important;
-  overflow-y: auto;
+  overflow-y: hidden;
   background-color: #21252b;
   height: 42px;
+  min-height: 42px;
   border-bottom: 1px solid #21252b !important;
 }
 
