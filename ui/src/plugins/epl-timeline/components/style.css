@@ -26,7 +26,7 @@
 .Timeline .state {
   oveflow: auto;
   float: right;
-  width: 75%;
+  width: calc(100% - 30ch);
   height: calc(100%);
 }
 
@@ -34,13 +34,15 @@
   float: left;
   overflow-x: hidden;
   overflow-y: auto;
-  width: 25%;
+  width: 30ch;
   height: calc(100%);
   text-overflow: ellipsis;
 }
 
 .Timeline .message {
-  padding: 10px 5px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  color: #c4c9d2;
   box-sizing: border-box;
   border-bottom: 1px solid black;
   width: calc(100%);
@@ -62,10 +64,15 @@
   width: 100%;
 }
 
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: rgba(157,165,180, 0.6);
+}
+
 .Timeline input {
-  margin-bottom: 15px;
   color: #9da5b4;
-  padding: 10px 5px;
+  height: 30px;
+  margin: 6px 0;
+  padding: 5px;
   width: 100%;
   box-sizing: border-box;
   border: none;
@@ -83,4 +90,22 @@
 .Timeline .nav-tabs > li {
   float: none;
   display: inline-block;
+}
+
+
+.Timeline .message .content {
+  width: calc(100% - 7ch);
+  padding-left: 1ch;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.Timeline .message .index {
+  width: 5ch;
+  padding-right: 1ch;
+  text-align: right;
+  display: block;
+  float: right;
 }

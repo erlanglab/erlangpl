@@ -12,6 +12,7 @@ import './style.css';
 
 class Component_ extends Component {
   code: any;
+  scroll: any;
 
   constructor(props) {
     super(props);
@@ -21,30 +22,38 @@ class Component_ extends Component {
     };
   }
 
-  changeByArrows = e => {
-    e.preventDefault();
+  changeByArrows(e) {
     const current = this.props.timelines.find(t => t.pid === this.props.pid);
     const currentTimeline = current ? current.timeline : [];
     if (e.which === 40 && this.props.msg < currentTimeline.length - 1) {
       //down
-      return this.props.setCurrentMsg(this.props.msg + 1);
+      e.preventDefault();
+      this.props.setCurrentMsg(this.props.msg + 1);
     } else if (e.which === 38 && this.props.msg > 0) {
       //up
-      return this.props.setCurrentMsg(this.props.msg - 1);
+      e.preventDefault();
+      this.props.setCurrentMsg(this.props.msg - 1);
     }
-    return true;
-  };
+  }
 
   componentDidMount() {
     this.props.pid === null &&
       this.props.timelines.length &&
       this.props.setCurrentPid(this.props.timelines[0].pid);
 
-    window.addEventListener('keyup', this.changeByArrows, false);
+    document.body.addEventListener(
+      'keydown',
+      this.changeByArrows.bind(this),
+      false
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keyup', this.changeByArrows, false);
+    document.body.removeEventListener(
+      'keydown',
+      this.changeByArrows.bind(this),
+      false
+    );
   }
 
   componentWillReceiveProps(nextProps) {
@@ -55,9 +64,7 @@ class Component_ extends Component {
 
   // this can cause perf issues
   componentDidUpdate() {
-    if (this.code) {
-      // hljs.highlightBlock(this.code);
-    }
+    // this.code && hljs.highlightBlock(this.code);
   }
 
   addPid(event: any) {
@@ -91,22 +98,29 @@ class Component_ extends Component {
               </Link>
             </li>
           ))}
+          <li className="nav-item">
+            <input
+              placeholder="PID to add"
+              value={this.state.add}
+              onKeyDown={this.addPid.bind(this)}
+              onChange={event => this.setState({ add: event.target.value })}
+            />
+          </li>
         </ul>
 
         {currentState
           ? <div className="pane">
-              <div className="messages">
+              <div className="messages" ref={node => this.scroll = node}>
                 {currentTimeline.map((t, index) => (
                   <div
                     key={index}
                     className={`message ${index === this.props.msg ? 'active' : ''}`}
                     onClick={() => this.props.setCurrentMsg(index)}
                   >
-                    <span style={{ fontStyle: 'bold' }}>
+                    <span className="content">{t.message}</span>
+                    <span className="index" style={{ fontStyle: 'bold' }}>
                       {index}
                     </span>
-                    <br />
-                    {t.message}
                   </div>
                 ))}
               </div>
