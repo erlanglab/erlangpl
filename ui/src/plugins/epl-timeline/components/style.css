@@ -99,7 +99,6 @@
   display: inline-block;
 }
 
-
 .Timeline .message .content {
   width: calc(100% - 7ch);
   padding-left: 1ch;
