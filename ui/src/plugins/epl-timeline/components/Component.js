@@ -26,11 +26,12 @@ class Component_ extends Component {
     const currentTimeline = current ? current.timeline : [];
     if (e.which === 40 && this.props.msg < currentTimeline.length - 1) {
       //down
-      this.props.setCurrentMsg(this.props.msg + 1);
+      return this.props.setCurrentMsg(this.props.msg + 1);
     } else if (e.which === 38 && this.props.msg > 0) {
       //up
-      this.props.setCurrentMsg(this.props.msg - 1);
+      return this.props.setCurrentMsg(this.props.msg - 1);
     }
+    return true;
   };
 
   componentDidMount() {
@@ -44,7 +45,7 @@ class Component_ extends Component {
   // this can cause perf issues
   componentDidUpdate() {
     if (this.code) {
-      hljs.highlightBlock(this.code);
+      // hljs.highlightBlock(this.code);
     }
   }
 
@@ -98,7 +99,7 @@ class Component_ extends Component {
                 onClick={() => this.props.setCurrentMsg(index)}
               >
                 <span style={{ fontStyle: 'bold' }}>
-                  {currentTimeline.length - index}
+                  {index}
                 </span>
                 <br />
                 {t.message}

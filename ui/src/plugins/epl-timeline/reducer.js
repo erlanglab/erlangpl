@@ -12,7 +12,10 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === type.UPDATE_TIMELINES) {
     const [{ timelines }] = action.payload;
     console.log(timelines);
-    return state.set('timelines', timelines);
+    return state.set(
+      'timelines',
+      timelines.map(t => ({ ...t, timeline: t.timeline.reverse() }))
+    );
   }
 
   if (action.type === type.SET_CURRENT_PID) {
