@@ -14,16 +14,18 @@ import './style.css';
 
 class Component_ extends Component {
   code: any;
+  state: {
+    add: string
+  };
 
   constructor(props) {
     super(props);
     this.state = {
-      add: '',
-      search: ''
+      add: ''
     };
   }
 
-  changeByArrows(e) {
+  changeByArrows(e: any) {
     const current = this.props.timelines.find(t => t.pid === this.props.pid);
     const currentTimeline = current ? current.timeline : [];
     if (e.which === 40 && this.props.msg < currentTimeline.length - 1) {
@@ -38,11 +40,12 @@ class Component_ extends Component {
   }
 
   componentDidMount() {
-    document.body.addEventListener(
-      'keydown',
-      this.changeByArrows.bind(this),
-      false
-    );
+    document.body &&
+      document.body.addEventListener(
+        'keydown',
+        this.changeByArrows.bind(this),
+        false
+      );
 
     const pid = this.props.match.params.pid;
     if (pid) return this.props.setCurrentPid(pid);
@@ -52,11 +55,12 @@ class Component_ extends Component {
   }
 
   componentWillUnmount() {
-    document.body.removeEventListener(
-      'keydown',
-      this.changeByArrows.bind(this),
-      false
-    );
+    document.body &&
+      document.body.removeEventListener(
+        'keydown',
+        this.changeByArrows.bind(this),
+        false
+      );
   }
 
   // this can cause perf issues

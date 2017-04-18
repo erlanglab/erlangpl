@@ -2,7 +2,7 @@
 
 import * as type from './actionTypes';
 
-const action = type => (...args) => ({
+const action = type => (...args: any) => ({
   type,
   payload: [...args]
 });
