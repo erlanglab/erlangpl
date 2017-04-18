@@ -20,7 +20,7 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
 
   if (action.type === type.SET_CURRENT_PID) {
     const [pid] = action.payload;
-    return state.set('pid', pid);
+    return state.set('pid', pid).set('msg', 0);
   }
 
   if (action.type === type.SET_CURRENT_MSG) {

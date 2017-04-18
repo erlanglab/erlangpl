@@ -1,8 +1,10 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import hljs from 'highlightjs';
+// import hljs from 'highlightjs';
 import { Link } from 'react-router-dom';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import List from 'react-virtualized/dist/commonjs/List';
 
 import { send } from '../../../sockets';
 import * as actions from '../actions';
@@ -12,7 +14,6 @@ import './style.css';
 
 class Component_ extends Component {
   code: any;
-  scroll: any;
 
   constructor(props) {
     super(props);
@@ -71,6 +72,10 @@ class Component_ extends Component {
     }
   }
 
+  handlePidClick(pid) {
+    this.props.setCurrentPid(pid);
+  }
+
   render() {
     const current = this.props.timelines.find(t => t.pid === this.props.pid);
     const currentTimeline = current ? current.timeline : [];
@@ -78,11 +83,19 @@ class Component_ extends Component {
     return (
       <div className="Timeline">
         <ul className="Dashboard-navigation nav nav-tabs">
+          <li className="nav-item">
+            <input
+              placeholder="PID to add"
+              value={this.state.add}
+              onKeyDown={this.addPid.bind(this)}
+              onChange={event => this.setState({ add: event.target.value })}
+            />
+          </li>
           {this.props.timelines.map(({ pid, timeline }) => (
             <li
               key={pid}
               className={`nav-item ${pid === this.props.pid ? 'Dashboard-active' : ''}`}
-              onClick={() => this.props.setCurrentPid(pid)}
+              onClick={this.handlePidClick.bind(this, pid)}
             >
               <Link to={`/timeline/${pid}`}>
                 {pid}
@@ -95,31 +108,39 @@ class Component_ extends Component {
               </Link>
             </li>
           ))}
-          <li className="nav-item">
-            <input
-              placeholder="PID to add"
-              value={this.state.add}
-              onKeyDown={this.addPid.bind(this)}
-              onChange={event => this.setState({ add: event.target.value })}
-            />
-          </li>
         </ul>
 
         {currentState
           ? <div className="pane">
-              <div className="messages" ref={node => this.scroll = node}>
-                {currentTimeline.map((t, index) => (
-                  <div
-                    key={index}
-                    className={`message ${index === this.props.msg ? 'active' : ''}`}
-                    onClick={() => this.props.setCurrentMsg(index)}
-                  >
-                    <span className="content">{t.message}</span>
-                    <span className="index" style={{ fontStyle: 'bold' }}>
-                      {index}
-                    </span>
-                  </div>
-                ))}
+              <div className="messages">
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <List
+                      scrollToIndex={this.props.msg}
+                      width={width}
+                      height={height}
+                      rowCount={currentTimeline.length}
+                      rowHeight={35}
+                      rowRenderer={({ index, key, style }) => {
+                        const t = currentTimeline[index];
+
+                        return (
+                          <div
+                            style={style}
+                            key={key}
+                            className={`message ${index === this.props.msg ? 'active' : ''}`}
+                            onClick={() => this.props.setCurrentMsg(index)}
+                          >
+                            <span className="content">{t.message}</span>
+                            <span className="index">
+                              {index}
+                            </span>
+                          </div>
+                        );
+                      }}
+                    />
+                  )}
+                </AutoSizer>
               </div>
               <div className="state">
                 <pre style={{ textAlign: currentState ? 'left' : 'center' }}>
