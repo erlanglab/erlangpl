@@ -28,6 +28,18 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
     return state.set('msg', msg);
   }
 
+  if (action.type === 'PUSH_TIMELINE_PID') {
+    const pid = action.pid;
+    return state.update('timelines', timelines =>
+      [
+        {
+          pid,
+          timeline: []
+        }
+      ].concat(timelines)
+    );
+  }
+
   return state;
 };
 

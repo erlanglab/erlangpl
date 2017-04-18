@@ -67,7 +67,7 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
             />
             <Route path="/sup-tree" component={eplSupTree.SupTree} />
             <Route path="/traffic/:view*" component={eplVizceral.Vizceral} />
-            <Route path="/timeline" component={eplTimeline.Component} />
+            <Route path="/timeline/:pid*" component={eplTimeline.Component} />
             <Route path="/about" component={about.components.About} />
             {routes}
           </div>

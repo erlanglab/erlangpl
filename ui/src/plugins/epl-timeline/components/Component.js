@@ -37,15 +37,17 @@ class Component_ extends Component {
   }
 
   componentDidMount() {
-    this.props.pid === null &&
-      this.props.timelines.length &&
-      this.props.setCurrentPid(this.props.timelines[0].pid);
-
     document.body.addEventListener(
       'keydown',
       this.changeByArrows.bind(this),
       false
     );
+
+    const pid = this.props.match.params.pid;
+    if (pid) return this.props.setCurrentPid(pid);
+
+    if (this.props.pid === null && this.props.timelines.length)
+      return this.props.setCurrentPid(this.props.timelines[0].pid);
   }
 
   componentWillUnmount() {
@@ -56,12 +58,6 @@ class Component_ extends Component {
     );
   }
 
-  componentWillReceiveProps(nextProps) {
-    nextProps.pid === null &&
-      nextProps.timelines.length &&
-      nextProps.setCurrentPid(nextProps.timelines[0].pid);
-  }
-
   // this can cause perf issues
   componentDidUpdate() {
     // this.code && hljs.highlightBlock(this.code);
@@ -70,6 +66,7 @@ class Component_ extends Component {
   addPid(event: any) {
     if (event.which === 13) {
       send('epl_timeline_EPL', this.state.add);
+      this.props.pushTimelinePid(this.state.add);
       this.setState({ add: '' });
     }
   }
@@ -143,6 +140,8 @@ class Component_ extends Component {
   }
 }
 
+import { pushTimelinePid } from '../../epl-sup-tree/actions';
+
 export default connect(
   state => ({
     timelines: state.eplTimeline.get('timelines'),
@@ -150,6 +149,7 @@ export default connect(
     msg: state.eplTimeline.get('msg')
   }),
   {
+    pushTimelinePid,
     setCurrentPid: actions.setCurrentPid,
     setCurrentMsg: actions.setCurrentMsg
   }
