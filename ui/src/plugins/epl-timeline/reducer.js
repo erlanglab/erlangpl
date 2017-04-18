@@ -40,6 +40,12 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
     );
   }
 
+  if (action.type === '@@router/LOCATION_CHANGE') {
+    const { pathname } = action.payload;
+    const pid = pathname.replace(/\/timeline(\/?)/, '');
+    return state.set('pid', pid).set('msg', 0);
+  }
+
   return state;
 };
 
