@@ -99,6 +99,21 @@
   display: inline-block;
 }
 
+.Timeline .nav-item i {
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 16px;
+}
+
+.Timeline .nav-item i:hover {
+  color: #C13035;
+}
+
+.Timeline .nav-item .badge {
+  background-color: #8fbf47;
+  margin-right: 5px;
+}
+
 .Timeline .message .content {
   width: calc(100% - 7ch);
   padding-left: 1ch;

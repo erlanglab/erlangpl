@@ -11,7 +11,7 @@
 -export([start_link/0,
          subscribe/0,
          unsubscribe/0,
-         add/1]).
+         handle_pid/2]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -37,11 +37,15 @@ subscribe() ->
 unsubscribe() ->
     gen_server:cast(?MODULE, {unsubscribe, self()}).
 
-add(Pid) when is_list(Pid) ->
-    gen_server:cast(?MODULE, {add_timeline, Pid});
+handle_pid(Action, P) when is_list(P) ->
+    try list_to_pid(P) of
+        Pid -> gen_server:cast(?MODULE, {Action, Pid})
+    catch
+        error:badarg -> noop
+    end;
 
-add(Pid) when is_binary(Pid) ->
-    add(binary_to_list(Pid)).
+handle_pid(Action, Pid) when is_binary(Pid) ->
+    handle_pid(Action, binary_to_list(Pid)).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -58,14 +62,22 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     NextSubs = lists:delete(Pid, Subs),
     {noreply, State#state{subscribers = NextSubs}};
-handle_cast({add_timeline, Pid}, State = #state{timelines = Timelines}) ->
+handle_cast({add, Pid}, State = #state{timelines = Timelines}) when is_pid(Pid) ->
     T = case lists:any(fun({P, _}) -> P == Pid end, Timelines) of
         true -> Timelines;
         _    ->
-                {ok, Timeline} = epl_timeline_observer:start_link(list_to_pid(Pid)),
+                {ok, Timeline} = epl_timeline_observer:start_link(Pid),
                 [{Pid, Timeline}|Timelines]
         end,
     {noreply, State#state{timelines = T}};
+handle_cast({remove, Pid}, State = #state{timelines = Timelines}) when is_pid(Pid) ->
+    NextTimelines = lists:filter(fun({P, T}) ->
+                                         if
+                                             P == Pid -> exit(T, kill), false;
+                                             true -> true
+                                         end
+                                 end, Timelines),
+    {noreply, State#state{timelines = NextTimelines}};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 

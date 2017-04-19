@@ -70,14 +70,19 @@ class Component_ extends Component {
 
   addPid(event: any) {
     if (event.which === 13) {
-      send('epl_timeline_EPL', this.state.add);
+      send('epl_timeline_EPL', JSON.stringify(['add', this.state.add.trim()]));
       this.props.pushTimelinePid(this.state.add);
       this.setState({ add: '' });
     }
   }
 
-  handlePidClick(pid) {
+  handlePidClick(pid: string) {
     this.props.setCurrentPid(pid);
+  }
+
+  handlePidRemove(pid: string) {
+    send('epl_timeline_EPL', JSON.stringify(['remove', pid]));
+    this.props.removePid(pid);
   }
 
   render() {
@@ -89,7 +94,7 @@ class Component_ extends Component {
         <ul className="Dashboard-navigation nav nav-tabs">
           <li className="nav-item">
             <input
-              placeholder="PID to add"
+              placeholder="Pid to add"
               value={this.state.add}
               onKeyDown={this.addPid.bind(this)}
               onChange={event => this.setState({ add: event.target.value })}
@@ -102,13 +107,14 @@ class Component_ extends Component {
               onClick={this.handlePidClick.bind(this, pid)}
             >
               <Link to={`/timeline/${pid}`}>
-                {pid}
-                <span
-                  className="badge"
-                  style={{ backgroundColor: '#8fbf47', marginLeft: '5px' }}
-                >
+                <span className="badge">
                   {timeline.length < 1000 ? timeline.length : '999+'}
                 </span>
+                {pid}
+                <i
+                  className="fa fa-times"
+                  onClick={() => this.handlePidRemove(pid)}
+                />
               </Link>
             </li>
           ))}
@@ -174,6 +180,7 @@ export default connect(
     msg: state.eplTimeline.get('msg')
   }),
   {
+    removePid: actions.removePid,
     pushTimelinePid,
     setCurrentPid: actions.setCurrentPid,
     setCurrentMsg: actions.setCurrentMsg

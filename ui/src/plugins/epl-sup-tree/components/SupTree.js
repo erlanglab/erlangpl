@@ -242,7 +242,7 @@ class SupTree extends Component {
   };
 
   addToTimeline = (pid: string) => {
-    send('epl_timeline_EPL', pid);
+    send('epl_timeline_EPL', JSON.stringify(['add', pid]));
     this.props.pushTimelinePid(pid);
     this.props.push(`/timeline/${pid}`);
   };

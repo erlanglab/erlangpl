@@ -11,7 +11,6 @@ export const INITIAL_STATE = Map({
 const reducer = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === type.UPDATE_TIMELINES) {
     const [{ timelines }] = action.payload;
-    console.log(timelines);
     return state.set(
       'timelines',
       timelines.map(t => ({ ...t, timeline: t.timeline.reverse() }))
@@ -37,6 +36,13 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
           timeline: []
         }
       ].concat(timelines)
+    );
+  }
+
+  if (action.type === type.REMOVE_PID) {
+    const [pid] = action.payload;
+    return state.update('timelines', timelines =>
+      timelines.filter(t => t.pid !== pid)
     );
   }
 

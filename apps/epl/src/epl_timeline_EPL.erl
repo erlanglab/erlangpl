@@ -24,8 +24,12 @@ init({tcp, http}, _Req, _Opts) ->
 websocket_init(_TransportName, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
-websocket_handle({text, Pid}, Req, State) ->
-    epl_timeline:add(Pid),
+websocket_handle({text, Data}, Req, State) ->
+    case epl_json:decode(Data) of
+        [<<"add">>, Pid] -> epl_timeline:handle_pid(add, Pid);
+        [<<"remove">>, Pid] -> epl_timeline:handle_pid(remove, Pid);
+        _ -> invalid_msg
+    end,
     {ok, Req, State};
 
 websocket_handle(Data, _Req, _State) ->
