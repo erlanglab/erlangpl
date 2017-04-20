@@ -45,9 +45,9 @@ export const combineSockets = (
       return socket;
     })
     .reduce((acc, { route, topics, builtIn }) => {
-      const concatenatedTopics = Object.keys(topics).reduce((acc: {
-        [key: string]: Array<() => void>
-      }, topic: string) => {
+      const concatenatedTopics = Object.keys(
+        topics
+      ).reduce((acc: { [key: string]: Array<() => void> }, topic: string) => {
         return {
           ...acc,
           [topic]: (acc[topic] || []).concat(topics[topic])

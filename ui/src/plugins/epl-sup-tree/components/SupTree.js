@@ -255,7 +255,7 @@ class SupTree extends Component {
             </div>
           </div>}
 
-        <div className="graph" ref={node => this.div = node} />
+        <div className="graph" ref={node => (this.div = node)} />
         <div className="side-panel">
 
           <div className="head" onClick={this.toggleCollapse}>

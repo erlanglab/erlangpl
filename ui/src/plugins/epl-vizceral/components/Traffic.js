@@ -96,7 +96,7 @@ class Traffic extends Component {
               >
 
                 <Vizceral
-                  ref={node => this.vizceral = node}
+                  ref={node => (this.vizceral = node)}
                   traffic={this.props.data}
                   view={this.props.view}
                   viewChanged={this.handleViewChange}
