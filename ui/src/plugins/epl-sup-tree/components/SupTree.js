@@ -24,6 +24,11 @@ class SupTree extends Component {
     renderer: any,
     events: any,
 
+    origin: { x: string, y: string },
+    origin_: { x: string, y: string },
+    offset: { x: number, y: number },
+    scale: number,
+    labels: any,
     collapse: boolean,
     height: Array<number>,
     selected: { id: string, color: number, type: string },
@@ -42,19 +47,47 @@ class SupTree extends Component {
       renderer: null,
       events: null,
 
+      scale: 1,
+      origin_: { x: 0, y: 0 },
+      origin: { x: 'center', y: 'center' },
+      offset: { x: 0, y: 0 },
       collapse: false,
       height: [50, 50],
       selected: { id: 'Applications', color: 0, type: '' },
       appsNodes: [],
       apps: [],
+      labels: {},
       all: [],
       first: true
     };
   }
 
+  componentWillUnmout() {
+    this.div.removeEventListener(
+      'mousemove',
+      this.handleMouseMove.bind(this),
+      false
+    );
+  }
+
   componentDidMount() {
+    this.div.addEventListener(
+      'mousemove',
+      this.handleMouseMove.bind(this),
+      false
+    );
+
+    this.setState({
+      offset: {
+        x: this.div.clientWidth / 2,
+        y: this.div.clientHeight / 2
+      }
+    });
+
     const graph = Viva.Graph.graph();
     const graphics = Viva.Graph.View.webglGraphics();
+
+    this.generateDOMLabels(graph);
 
     graphics
       .node(node => {
@@ -67,6 +100,30 @@ class SupTree extends Component {
       })
       .link(link => {
         return Viva.Graph.View.webglLine('#808080');
+      })
+      .placeNode((ui, { x, y, ...rest }) => {
+        // This callback is called by the renderer before it updates
+        // node coordinate. We can use it to update corresponding DOM
+        // label position;
+        // we create a copy of layout position
+        const domPos = { x, y };
+        // And ask graphics to transform it to DOM coordinates:
+        graphics.transformGraphToClientCoordinates(domPos);
+        // then move corresponding dom label to its own position:
+        const nodeId = ui.node.id;
+        const node = this.state.labels[nodeId];
+        if (node) {
+          this.setState({
+            labels: {
+              ...this.state.labels,
+              [nodeId]: {
+                ...node,
+                x,
+                y
+              }
+            }
+          });
+        }
       });
 
     const layout = Viva.Graph.Layout.forceDirected(graph, {
@@ -83,17 +140,66 @@ class SupTree extends Component {
       prerender: 1200
     });
 
-    const events = Viva.Graph.webglInputEvents(graphics, graph);
+    renderer.on('scale', scale =>
+      this.setState(({ origin, origin_, offset }) => {
+        return {
+          scale
+          /* offset: {
+           *   x: origin_.x,
+           *   y: origin_.y
+           * },*/
+          /* origin: {
+           *   x: `${origin_.x}px`,
+           *   y: `${origin_.y}px`
+           * }*/
+        };
+      })
+    );
 
+    renderer.on('drag', offset =>
+      this.setState(state => ({
+        offset: {
+          x: state.offset.x + offset.x / state.scale,
+          y: state.offset.y + offset.y / state.scale
+        }
+      }))
+    );
+
+    const events = Viva.Graph.webglInputEvents(graphics, graph);
     events.click(({ id }) => this.selectNode(id));
 
-    setTimeout(
-      () => {
-        this.setState({ renderer, graph, graphics, layout, events }, () =>
-          this.propagateGraph());
-      },
-      0
-    );
+    setTimeout(() => {
+      this.setState({ renderer, graph, graphics, layout, events }, () =>
+        this.propagateGraph()
+      );
+    }, 0);
+  }
+
+  handleMouseMove(e: any) {
+    this.setState(state => {
+      return {
+        origin_: {
+          // not a nice trick, we're moving it by nav width
+          x: e.clientX - 60,
+          y: e.clientY
+        }
+      };
+    });
+  }
+
+  generateDOMLabels(graph) {
+    // this will map node id into DOM element
+    const labels = Object.create(null);
+    graph.forEachNode(node => {
+      labels[node.id] = {
+        text: node.id,
+        x: 0,
+        y: 0
+      };
+    });
+    // NOTE: If your graph changes over time you will need to
+    // monitor graph changes and update DOM elements accordingly
+    this.setState({ labels });
   }
 
   selectNode(id: string, center: ?boolean) {
@@ -139,31 +245,28 @@ class SupTree extends Component {
 
     let appsNodes = []; //this.state.appsNodes;
 
-    const list = Object.keys(props.tree).reduce(
-      (acc, app) => {
-        const parent = props.tree[app];
-        if (Object.keys(parent).length) {
-          if (all.indexOf(parent.id) < 0) {
-            const app = this.state.graph.addNode(parent.id, { ...parent });
-            if (!this.state.appsNodes.includes(app)) {
-              appsNodes.push(app);
-            }
+    const list = Object.keys(props.tree).reduce((acc, app) => {
+      const parent = props.tree[app];
+      if (Object.keys(parent).length) {
+        if (all.indexOf(parent.id) < 0) {
+          const app = this.state.graph.addNode(parent.id, { ...parent });
+          if (!this.state.appsNodes.includes(app)) {
+            appsNodes.push(app);
           }
-
-          return acc
-            .concat(parent.id)
-            .concat(
-              parent.children.reduce(
-                (acc, child) => acc.concat(this.mapChild(child, parent)),
-                []
-              )
-            );
         }
 
-        return acc;
-      },
-      []
-    );
+        return acc
+          .concat(parent.id)
+          .concat(
+            parent.children.reduce(
+              (acc, child) => acc.concat(this.mapChild(child, parent)),
+              []
+            )
+          );
+      }
+
+      return acc;
+    }, []);
 
     if (this.state.first && Object.keys(props.tree).length) {
       this.state.renderer.run();
@@ -172,6 +275,8 @@ class SupTree extends Component {
 
     // simple diffing to remove non existing nodes
     difference(all, list).forEach(id => this.state.graph.removeNode(id));
+
+    this.generateDOMLabels(this.state.graph);
 
     appsNodes.forEach(app => this.state.layout.pinNode(app, true));
     this.setState({
@@ -260,7 +365,38 @@ class SupTree extends Component {
             </div>
           </div>}
 
-        <div className="graph" ref={node => this.div = node} />
+        <div className="graph" ref={node => (this.div = node)}>
+          <div
+            className="labels-container"
+            style={{
+              width: this.div && this.div.clientWidth,
+              transform: `scale(${this.state.scale})`,
+              transformOrigin: `${this.state.origin.x} ${this.state.origin.y}`,
+              height: this.div && this.div.clientHeight
+            }}
+          >
+            {Object.keys(this.state.labels).map(key => {
+              const label = this.state.labels[key];
+              const { offset } = this.state;
+              const y = offset.y + label.y;
+              const x = offset.x + label.x;
+
+              return (
+                <span
+                  key={key}
+                  className="node-label"
+                  style={{
+                    top: `${y - 10}px`,
+                    left: `${x - 5}px`
+                  }}
+                >
+                  {label.text}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="side-panel">
 
           <div className="head" onClick={this.toggleCollapse}>
@@ -300,7 +436,7 @@ class SupTree extends Component {
                       </ListGroupItem>
                       {Object.keys(this.props.tree).map(
                         (app, key) =>
-                          Object.keys(this.props.tree[app]).length
+                          (Object.keys(this.props.tree[app]).length
                             ? <ListGroupItem
                                 key={key}
                                 className="application-link"
@@ -332,7 +468,7 @@ class SupTree extends Component {
                                 <span style={{ marginLeft: '17px' }}>
                                   {app}
                                 </span>
-                              </ListGroupItem>
+                              </ListGroupItem>)
                       )}
                     </ListGroup>
                   </div>}
