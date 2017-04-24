@@ -70,7 +70,7 @@ init(Node) ->
         "fun (F, Ref, init) ->
                  %% create neccessary tables
                  EtsOptions = [named_table, ordered_set, private],
-                 %% timeline needs to tables, one for caching messages, second for storing tracked pids
+                 %% timeline needs two tables, one for caching messages, second for storing tracked pids
                  epl_timeline_cache  = ets:new(epl_timeline_cache, [named_table, set, private]),
                  epl_timeline_pids  = ets:new(epl_timeline_pids, [named_table, set, private]),
                  epl_receive   = ets:new(epl_receive,   EtsOptions),
