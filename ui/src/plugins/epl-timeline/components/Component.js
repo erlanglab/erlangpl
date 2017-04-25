@@ -155,11 +155,7 @@ class Component_ extends Component {
               </div>
               <div className="state">
                 <h3 ref={node => (this.header = node)}>
-                  {currentTimeline[this.props.msg].message +
-                    currentTimeline[this.props.msg].message +
-                    currentTimeline[this.props.msg].message +
-                    currentTimeline[this.props.msg].message +
-                    currentTimeline[this.props.msg].message}
+                  {currentTimeline[this.props.msg].message}
                 </h3>
                 <pre
                   style={{
@@ -169,10 +165,7 @@ class Component_ extends Component {
                   }}
                 >
                   <code className="erlang" ref={node => (this.code = node)}>
-                    {Array.from({ length: 100 }).reduce(
-                      (acc, a) => acc + currentState.state + '\n',
-                      ''
-                    )}
+                    {currentState.state}
                   </code>
                 </pre>
               </div>
