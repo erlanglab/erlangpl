@@ -24,10 +24,14 @@
 }
 
 .Timeline .state {
-  oveflow: auto;
+  overflow: auto;
   float: right;
   width: calc(100% - 30ch);
   height: calc(100%);
+}
+
+.Timeline .state h3 {
+  text-align: center;
 }
 
 .Timeline .messages {

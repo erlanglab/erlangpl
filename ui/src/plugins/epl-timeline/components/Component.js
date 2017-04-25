@@ -14,6 +14,7 @@ import './style.css';
 
 class Component_ extends Component {
   code: any;
+  header: any;
   state: {
     add: string
   };
@@ -153,9 +154,25 @@ class Component_ extends Component {
                 </AutoSizer>
               </div>
               <div className="state">
-                <pre style={{ textAlign: currentState ? 'left' : 'center' }}>
-                  <code className="erlang" ref={node => this.code = node}>
-                    {currentState.state}
+                <h3 ref={node => (this.header = node)}>
+                  {currentTimeline[this.props.msg].message +
+                    currentTimeline[this.props.msg].message +
+                    currentTimeline[this.props.msg].message +
+                    currentTimeline[this.props.msg].message +
+                    currentTimeline[this.props.msg].message}
+                </h3>
+                <pre
+                  style={{
+                    // 30px because thats header margin
+                    height: `calc(100% - ${this.header ? this.header.clientHeight : '0'}px - 30px)`,
+                    textAlign: currentState ? 'left' : 'center'
+                  }}
+                >
+                  <code className="erlang" ref={node => (this.code = node)}>
+                    {Array.from({ length: 100 }).reduce(
+                      (acc, a) => acc + currentState.state + '\n',
+                      ''
+                    )}
                   </code>
                 </pre>
               </div>
