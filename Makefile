@@ -3,7 +3,7 @@
 # allow rebar binary to be set via environment variable
 REBAR ?= ./rebar
 
-all:
+all: rebar
 	@$(REBAR) get-deps compile
 
 test: compile
@@ -29,6 +29,9 @@ rebar:
 	chmod +x $@
 
 ui:
-	rm -rf apps/epl/priv/htdocs
-	yarn && yarn build
-	mv build apps/epl/priv/htdocs
+	@rm -rf apps/epl/priv/htdocs
+	@yarn && yarn build
+	@mv build apps/epl/priv/htdocs
+
+release: all ui
+	@./bootstrap

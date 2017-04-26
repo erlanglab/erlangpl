@@ -26,10 +26,7 @@ download for the first time. Second time dependencies will be cached.
 ```
 $ git clone https://github.com/erlanglab/erlangpl.git
 $ cd erlangpl
-$ make rebar
-$ make ui
-$ make
-$ ./bootstrap
+$ make release
 ```
 
 ## Running erlangpl script
