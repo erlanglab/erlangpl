@@ -3,8 +3,7 @@
 # allow rebar binary to be set via environment variable
 REBAR ?= ./rebar
 
-
-all:
+all: rebar
 	@$(REBAR) get-deps compile
 
 test: compile
@@ -34,9 +33,5 @@ ui:
 	@yarn && yarn build
 	@mv build apps/epl/priv/htdocs
 
-release:
-	@echo "Building release version of Erlang Performance Lab"
-	@make rebar
-	@make ui
-	@make
+release: all ui
 	@./bootstrap
