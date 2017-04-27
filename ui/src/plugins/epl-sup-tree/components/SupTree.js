@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Viva from 'vivagraphjs';
 import difference from 'lodash/difference';
+import throttle from 'lodash/throttle';
 import { Motion, spring } from 'react-motion';
 import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
@@ -16,6 +17,7 @@ const COLORS = {
 
 class SupTree extends Component {
   div: any;
+  canvas: any;
 
   state: {
     graphics: any,
@@ -23,9 +25,10 @@ class SupTree extends Component {
     layout: any,
     renderer: any,
     events: any,
+    ctx: any,
 
-    origin: { x: string, y: string },
-    origin_: { x: string, y: string },
+    origin: { x: number, y: number },
+    origin_: { x: number, y: number },
     offset: { x: number, y: number },
     scale: number,
     labels: any,
@@ -46,10 +49,10 @@ class SupTree extends Component {
       layout: null,
       renderer: null,
       events: null,
-
       scale: 1,
       origin_: { x: 0, y: 0 },
-      origin: { x: 'center', y: 'center' },
+      origin: { x: 0, y: 0 },
+      start: { x: 0, y: 0 },
       offset: { x: 0, y: 0 },
       collapse: false,
       height: [50, 50],
@@ -77,6 +80,43 @@ class SupTree extends Component {
       false
     );
 
+    this.div.addEventListener(
+      'mousedown',
+      e =>
+        this.setState({
+          start: this.state.ctx.transformedPoint(e.clientX - 60, e.clientY)
+        }),
+      false
+    );
+
+    this.div.addEventListener(
+      'mousedown',
+      e => this.setState({ down: false }),
+      false
+    );
+
+    this.div.addEventListener(
+      'mousewheel',
+      e => {
+        const delta = e.wheelDelta
+          ? e.wheelDelta / 40
+          : e.detail ? -e.detail : 0;
+        const { ctx, origin } = this.state;
+        const pt = ctx.transformedPoint(origin.x, origin.y);
+        ctx.translate(pt.x, pt.y);
+        // this is the same as VivaGraph scale factor
+        const scaleFactor = Math.pow(1.4, delta > 0 ? 0.2 : -0.2);
+        ctx.scale(scaleFactor, scaleFactor);
+        ctx.translate(-pt.x, -pt.y);
+        this.renderLabels();
+        return e.preventDefault() && false;
+      },
+      false
+    );
+
+    this.canvas.width = this.div.clientWidth;
+    this.canvas.height = this.div.clientHeight;
+
     this.setState({
       offset: {
         x: this.div.clientWidth / 2,
@@ -86,8 +126,6 @@ class SupTree extends Component {
 
     const graph = Viva.Graph.graph();
     const graphics = Viva.Graph.View.webglGraphics();
-
-    this.generateDOMLabels(graph);
 
     graphics
       .node(node => {
@@ -124,6 +162,8 @@ class SupTree extends Component {
             }
           });
         }
+        // may cause performance issues
+        this.renderLabels();
       });
 
     const layout = Viva.Graph.Layout.forceDirected(graph, {
@@ -140,29 +180,33 @@ class SupTree extends Component {
       prerender: 1200
     });
 
-    renderer.on('scale', scale =>
-      this.setState(({ origin, origin_, offset }) => {
-        return {
-          scale
-          /* offset: {
-           *   x: origin_.x,
-           *   y: origin_.y
-           * },*/
-          /* origin: {
-           *   x: `${origin_.x}px`,
-           *   y: `${origin_.y}px`
-           * }*/
-        };
-      })
-    );
+    renderer.on('scale', scale => {
+      const ss = this.state.scale;
+      this.setState(
+        ({ offset, origin_ }) => {
+          return { scale };
+        },
+        () => {}
+      );
+    });
 
     renderer.on('drag', offset =>
-      this.setState(state => ({
-        offset: {
-          x: state.offset.x + offset.x / state.scale,
-          y: state.offset.y + offset.y / state.scale
+      this.setState(
+        state => {
+          return {
+            offset: {
+              x: state.offset.x + offset.x / state.scale,
+              y: state.offset.y + offset.y / state.scale
+            }
+          };
+        },
+        () => {
+          const { ctx, origin, start } = this.state;
+          const pt = ctx.transformedPoint(origin.x, origin.y);
+          ctx.translate(pt.x - start.x, pt.y - start.y);
+          this.renderLabels();
         }
-      }))
+      )
     );
 
     const events = Viva.Graph.webglInputEvents(graphics, graph);
@@ -175,10 +219,26 @@ class SupTree extends Component {
     }, 0);
   }
 
+  renderLabels() {
+    const { labels, ctx } = this.state;
+    const { width, height } = this.canvas;
+    const p1 = ctx.transformedPoint(0, 0);
+    const p2 = ctx.transformedPoint(width, height);
+    ctx.clearRect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+
+    ctx.save();
+    ctx.fillStyle = 'white';
+    Object.keys(labels).forEach(key => {
+      const label = this.state.labels[key];
+      ctx.fillText(key, label.x + width / 2, label.y + height / 2);
+    });
+    ctx.restore();
+  }
+
   handleMouseMove(e: any) {
     this.setState(state => {
       return {
-        origin_: {
+        origin: {
           // not a nice trick, we're moving it by nav width
           x: e.clientX - 60,
           y: e.clientY
@@ -187,7 +247,7 @@ class SupTree extends Component {
     });
   }
 
-  generateDOMLabels(graph) {
+  generateLabels(graph, cb) {
     // this will map node id into DOM element
     const labels = Object.create(null);
     graph.forEachNode(node => {
@@ -199,7 +259,7 @@ class SupTree extends Component {
     });
     // NOTE: If your graph changes over time you will need to
     // monitor graph changes and update DOM elements accordingly
-    this.setState({ labels });
+    this.setState({ labels }, cb);
   }
 
   selectNode(id: string, center: ?boolean) {
@@ -221,6 +281,71 @@ class SupTree extends Component {
 
     send('epl_st_EPL', id);
     this.setState({ selected: { id, color, type: node.node.data.type } });
+  }
+
+  trackTransforms(ctx) {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    var xform = svg.createSVGMatrix();
+    ctx.getTransform = function() {
+      return xform;
+    };
+
+    var savedTransforms = [];
+    var save = ctx.save;
+    ctx.save = function() {
+      savedTransforms.push(xform.translate(0, 0));
+      return save.call(ctx);
+    };
+    var restore = ctx.restore;
+    ctx.restore = function() {
+      xform = savedTransforms.pop();
+      return restore.call(ctx);
+    };
+
+    var scale = ctx.scale;
+    ctx.scale = function(sx, sy) {
+      xform = xform.scaleNonUniform(sx, sy);
+      return scale.call(ctx, sx, sy);
+    };
+    var rotate = ctx.rotate;
+    ctx.rotate = function(radians) {
+      xform = xform.rotate(radians * 180 / Math.PI);
+      return rotate.call(ctx, radians);
+    };
+    var translate = ctx.translate;
+    ctx.translate = function(dx, dy) {
+      xform = xform.translate(dx, dy);
+      return translate.call(ctx, dx, dy);
+    };
+    var transform = ctx.transform;
+    ctx.transform = function(a, b, c, d, e, f) {
+      var m2 = svg.createSVGMatrix();
+      m2.a = a;
+      m2.b = b;
+      m2.c = c;
+      m2.d = d;
+      m2.e = e;
+      m2.f = f;
+      xform = xform.multiply(m2);
+      return transform.call(ctx, a, b, c, d, e, f);
+    };
+    var setTransform = ctx.setTransform;
+    ctx.setTransform = function(a, b, c, d, e, f) {
+      xform.a = a;
+      xform.b = b;
+      xform.c = c;
+      xform.d = d;
+      xform.e = e;
+      xform.f = f;
+      return setTransform.call(ctx, a, b, c, d, e, f);
+    };
+    var pt = svg.createSVGPoint();
+    ctx.transformedPoint = function(x, y) {
+      pt.x = x;
+      pt.y = y;
+      return pt.matrixTransform(xform.inverse());
+    };
+    return ctx;
   }
 
   mapChild(child, parent) {
@@ -276,7 +401,7 @@ class SupTree extends Component {
     // simple diffing to remove non existing nodes
     difference(all, list).forEach(id => this.state.graph.removeNode(id));
 
-    this.generateDOMLabels(this.state.graph);
+    this.generateLabels(this.state.graph, this.renderLabels.bind(this));
 
     appsNodes.forEach(app => this.state.layout.pinNode(app, true));
     this.setState({
@@ -284,6 +409,13 @@ class SupTree extends Component {
       apps: Object.keys(props.tree),
       all: list
     });
+  }
+
+  componentDidUpdate() {
+    if (!this.state.ctx && this.canvas)
+      this.setState({
+        ctx: this.trackTransforms(this.canvas.getContext('2d'))
+      });
   }
 
   componentWillReceiveProps(props) {
@@ -366,35 +498,14 @@ class SupTree extends Component {
           </div>}
 
         <div className="graph" ref={node => (this.div = node)}>
-          <div
+          <canvas
+            ref={node => (this.canvas = node)}
             className="labels-container"
             style={{
               width: this.div && this.div.clientWidth,
-              transform: `scale(${this.state.scale})`,
-              transformOrigin: `${this.state.origin.x} ${this.state.origin.y}`,
               height: this.div && this.div.clientHeight
             }}
-          >
-            {Object.keys(this.state.labels).map(key => {
-              const label = this.state.labels[key];
-              const { offset } = this.state;
-              const y = offset.y + label.y;
-              const x = offset.x + label.x;
-
-              return (
-                <span
-                  key={key}
-                  className="node-label"
-                  style={{
-                    top: `${y - 10}px`,
-                    left: `${x - 5}px`
-                  }}
-                >
-                  {label.text}
-                </span>
-              );
-            })}
-          </div>
+          />
         </div>
 
         <div className="side-panel">
