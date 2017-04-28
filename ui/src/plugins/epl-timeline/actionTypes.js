@@ -6,3 +6,5 @@ export const SET_CURRENT_PID = 'SET_CURRENT_PID';
 export const SET_CURRENT_MSG = 'SET_CURRENT_MSG';
 
 export const REMOVE_PID = 'REMOVE_PID';
+
+export const SET_INIT = 'SET_INIT';

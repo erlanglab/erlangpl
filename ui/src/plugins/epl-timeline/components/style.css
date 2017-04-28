@@ -84,9 +84,9 @@
 .Timeline input {
   color: #9da5b4;
   height: 30px;
-  margin: 6px 5px;
+  margin: 6px 0px;
   padding: 5px;
-  width: 94%;
+  width: 100%;
   box-sizing: border-box;
   background-color: #21252b;
   border-radius: 4px;

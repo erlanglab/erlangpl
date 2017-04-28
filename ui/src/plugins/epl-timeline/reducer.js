@@ -5,7 +5,8 @@ import { Map } from 'immutable';
 export const INITIAL_STATE = Map({
   timelines: [],
   pid: null,
-  msg: 0
+  msg: 0,
+  pidPrefix: ''
 });
 
 const reducer = (state: any = INITIAL_STATE, action: any) => {
@@ -25,6 +26,11 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
   if (action.type === type.SET_CURRENT_MSG) {
     const [msg] = action.payload;
     return state.set('msg', msg);
+  }
+
+  if (action.type === type.SET_INIT) {
+    const [{ pid }] = action.payload;
+    return state.set('pidPrefix', pid.replace(/<|>/, '').split('.')[0]);
   }
 
   if (action.type === 'PUSH_TIMELINE_PID') {

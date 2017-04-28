@@ -18,6 +18,11 @@
 %%% cowboy_websocket_handler callbacks
 %%%===================================================================
 init({tcp, http}, _Req, _Opts) ->
+    {ok, AppsInfo} = epl_tracer:command(fun application:info/0, []),
+    {_, Running} = lists:keyfind(running, 1, AppsInfo),
+    {_, Pid} = lists:keyfind(kernel, 1, Running),
+    JSON = epl_json:encode(#{pid => Pid}, <<"timeline-init">>),
+    self() ! {data, JSON},
     epl_timeline:subscribe(),
     {upgrade, protocol, cowboy_websocket}.
 

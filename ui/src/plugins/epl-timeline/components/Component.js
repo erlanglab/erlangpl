@@ -16,13 +16,15 @@ class Component_ extends Component {
   code: any;
   header: any;
   state: {
-    add: string
+    part1: string,
+    part2: string
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      add: ''
+      part1: '',
+      part2: ''
     };
   }
 
@@ -71,9 +73,11 @@ class Component_ extends Component {
 
   addPid(event: any) {
     if (event.which === 13) {
-      send('epl_timeline_EPL', JSON.stringify(['add', this.state.add.trim()]));
-      this.props.pushTimelinePid(this.state.add);
-      this.setState({ add: '' });
+      const { state, props } = this;
+      const pid = `<${props.pidPrefix}.${state.part1}.${state.part2}>`;
+      send('epl_timeline_EPL', JSON.stringify(['add', pid]));
+      this.props.pushTimelinePid(pid);
+      this.setState({ part1: '', part2: '' });
     }
   }
 
@@ -93,14 +97,7 @@ class Component_ extends Component {
     return (
       <div className="Timeline">
         <ul className="Dashboard-navigation nav nav-tabs">
-          <li className="nav-item">
-            <input
-              placeholder="Pid to add"
-              value={this.state.add}
-              onKeyDown={this.addPid.bind(this)}
-              onChange={event => this.setState({ add: event.target.value })}
-            />
-          </li>
+
           {this.props.timelines.map(({ pid, timeline }) => (
             <li
               key={pid}
@@ -119,6 +116,28 @@ class Component_ extends Component {
               </Link>
             </li>
           ))}
+          <li className="nav-item" style={{ paddingLeft: '5px' }}>
+            {`<${this.props.pidPrefix}.`}
+          </li>
+
+          <li className="nav-item" style={{ width: '100px' }}>
+            <input
+              placeholder="first part"
+              value={this.state.part1}
+              onKeyDown={this.addPid.bind(this)}
+              onChange={event => this.setState({ part1: event.target.value })}
+            />
+          </li>
+          <li className="nav-item">{`.`}</li>
+          <li className="nav-item" style={{ width: '100px' }}>
+            <input
+              placeholder="second part"
+              value={this.state.part2}
+              onKeyDown={this.addPid.bind(this)}
+              onChange={event => this.setState({ part2: event.target.value })}
+            />
+          </li>
+          <li className="nav-item">{`>`}</li>
         </ul>
 
         {currentState
@@ -187,7 +206,8 @@ export default connect(
   state => ({
     timelines: state.eplTimeline.get('timelines'),
     pid: state.eplTimeline.get('pid'),
-    msg: state.eplTimeline.get('msg')
+    msg: state.eplTimeline.get('msg'),
+    pidPrefix: state.eplTimeline.get('pidPrefix')
   }),
   {
     removePid: actions.removePid,
