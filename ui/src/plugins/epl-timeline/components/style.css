@@ -24,7 +24,7 @@
 }
 
 .Timeline .state {
-  overflow: auto;
+  overflow: hidden;
   float: right;
   width: calc(100% - 30ch);
   height: calc(100%);
@@ -32,6 +32,9 @@
 
 .Timeline .state h3 {
   text-align: center;
+  border-bottom: 1px solid black;
+  padding: 10px;
+  margin: 0px;
 }
 
 .Timeline .messages {
@@ -62,8 +65,8 @@
 }
 
 .Timeline pre {
-  padding: 10px;
-  overflow: scroll;
+  padding: 5px;
+  overflow: auto;
   height: 100%;
   width: 100%;
 }

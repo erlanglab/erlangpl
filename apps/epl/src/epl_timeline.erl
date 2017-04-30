@@ -76,7 +76,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({data, _, Data}, State = #state{subscribers = Subs, timelines = Timelines}) ->
-    {Maped, Updated} = lists:foldl(fun (T, A) -> update_timeline(T, A, Data) end, {[], []}, Timelines),
+    {Maped, Updated} = lists:foldr(fun (T, A) -> update_timeline(T, A, Data) end, {[], []}, Timelines),
     JSON = epl_json:encode(#{timelines => Maped}, <<"timeline-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State#state{timelines = Updated}}.

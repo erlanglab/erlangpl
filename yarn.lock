@@ -2530,9 +2530,9 @@ he@1.1.x:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
-highlightjs@^9.10.0:
-  version "9.10.0"
-  resolved "https://registry.yarnpkg.com/highlightjs/-/highlightjs-9.10.0.tgz#fca9b78ddaa3b1abca89d6c3ee105ad270a80190"
+highlight.js@^9.6.0:
+  version "9.11.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.11.0.tgz#47f98c7399918700db2caf230ded12cec41a84ae"
 
 history@^4.5.1, history@^4.6.0:
   version "4.6.1"
@@ -4505,7 +4505,7 @@ react-dev-utils@^0.5.0:
     sockjs-client "1.0.1"
     strip-ansi "3.0.1"
 
-react-dom@^15.4.2:
+"react-dom@^0.14.0 || ^15.0.0", react-dom@^15.4.2:
   version "15.5.3"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.5.3.tgz#2ee127ce942df55da53111ae303316e68072b5c5"
   dependencies:
@@ -4517,6 +4517,14 @@ react-dom@^15.4.2:
 react-elm-components@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-elm-components/-/react-elm-components-1.0.1.tgz#19c7766b5c5ff4412867acc22dcf9f1d9eae9e3d"
+
+react-highlight@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/react-highlight/-/react-highlight-0.9.0.tgz#d5edee744ccb8689f7938794b6a1b554bb150eb7"
+  dependencies:
+    highlight.js "^9.6.0"
+    react "^0.14.0 || ^15.0.0"
+    react-dom "^0.14.0 || ^15.0.0"
 
 react-measure@^1.4.5:
   version "1.4.6"
@@ -4605,7 +4613,7 @@ react-virtualized@^9.7.3:
     loose-envify "^1.3.0"
     prop-types "^15.5.4"
 
-react@^15.4.2:
+"react@^0.14.0 || ^15.0.0", react@^15.4.2:
   version "15.5.3"
   resolved "https://registry.yarnpkg.com/react/-/react-15.5.3.tgz#84055382c025dec4e3b902bb61a8697cc79c1258"
   dependencies:

@@ -1,19 +1,17 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import hljs from 'highlightjs';
+import Highlight from 'react-highlight';
 import { Link } from 'react-router-dom';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import List from 'react-virtualized/dist/commonjs/List';
 
 import { send } from '../../../sockets';
 import * as actions from '../actions';
-import 'highlightjs/styles/default.css';
-import 'highlightjs/styles/atom-one-dark.css';
+import 'highlight.js/styles/atom-one-dark.css';
 import './style.css';
 
 class Component_ extends Component {
-  code: any;
   header: any;
   state: {
     part1: string,
@@ -43,12 +41,11 @@ class Component_ extends Component {
   }
 
   componentDidMount() {
-    document.body &&
-      document.body.addEventListener(
-        'keydown',
-        this.changeByArrows.bind(this),
-        false
-      );
+    document.body.addEventListener(
+      'keydown',
+      this.changeByArrows.bind(this),
+      false
+    );
 
     const pid = this.props.match.params.pid;
     if (pid) return this.props.setCurrentPid(pid);
@@ -58,17 +55,11 @@ class Component_ extends Component {
   }
 
   componentWillUnmount() {
-    document.body &&
-      document.body.removeEventListener(
-        'keydown',
-        this.changeByArrows.bind(this),
-        false
-      );
-  }
-
-  // this can cause perf issues
-  componentDidUpdate() {
-    // this.code && hljs.highlightBlock(this.code);
+    document.body.removeEventListener(
+      'keydown',
+      this.changeByArrows.bind(this),
+      false
+    );
   }
 
   addPid(event: any) {
@@ -153,7 +144,6 @@ class Component_ extends Component {
                       rowHeight={35}
                       rowRenderer={({ index, key, style }) => {
                         const t = currentTimeline[index];
-
                         return (
                           <div
                             style={style}
@@ -176,17 +166,14 @@ class Component_ extends Component {
                 <h3 ref={node => (this.header = node)}>
                   {currentTimeline[this.props.msg].message}
                 </h3>
-                <pre
+                <Highlight
+                  className="erlang"
                   style={{
-                    // 30px because thats header margin
-                    height: `calc(100% - ${this.header ? this.header.clientHeight : '0'}px - 30px)`,
-                    textAlign: currentState ? 'left' : 'center'
+                    height: `calc(100% - ${this.header ? this.header.clientHeight : '0'}px)`
                   }}
                 >
-                  <code className="erlang" ref={node => (this.code = node)}>
-                    {currentState.state}
-                  </code>
-                </pre>
+                  {currentState.state}
+                </Highlight>
               </div>
             </div>
           : <div
