@@ -39,14 +39,32 @@
 
 .SupTree .head {
   border-bottom: 1px solid #21252b;
-  height: 40px;
-  padding: 10px 0;
+  height: 70px;
+  padding: 0 0 10px;
 }
 
-.SupTree .head i {
+.SupTree .head .icons {
+  width: 100%;
+  height: 30px;
+  padding-top: 5px;
+  border-bottom: 1px solid #21252b;
+  margin-bottom: 10px;
+  padding: 5px 10px 0;
+}
+
+.SupTree .head .icons > span {
+  float: left;
+}
+
+.SupTree .head .icons > i {
+  float: right;
+  padding: 2px 10px;
+}
+
+.SupTree .head > i {
   position: absolute;
   right: 15px;
-  top: 12px;
+  top: 42px;
 }
 
 .SupTree h4 {
@@ -54,7 +72,7 @@
 }
 
 .SupTree .side-content {
-  height: calc(100% - 40px);
+  height: calc(100% - 70px);
   padding-left: 5px;
 }
 
@@ -92,7 +110,7 @@
 
 .SupTree .applications {
   height: calc(50%);
-  overflow-y: scroll;
+  overflow-y: auto;
   width: 100%;
 }
 
@@ -115,7 +133,7 @@
 
 .SupTree .node-info {
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   height: calc(50%);
 }
 
