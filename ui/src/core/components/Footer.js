@@ -11,10 +11,10 @@ type Props = {
 };
 
 const Footer = ({ node, connection }: Props) => {
-  const color = ({
+  const color = {
     connected: '#227A50',
     disconnected: '#C13035'
-  })[connection];
+  }[connection];
 
   return (
     <div className="Footer text-right">
@@ -22,11 +22,9 @@ const Footer = ({ node, connection }: Props) => {
         id="footer-node"
         title="Node"
         popover={
-          (
-            <span>
-              Connected to: <strong>{node}</strong>
-            </span>
-          )
+          <span>
+            Connected to: <strong>{node}</strong>
+          </span>
         }
         item={<span>{node}</span>}
       />
@@ -35,11 +33,9 @@ const Footer = ({ node, connection }: Props) => {
         id="footer-connectionn"
         title="Connection"
         popover={
-          (
-            <span>
-              Status: <strong style={{ color }}>{connection}</strong>
-            </span>
-          )
+          <span>
+            Status: <strong style={{ color }}>{connection}</strong>
+          </span>
         }
         item={<i className="fa fa-plug" style={{ color }} />}
       />
@@ -47,12 +43,9 @@ const Footer = ({ node, connection }: Props) => {
   );
 };
 
-export default connect(
-  state => {
-    return {
-      node: state.core.node,
-      connection: state.core.connection
-    };
-  },
-  {}
-)(Footer);
+export default connect(state => {
+  return {
+    node: state.core.node,
+    connection: state.core.connection
+  };
+}, {})(Footer);

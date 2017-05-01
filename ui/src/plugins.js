@@ -10,7 +10,8 @@ if (process.env.NODE_ENV !== 'production') {
 const plugins = Object.keys(window)
   .filter(key => {
     return key.match(/^__EPL_/);
-  }).map(key => console.log('Loaded:', key.replace('__EPL_', '')) || window[key]);
+  })
+  .map(key => console.log('Loaded:', key.replace('__EPL_', '')) || window[key]);
 
 console.log('Plugins found:', plugins);
 

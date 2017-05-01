@@ -11,19 +11,16 @@ import eplVizceral from './plugins/epl-vizceral';
 
 import plugins from './plugins';
 
-const reducers = plugins.reduce(
-  (acc, plugin) => {
-    if (plugin.reducer && plugin.name) {
-      return {
-        ...acc,
-        [plugin.name]: plugin.reducer
-      };
-    }
-    console.warn(`Could not register reducer for ${plugin.name}`);
-    return acc;
-  },
-  {}
-);
+const reducers = plugins.reduce((acc, plugin) => {
+  if (plugin.reducer && plugin.name) {
+    return {
+      ...acc,
+      [plugin.name]: plugin.reducer
+    };
+  }
+  console.warn(`Could not register reducer for ${plugin.name}`);
+  return acc;
+}, {});
 
 export default combineReducers({
   core: core.reducer,

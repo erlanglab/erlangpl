@@ -5,7 +5,7 @@ import './Loader.css';
 
 type Props = {
   text: string,
-  style: any,
+  style: any
 };
 
 const Loader = ({ text, style }: Props) => {

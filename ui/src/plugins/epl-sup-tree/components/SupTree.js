@@ -87,13 +87,11 @@ class SupTree extends Component {
 
     events.click(({ id }) => this.selectNode(id));
 
-    setTimeout(
-      () => {
-        this.setState({ renderer, graph, graphics, layout, events }, () =>
-          this.propagateGraph());
-      },
-      0
-    );
+    setTimeout(() => {
+      this.setState({ renderer, graph, graphics, layout, events }, () =>
+        this.propagateGraph()
+      );
+    }, 0);
   }
 
   selectNode(id: string, center: ?boolean) {
@@ -139,31 +137,28 @@ class SupTree extends Component {
 
     let appsNodes = []; //this.state.appsNodes;
 
-    const list = Object.keys(props.tree).reduce(
-      (acc, app) => {
-        const parent = props.tree[app];
-        if (Object.keys(parent).length) {
-          if (all.indexOf(parent.id) < 0) {
-            const app = this.state.graph.addNode(parent.id, { ...parent });
-            if (!this.state.appsNodes.includes(app)) {
-              appsNodes.push(app);
-            }
+    const list = Object.keys(props.tree).reduce((acc, app) => {
+      const parent = props.tree[app];
+      if (Object.keys(parent).length) {
+        if (all.indexOf(parent.id) < 0) {
+          const app = this.state.graph.addNode(parent.id, { ...parent });
+          if (!this.state.appsNodes.includes(app)) {
+            appsNodes.push(app);
           }
-
-          return acc
-            .concat(parent.id)
-            .concat(
-              parent.children.reduce(
-                (acc, child) => acc.concat(this.mapChild(child, parent)),
-                []
-              )
-            );
         }
 
-        return acc;
-      },
-      []
-    );
+        return acc
+          .concat(parent.id)
+          .concat(
+            parent.children.reduce(
+              (acc, child) => acc.concat(this.mapChild(child, parent)),
+              []
+            )
+          );
+      }
+
+      return acc;
+    }, []);
 
     if (this.state.first && Object.keys(props.tree).length) {
       this.state.renderer.run();
@@ -260,7 +255,7 @@ class SupTree extends Component {
             </div>
           </div>}
 
-        <div className="graph" ref={node => this.div = node} />
+        <div className="graph" ref={node => (this.div = node)} />
         <div className="side-panel">
 
           <div className="head" onClick={this.toggleCollapse}>
@@ -300,7 +295,7 @@ class SupTree extends Component {
                       </ListGroupItem>
                       {Object.keys(this.props.tree).map(
                         (app, key) =>
-                          Object.keys(this.props.tree[app]).length
+                          (Object.keys(this.props.tree[app]).length
                             ? <ListGroupItem
                                 key={key}
                                 className="application-link"
@@ -332,7 +327,7 @@ class SupTree extends Component {
                                 <span style={{ marginLeft: '17px' }}>
                                   {app}
                                 </span>
-                              </ListGroupItem>
+                              </ListGroupItem>)
                       )}
                     </ListGroup>
                   </div>}

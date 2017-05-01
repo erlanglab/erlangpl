@@ -56,9 +56,6 @@ const SystemInfo = ({ info }) => {
   );
 };
 
-export default connect(
-  state => {
-    return { info: state.eplDashboard.systemInfo };
-  },
-  {}
-)(SystemInfo);
+export default connect(state => {
+  return { info: state.eplDashboard.systemInfo };
+}, {})(SystemInfo);
