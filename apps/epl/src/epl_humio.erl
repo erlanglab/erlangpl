@@ -61,9 +61,9 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 handle_event(Data) ->
-    epl:log(debug, "Humio event ~p", [Data]),
+    epl:log(debug, "Humio event ~p~n", [Data]),
     URL = ?HUMIO_API_URL ++ "/api/v1/dataspaces/" ++ ?HUMIO_DATASPACE ++ "/ingest",
-    Token = epl:lookup(humio_token),
+    [{humio_token, Token}] = epl:lookup(humio_token),
     Headers = [
         {"Authorization", "Bearer " ++ Token},
         {"Content-type", "application/json"},
@@ -73,10 +73,9 @@ handle_event(Data) ->
     Opts = [],
 
     JSON = event_to_json_map(Data),
-
     Body = jsone:encode(JSON),
     Res = httpc:request(post, {URL, Headers, "application/json", Body}, HTTPOpts, Opts),
-    epl:log(debug, "Humio HTTP res ~p", [Res]),
+    epl:log(debug, "Humio HTTP res ~p~n", [Res]),
     ok.
 
 event_to_json_map({data, {Node, Timestamp}, Proplist}) ->

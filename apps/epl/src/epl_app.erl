@@ -40,6 +40,7 @@ start(_StartType, _StartArgs) ->
     %% settings and static files are kept in epl_priv ets table
     ets:insert(epl_priv, {node, Node}),
     ets:insert(epl_priv, {node_settings, NodeSettings}),
+    save_global_args(Args),
 
     %% Load priv files to ets
     ok = run4(),
@@ -452,3 +453,17 @@ maybe_start_elixir(Args) ->
         _ ->
             ?DEBUG("Couldn't start Elixir~n", [])
     end.
+
+%% Save all global app options as top level ETS entries
+save_global_args(Args) ->
+    GlobalOpts = [humio_token], 
+    lists:foreach(fun
+        ({Key, Value}) ->
+            case lists:member(Key, GlobalOpts) of 
+                true -> ets:insert(epl_priv, {Key, Value});
+                false -> ok
+            end;
+        (_) -> 
+            ok
+    end, Args).
+
