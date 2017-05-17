@@ -15,9 +15,16 @@ main(_) ->
     ok = application:start(getopt),
     ok = application:start(ranch),
     ok = application:start(cowboy),
+    ok = application:start(inets),
+    ok = application:start(asn1),
+    ok = application:start(public_key),
+    ok = application:start(ssl),
     ok = application:start(jsone),
+    ok = application:start(worker_pool),
     ok = application:start(epl),
     ok = application:start(epl_st),
+
+    {ok, _} = inets:start(httpc, [{profile, ?MODULE}]),
 
     %% Start applications because escript can't take -boot argument
     %% TODO: start sasl if escript run with debug flags

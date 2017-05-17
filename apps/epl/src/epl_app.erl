@@ -59,6 +59,9 @@ start(_StartType, _StartArgs) ->
     %% Start EPL Dashboard
     {ok, _} = epl_sup:start_child(epl_traffic, []),
 
+    %% Start EPL Humio 
+    {ok, _} = epl_sup:start_child(epl_humio, []),
+
     %% load plugins
     PluginApps = plugins(Args),
 
@@ -227,7 +230,8 @@ option_spec_list() ->
      {sname,   $s, "sname",     string,    "Start with a shortname"},
      {name,    $l, "name",      string,    "Start with a longname, default "
                                            "erlangpl@127.0.0.1"},
-     {elixir_path, $e, "with-elixir", string, "Path to Elixir root directory"}
+     {elixir_path, $e, "with-elixir", string, "Path to Elixir root directory"},
+     {humio_token, $T, "humio_token", string, "Token for Humio HTTP API"}
     ].
 
 %% show version information and halt
