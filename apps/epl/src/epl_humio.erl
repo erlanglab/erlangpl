@@ -38,8 +38,15 @@ start_link() ->
 %%% gen_server callbacks
 %%%===================================================================
 init([WorkerNum]) ->
-    ok = epl:subscribe(),
-    {ok, _} = wpool:start_sup_pool(?HTTP_POOL_NAME, [{workers, WorkerNum}]),
+    case humio_token() of
+        undefined ->
+            epl:log(debug, "Humio HTTP: disabled (no token provided)~n", []);
+        _ ->
+            ok = epl:subscribe(),
+            {ok, _} = wpool:start_sup_pool(?HTTP_POOL_NAME, [{workers, WorkerNum}]),
+            epl:log(debug, "Humio HTTP: enabled~n", [])
+    end,
+
     {ok, #state{}}.
 
 handle_call(Request, _From, _State) ->
@@ -63,7 +70,7 @@ code_change(_OldVsn, State, _Extra) ->
 handle_event(Data) ->
     epl:log(debug, "Humio event ~p~n", [Data]),
     URL = humio_push_url(),
-    [{humio_token, Token}] = epl:lookup(humio_token),
+    Token = humio_token(),
     Headers = [
                {"Authorization", "Bearer " ++ Token},
                {"Content-type", "application/json"},
@@ -89,6 +96,14 @@ handle_event(Data) ->
 
 humio_push_url() ->
     ?HUMIO_API_URL ++ "/api/v1/dataspaces/" ++ ?HUMIO_DATASPACE ++ "/ingest".
+
+humio_token() ->
+    case epl:lookup(humio_token) of
+        [{humio_token, Token}] ->
+            Token;
+        _ ->
+            undefined
+    end.
 
 event_to_json_map({data, {Node, Timestamp}, Proplist}) ->
     [
