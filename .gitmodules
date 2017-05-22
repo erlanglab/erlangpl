@@ -1,3 +1,0 @@
-[submodule "apps/epl_ets"]
-	path = apps/epl_ets
-	url = git@github.com:mkacper/epl_ets.git
