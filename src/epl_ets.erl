@@ -10,7 +10,9 @@
 
 %% API
 -export([start_link/0,
+         subscribe/0,
          subscribe/1,
+         unsubscribe/0,
          unsubscribe/1]).
 
 %% gen_server callbacks
@@ -34,8 +36,14 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+subscribe() ->
+    subscribe(self()).
+
 subscribe(Pid) ->
     gen_server:cast(?MODULE, {subscribe, Pid}).
+
+unsubscribe() ->
+    unsubscribe(self()).
 
 unsubscribe(Pid) ->
     gen_server:cast(?MODULE, {unsubscribe, Pid}).
