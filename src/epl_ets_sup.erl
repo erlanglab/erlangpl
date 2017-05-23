@@ -33,7 +33,7 @@ init([]) ->
                  period => 5},
     ChildSpec = [#{id => epl_ets,
                    start => {epl_ets, start_link, []}}],
-    {ok, SupFlags, ChildSpec}.
+    {ok, {SupFlags, ChildSpec}}.
 
 %%====================================================================
 %% Internal functions
