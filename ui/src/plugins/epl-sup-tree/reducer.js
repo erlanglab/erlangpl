@@ -8,7 +8,7 @@ const COLORS = {
 };
 
 const SIZE = {
-  supervisor: 8,
+  supervisor: 5,
   worker: 0.1
 };
 
@@ -30,17 +30,18 @@ function mapNode(node) {
     nodes: (node.children || [])
       .map(n => ({
         label: node.id,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
+        x: 0, // Math.random(),
+        y: 0, // Math.random(),
         size: SIZE[node.type],
         color: COLORS[n.type],
-        id: n.id
+        id: n.id,
+        shape: 'square'
       }))
       .concat(nodes),
     edges: (node.children || [])
       .map(c => ({
         id: `f${node.id}t${c.id}`,
-        color: 'rgba(157,165,180, 100)',
+        color: '#9da5b4', // '#63666A', // '#21252b',
         size: 0.1,
         source: node.id,
         target: c.id
@@ -61,8 +62,8 @@ function treeReducer(state: any = INITIAL_STATE, action: any) {
               ...nodes,
               {
                 label: node.id,
-                x: Math.random() * 100,
-                y: Math.random() * 100,
+                x: 0, // Math.random(),
+                y: 0, // Math.random(),
                 size: SIZE[node.type],
                 color: COLORS[node.type],
                 id: node.id

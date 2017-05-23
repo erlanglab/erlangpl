@@ -1,24 +1,14 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import difference from 'lodash/difference';
 // import { Motion, spring } from 'react-motion';
 // import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
 // import { send } from '../../../sockets';
-import {
-  Sigma,
-  EdgeShapes,
-  // SigmaEnableWebGL,
-  NodeShapes,
-  RelativeSize,
-  ForceAtlas2,
-  RandomizeNodePositions
-} from 'react-sigma';
-
-import DiffManager from './DiffManager';
+import { Sigma } from 'react-sigma';
 import ForceLink from 'react-sigma/lib/ForceLink';
 
+import DiffManager from './DiffManager';
 import './SupTree.css';
 
 class SupTree extends Component {
@@ -31,30 +21,43 @@ class SupTree extends Component {
   render() {
     return (
       <div className="SupTree">
+
+        {this.props.tree.nodes.length === 0 &&
+          <div className="loader">
+            <div className="text-center">
+              <div className="spinner">
+                <div className="bounce1" />
+                <div className="bounce2" />
+                <div className="bounce3" />
+              </div>
+              <span>Creating graph</span>
+            </div>
+          </div>}
+
         <Sigma
           style={{ width: '100%', height: '100%' }}
           settings={{
-            mouseZoomDuration: 50,
+            edgesPowRatio: 0.4,
+            nodesPowRatio: 0.4,
             doubleClickEnabled: false,
             minEdgeSize: 0.1,
-            minNodeSize: 1.5,
+            minNodeSize: 1,
             maxNodeSize: 5,
+            labelThreshold: 10,
             defaultLabelColor: '#fff',
+            defaultHoverLabelBGColor: '#9da5b4',
             animationsTime: 1000,
             clone: false
           }}
         >
           <DiffManager graph={this.props.tree}>
-            <EdgeShapes default="tapered" />
-            <NodeShapes default="diamond" />
-            <RandomizeNodePositions />
-            {/* <ForceLink
-              background={true}
+            <ForceLink
+              edgeWeightInfluence={0}
               iterationsPerRender={1}
-              easing="cubicInOut"
-            /> */}
-            <RelativeSize initialSize={15} />
-            <ForceAtlas2 iterationsPerRender={1} />
+              randomize="locally"
+              alignNodeSiblings
+              timeout={this.props.tree.nodes.length * 50}
+            />
           </DiffManager>
         </Sigma>
       </div>
