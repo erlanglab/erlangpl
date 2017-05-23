@@ -21,7 +21,11 @@
          terminate/2,
          code_change/3]).
 
+%% gen_server state
 -record(state, {subscribers = []}).
+
+%% epl start timeout
+-define(EPLWAIT, 5000).
 
 %%====================================================================
 %% API functions
@@ -41,7 +45,7 @@ unsubscribe(Pid) ->
 %%====================================================================
 
 init([]) ->
-    epl:subscribe(),
+    gen_server:cast(?MODULE, epl_wait),
     {ok, #state{}}.
 
 handle_call(Request, _From, _State) ->
@@ -54,14 +58,20 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     NewSubs = lists:delete(Pid, Subs),
     NewState = State#state{subscribers = NewSubs},
-    {noreply, NewState}.
+    {noreply, NewState};
+handle_cast(epl_wait, State) ->
+    subscribe_for_epl_aftert_timeout(?EPLWAIT),
+    {noreply, State}.
 
 handle_info({data, _Key, _Proplist}, State = #state{subscribers = Subs}) ->
     ETSCount = get_all_ets_count(),
-    ETSNodeInfo = {ETSCount},
-    JSON = epl_json:encode(ETSNodeInfo, <<"ets-node-info">>),
+    JSON = epl_json:encode(ETSCount, <<"ets-node-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
+    {noreply, State};
+handle_info(subscribe_epl, State) ->
+    epl:subscribe(),
     {noreply, State}.
+
 
 terminate(_Reason, _State) ->
     ok.
@@ -74,5 +84,8 @@ code_change(_OldVsn, State, _Extra) ->
 %%====================================================================
 
 get_all_ets_count() ->
-    AllETS = epl_tracer:command(fun ets:all/0, []),
-    length(AllETS).
+    {ok, AllETS} = epl_tracer:command(fun ets:all/0, []),
+    erlang:length(AllETS).
+
+subscribe_for_epl_aftert_timeout(Timeout) ->
+    erlang:send_after(Timeout, epl_ets, subscribe_epl).
