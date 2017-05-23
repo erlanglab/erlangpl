@@ -1,6 +1,6 @@
 %%%-------------------------------------------------------------------
-%% @doc epl_ets modules.
-%% It is a gen server listening to messages from epl main application.
+%% @doc epl_ets module.
+%% It is a gen_server listening to messages from epl main application.
 %% @end
 %%%-------------------------------------------------------------------
 
@@ -33,18 +33,30 @@
 %% API functions
 %%====================================================================
 
+%% @doc Stars epl_ets.
+-spec start_link() -> {ok, Pid :: pid()} |
+                      ignore |
+                      {reason, Reason :: term()}.
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+%% @doc Add calling process to epl_ets subscribers.
+-spec subscribe() -> ok.
 subscribe() ->
     subscribe(self()).
 
+%% @doc Add provided `Pid` to epl_ets subscribers.
+-spec subscribe(Pid :: pid()) -> ok.
 subscribe(Pid) ->
     gen_server:cast(?MODULE, {subscribe, Pid}).
 
+%% @doc Remove calling process from epl_ets subscribers.
+-spec unsubscribe() -> ok.
 unsubscribe() ->
     unsubscribe(self()).
 
+%% @doc Remove provided `Pid` from epl_ets subscribers.
+-spec unsubscribe(Pid :: pid()) -> ok.
 unsubscribe(Pid) ->
     gen_server:cast(?MODULE, {unsubscribe, Pid}).
 

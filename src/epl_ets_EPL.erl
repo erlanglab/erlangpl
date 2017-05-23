@@ -1,7 +1,7 @@
 %%%-------------------------------------------------------------------
 %% @doc epl_ets_EPL module.
-%% It is a cowboy callback module which receives data from epl_ets and publishes
-%% them throught the websocket.
+%% It is a cowboy websocket handler module which receives data from 
+%% epl_ets and sends them throught the websocket.
 %% @end
 %%%-------------------------------------------------------------------
 
