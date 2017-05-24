@@ -26,9 +26,6 @@
 %% gen_server state
 -record(state, {subscribers = []}).
 
-%% epl start timeout
--define(EPLWAIT, 5000).
-
 %%====================================================================
 %% API functions
 %%====================================================================
@@ -65,7 +62,7 @@ unsubscribe(Pid) ->
 %%====================================================================
 
 init([]) ->
-    gen_server:cast(?MODULE, epl_wait),
+    epl:subscribe(),
     {ok, #state{}}.
 
 handle_call(Request, _From, _State) ->
@@ -78,20 +75,17 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     NewSubs = lists:delete(Pid, Subs),
     NewState = State#state{subscribers = NewSubs},
-    {noreply, NewState};
-handle_cast(epl_wait, State) ->
-    subscribe_for_epl_aftert_timeout(?EPLWAIT),
-    {noreply, State}.
+    {noreply, NewState}.
 
 handle_info({data, _Key, _Proplist}, State = #state{subscribers = Subs}) ->
     ETSCount = get_all_ets_count(),
-    JSON = epl_json:encode(ETSCount, <<"ets-node-info">>),
+    ETSMemUsage = get_ets_mem_usage(),
+    JSON = epl_json:encode(#{ets_count => ETSCount,
+                             mem_usage => lists:nth(1, ETSMemUsage),
+                             ets_mem_usage => lists:nth(2, ETSMemUsage)},
+                           <<"ets-node-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
-    {noreply, State};
-handle_info(subscribe_epl, State) ->
-    epl:subscribe(),
     {noreply, State}.
-
 
 terminate(_Reason, _State) ->
     ok.
@@ -107,5 +101,6 @@ get_all_ets_count() ->
     {ok, AllETS} = epl_tracer:command(fun ets:all/0, []),
     erlang:length(AllETS).
 
-subscribe_for_epl_aftert_timeout(Timeout) ->
-    erlang:send_after(Timeout, epl_ets, subscribe_epl).
+get_ets_mem_usage() ->
+    {ok, MemoryData} = epl_tracer:command(fun erlang:memory/0, []),
+    [proplists:get_value(Key, MemoryData) || Key <- [total, ets]].
