@@ -5,7 +5,8 @@
   {mod, { epl_ets_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    epl
    ]},
   {env,[]},
   {modules, []},
