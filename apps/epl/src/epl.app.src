@@ -8,8 +8,7 @@
                   stdlib,
                   getopt,
                   cowboy,
-                  jsone,
-                  epl_ets
+                  jsone
                  ]},
   {mod, {epl_app, []}},
   {env, []}
