@@ -7,9 +7,6 @@ class SidePanel extends Component {
   render() {
     return (
       <SidePanelContainer>
-        <div>
-          bello world
-        </div>
         {this.props.children}
       </SidePanelContainer>
     );

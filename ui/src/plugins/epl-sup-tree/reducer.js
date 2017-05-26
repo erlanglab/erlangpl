@@ -1,15 +1,11 @@
 // @flow
 import { combineReducers } from 'redux';
 import * as type from './actionTypes';
-
-const COLORS = {
-  supervisor: '#227A50',
-  worker: '#1F79B7'
-};
+import { COLORS } from './constants';
 
 const SIZE = {
   supervisor: 5,
-  worker: 0.1
+  worker: 3
 };
 
 const INITIAL_STATE = { nodes: [], edges: [] };
@@ -29,11 +25,12 @@ function mapNode(node) {
   return {
     nodes: (node.children || [])
       .map(n => ({
-        label: node.id,
+        label: n.id,
         x: 0, // Math.random(),
         y: 0, // Math.random(),
-        size: SIZE[node.type],
+        size: SIZE[n.type],
         color: COLORS[n.type],
+        type: n.type,
         id: n.id,
         shape: 'square'
       }))
@@ -52,7 +49,6 @@ function mapNode(node) {
 
 function treeReducer(state: any = INITIAL_STATE, action: any) {
   if (action.type === type.UPDATE_APPS_INFO) {
-    // console.log(action.data);
     const d = Object.keys(action.data).reduce(
       ({ nodes, edges }, key) => {
         const node = action.data[key];
@@ -61,10 +57,11 @@ function treeReducer(state: any = INITIAL_STATE, action: any) {
           ? [
               ...nodes,
               {
-                label: node.id,
+                label: key, // node.id,
                 x: 0, // Math.random(),
                 y: 0, // Math.random(),
                 size: SIZE[node.type],
+                type: node.type,
                 color: COLORS[node.type],
                 id: node.id
               }
@@ -77,7 +74,6 @@ function treeReducer(state: any = INITIAL_STATE, action: any) {
       },
       { nodes: [], edges: [] }
     );
-    // console.log(d);
     return d;
   }
   return state;

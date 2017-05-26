@@ -9,6 +9,7 @@ import SidePanel from './SidePanel';
 import { Container, Content } from './styled';
 
 type Props = {
+  sidePanel?: React$Element<*>,
   className?: string,
   loading?: boolean,
   loaderText?: string,
@@ -16,9 +17,14 @@ type Props = {
 };
 
 class PluginWrapper extends Component {
-  props: Props;
+  state: { panel: boolean };
 
-  state = { panel: false };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      panel: props.sidePanel ? true : false
+    };
+  }
 
   static defaultProps = {
     className: '',
@@ -27,30 +33,43 @@ class PluginWrapper extends Component {
   };
 
   render() {
-    if (this.props.loading) return <Loader text={this.props.loaderText} />;
+    if (this.props.loading) {
+      return <Loader text={this.props.loaderText} />;
+    }
 
-    const { panel } = this.state;
+    const content = (
+      <Content className={this.props.className}>
+        {this.props.children}
+      </Content>
+    );
+
+    // NOTE: when no side panel we don;t need Relfex
+    if (!this.state.panel) {
+      return (
+        <Container>
+          {content}
+        </Container>
+      );
+    }
 
     return (
       <Container>
         <ReflexContainer orientation="vertical">
-          <ReflexElement flex={panel ? 0.75 : 1}>
-            <Content className={this.props.className}>
-              {this.props.children}
-            </Content>
+          <ReflexElement flex={0.75}>
+            {content}
           </ReflexElement>
 
-          {panel &&
-            <ReflexSplitter
-              style={{
-                borderColor: '#181a1f'
-              }}
-            />}
+          <ReflexSplitter
+            style={{
+              borderColor: '#181a1f'
+            }}
+          />
 
-          {panel &&
-            <ReflexElement flex={0.25}>
-              <SidePanel />
-            </ReflexElement>}
+          <ReflexElement flex={0.25}>
+            <SidePanel>
+              {this.props.sidePanel}
+            </SidePanel>
+          </ReflexElement>
 
         </ReflexContainer>
       </Container>
