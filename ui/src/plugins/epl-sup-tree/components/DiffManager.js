@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import differenceBy from 'lodash/differenceBy';
 
-export function embedProps(elements: mixed, extraProps: any) {
+function embedProps(elements: mixed, extraProps: any) {
   return React.Children.map(elements, element =>
     React.cloneElement(element, extraProps)
   );
@@ -12,10 +12,13 @@ class DiffManager extends Component {
   constructor(props: any) {
     super(props);
     this.state = { key: Math.random() };
-    const { nodes, edges } = props.graph;
-    nodes.forEach(node => props.sigma.graph.addNode(node));
-    edges.forEach(edge => props.sigma.graph.addEdge(edge));
-    props.sigma.startForceAtlas2();
+  }
+
+  componentDidMount() {
+    const { nodes, edges } = this.props.graph;
+    nodes.forEach(node => this.props.sigma.graph.addNode(node));
+    edges.forEach(edge => this.props.sigma.graph.addEdge(edge));
+    this.setState({ key: Math.random() });
   }
 
   componentWillReceiveProps(props: any) {
@@ -36,12 +39,12 @@ class DiffManager extends Component {
     const newEdges = differenceBy(edges, this.props.graph.edges, 'id');
     newEdges.forEach(e => sigma.addEdge(e));
 
-    // NOTE: We have to radnomize key to force ForceLink update
     if (newEdges.length + newNodes.length > 0)
       this.setState({ key: Math.random() });
   }
 
   render() {
+    // NOTE: We have to radnomize key to force ForceLink update
     return (
       <div key={this.state.key}>
         {embedProps(this.props.children, { sigma: this.props.sigma })}

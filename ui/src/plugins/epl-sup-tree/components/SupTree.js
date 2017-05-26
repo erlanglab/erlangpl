@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import PluginWrapper from '../../../core/components/PluginWrapper';
 // import { Motion, spring } from 'react-motion';
 // import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
@@ -12,28 +13,13 @@ import DiffManager from './DiffManager';
 import './SupTree.css';
 
 class SupTree extends Component {
-  div: any;
-
-  componentDidMount() {}
-
-  componentWillReceiveProps(props) {}
-
   render() {
     return (
-      <div className="SupTree">
-
-        {this.props.tree.nodes.length === 0 &&
-          <div className="loader">
-            <div className="text-center">
-              <div className="spinner">
-                <div className="bounce1" />
-                <div className="bounce2" />
-                <div className="bounce3" />
-              </div>
-              <span>Creating graph</span>
-            </div>
-          </div>}
-
+      <PluginWrapper
+        className="SupTree"
+        loading={this.props.tree.nodes.length === 0}
+        loaderText="Creating graph"
+      >
         <Sigma
           style={{ width: '100%', height: '100%' }}
           settings={{
@@ -60,7 +46,7 @@ class SupTree extends Component {
             />
           </DiffManager>
         </Sigma>
-      </div>
+      </PluginWrapper>
     );
   }
 }

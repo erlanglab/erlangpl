@@ -71,6 +71,7 @@
     "react-virtualized": "^9.0.4",
     "recharts": "^0.21.2",
     "redux": "^3.6.0",
+    "styled-components": "^2.0.0",
     "vizceral-react": "4.4.0"
   },
   "scripts": {

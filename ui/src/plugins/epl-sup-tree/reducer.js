@@ -52,7 +52,7 @@ function mapNode(node) {
 
 function treeReducer(state: any = INITIAL_STATE, action: any) {
   if (action.type === type.UPDATE_APPS_INFO) {
-    console.log(action.data);
+    // console.log(action.data);
     const d = Object.keys(action.data).reduce(
       ({ nodes, edges }, key) => {
         const node = action.data[key];
@@ -77,7 +77,7 @@ function treeReducer(state: any = INITIAL_STATE, action: any) {
       },
       { nodes: [], edges: [] }
     );
-    console.log(d);
+    // console.log(d);
     return d;
   }
   return state;
