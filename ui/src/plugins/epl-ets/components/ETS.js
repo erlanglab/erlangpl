@@ -149,10 +149,10 @@ class ETS extends Component {
 export default connect(
   state => {
     return {
-      search: state.eplVizceral.search,
+      search: state.eplETS.search,
       nodeInfo: state.eplSupTree.nodeInfo,
-      data: state.eplVizceral.data,
-      view: state.eplVizceral.view
+      data: state.eplETS.data,
+      view: state.eplETS.view
     };
   },
   {
