@@ -7,21 +7,32 @@ import { send } from '../../../sockets';
 import {
   Sigma,
   // eslint-disable-next-line no-unused-vars
-  SigmaEnableWebGL
+  SigmaEnableWebGL,
+  Filter
 } from 'react-sigma';
 import ForceLink from 'react-sigma/lib/ForceLink';
 
-// import SidePanel from './SidePanel';
+import SidePanel from './SidePanel';
 import DiffManager from './DiffManager';
 import './SupTree.css';
 
 class SupTree extends Component {
-  state = { selected: '' };
+  state = { filterKey: Math.random() };
 
   handleNodeClick = ({ data }) => {
-    this.setState({ selected: data.node.id });
     send('epl_st_EPL', data.node.id);
   };
+
+  nodeFilter = ({ app }) => {
+    const application = this.props.apps.find(a => a.name === app);
+    return application.selected;
+  };
+
+  componentWillReceiveProps(nextProps: any) {
+    if (this.props.apps !== nextProps.apps) {
+      this.setState({ filterKey: Math.random() });
+    }
+  }
 
   render() {
     return (
@@ -29,6 +40,7 @@ class SupTree extends Component {
         className="SupTree"
         loading={this.props.tree.nodes.length === 0}
         loaderText="Creating graph"
+        sidePanel={<SidePanel />}
       >
         <Sigma
           onClickNode={this.handleNodeClick}
@@ -47,7 +59,7 @@ class SupTree extends Component {
             clone: false
           }}
         >
-          <DiffManager graph={this.props.tree} selected={this.state.selected}>
+          <DiffManager graph={this.props.tree} selected={this.props.selected}>
             <ForceLink
               edgeWeightInfluence={0}
               iterationsPerRender={1}
@@ -55,6 +67,7 @@ class SupTree extends Component {
               alignNodeSiblings
               timeout={this.props.tree.nodes.length * 15}
             />
+            <Filter key={this.state.filterKey} nodesBy={this.nodeFilter} />
           </DiffManager>
         </Sigma>
       </PluginWrapper>
@@ -62,9 +75,11 @@ class SupTree extends Component {
   }
 }
 
-export default connect(
-  state => ({
-    tree: state.eplSupTree.tree
-  }),
-  {}
-)(SupTree);
+export default connect(state => {
+  const info = state.eplSupTree.nodeInfo;
+  return {
+    apps: state.eplSupTree.apps,
+    tree: state.eplSupTree.tree,
+    selected: info ? info.id : ''
+  };
+}, {})(SupTree);

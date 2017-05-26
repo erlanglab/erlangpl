@@ -1,5 +1,6 @@
 // @flow
 import { combineReducers } from 'redux';
+
 import * as type from './actionTypes';
 import { COLORS } from './constants';
 
@@ -10,12 +11,12 @@ const SIZE = {
 
 const INITIAL_STATE = { nodes: [], edges: [] };
 
-function mapNode(node) {
+function mapNode(node: any, app: string) {
   const { nodes, edges } = (node.children || []).reduce((
     { nodes, edges },
     node
   ) => {
-    const c = mapNode(node);
+    const c = mapNode(node, app);
     return {
       nodes: nodes.concat(c.nodes),
       edges: edges.concat(c.edges)
@@ -25,6 +26,7 @@ function mapNode(node) {
   return {
     nodes: (node.children || [])
       .map(n => ({
+        app,
         label: n.id,
         x: 0, // Math.random(),
         y: 0, // Math.random(),
@@ -52,12 +54,13 @@ function treeReducer(state: any = INITIAL_STATE, action: any) {
     const d = Object.keys(action.data).reduce(
       ({ nodes, edges }, key) => {
         const node = action.data[key];
-        const c = mapNode(node);
+        const c = mapNode(node, key);
         const n = node.type
           ? [
               ...nodes,
               {
-                label: key, // node.id,
+                app: key,
+                label: key,
                 x: 0, // Math.random(),
                 y: 0, // Math.random(),
                 size: SIZE[node.type],
@@ -86,7 +89,39 @@ function nodeInfoReducer(state: any = null, action: any) {
   return state;
 }
 
+function appsReducer(state: Array<*> = [], action: any) {
+  if (action.type === type.UPDATE_APPS_INFO) {
+    return Object.keys(action.data).reduce((acc, key) => {
+      const app = action.data[key];
+      const old = state.find(a => a.name === key);
+      return acc.concat({
+        id: app.id,
+        name: key,
+        selected: old ? old.selected : true
+      });
+    }, []);
+  }
+
+  if (action.type === type.SELECT_APPS) {
+    const apps = action.apps;
+    return state.map(app => ({
+      ...app,
+      selected: apps.includes(app) ? true : app.selected
+    }));
+  }
+  if (action.type === type.CLEAR_APPS) {
+    const apps = action.apps;
+    return state.map(app => ({
+      ...app,
+      selected: apps.includes(app) ? false : app.selected
+    }));
+  }
+
+  return state;
+}
+
 export default combineReducers({
+  apps: appsReducer,
   tree: treeReducer,
   nodeInfo: nodeInfoReducer
 });

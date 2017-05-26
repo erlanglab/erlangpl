@@ -38,7 +38,7 @@ class PluginWrapper extends Component {
     }
 
     const content = (
-      <Content className={this.props.className}>
+      <Content>
         {this.props.children}
       </Content>
     );
@@ -53,7 +53,7 @@ class PluginWrapper extends Component {
     }
 
     return (
-      <Container>
+      <Container className={this.props.className}>
         <ReflexContainer orientation="vertical">
           <ReflexElement flex={0.75}>
             {content}

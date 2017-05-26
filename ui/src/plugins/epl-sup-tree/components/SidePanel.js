@@ -4,12 +4,18 @@ import { connect } from 'react-redux';
 import { Motion, spring } from 'react-motion';
 import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
+import { send } from '../../../sockets';
 import { COLORS } from '../constants';
 
-type Props = {};
+type Props = {
+  selected: string,
+  apps: Array<*>,
+  nodeInfo?: string
+};
 
 class SidePanel extends Component {
   state: {
+    apps: Array<*>,
     collapse: boolean,
     height: Array<number>
   };
@@ -19,8 +25,6 @@ class SidePanel extends Component {
     this.state = {
       collapse: false,
       height: [50, 50]
-      // motion stuff
-      // currently selected node
     };
   }
 
@@ -32,19 +36,24 @@ class SidePanel extends Component {
   };
 
   selectAll = () => {
-    // TODO: show all apps
+    this.props.selectApps(this.props.apps);
   };
 
   clearAll = () => {
-    // TODO: hide all apps
+    this.props.clearApps(this.props.apps);
   };
 
-  handleAppClick = () => {
-    // TODO: toggle application
+  selectNode = (id: string) => {
+    send('epl_st_EPL', id);
   };
 
-  selectNode = () => {
-    // TODO: change color of selected application
+  handleAppClick = (id: string) => {
+    const app = this.props.apps.find(app => app.id === id);
+    if (app.selected) {
+      this.props.clearApps([app]);
+    } else {
+      this.props.selectApps([app]);
+    }
   };
 
   render() {
@@ -55,10 +64,10 @@ class SidePanel extends Component {
           <h4
             className="text-center"
             style={{
-              color: COLORS[this.state.selected.type] || 'inherit'
+              color: COLORS[this.props.selected] || 'inherit'
             }}
           >
-            {this.state.selected.id}
+            {this.props.selected}
           </h4>
           <i className={`fa fa-angle-${this.state.collapse ? 'down' : 'up'}`} />
         </div>
@@ -67,8 +76,7 @@ class SidePanel extends Component {
           defaultStyle={{ height: this.state.height[0] }}
           style={{ height: spring(this.state.height[1]) }}
           children={({ height }) => (
-            <div className="side-content" style={{}}>
-
+            <div className="side-content">
               <div
                 className="applications"
                 style={{ height: `calc(${height}%)` }}
@@ -83,30 +91,31 @@ class SidePanel extends Component {
                       Clear all
                     </button>
                   </ListGroupItem>
-                  {Object.keys(this.props.tree).map(
-                    (app, key) =>
-                      (Object.keys(this.props.tree[app]).length
-                        ? <ListGroupItem key={key} className="application-link">
+                  {this.props.apps.map(
+                    ({ name, selected, id }) =>
+                      (id
+                        ? <ListGroupItem
+                            key={name}
+                            className="application-link"
+                          >
                             <input
                               type="checkbox"
-                              checked={this.state.apps.includes(app)}
-                              onChange={() =>
-                                this.handleAppClick(
-                                  app,
-                                  this.props.tree[app].id
-                                )}
+                              checked={selected}
+                              onChange={() => this.handleAppClick(id)}
                             />
                             <a
                               style={{ marginLeft: '5px' }}
-                              onClick={() =>
-                                this.selectNode(this.props.tree[app].id, true)}
+                              onClick={() => this.selectNode(id)}
                             >
-                              {app}
+                              {name}
                             </a>
                           </ListGroupItem>
-                        : <ListGroupItem key={key} className="application-link">
+                        : <ListGroupItem
+                            key={name}
+                            className="application-link"
+                          >
                             <span style={{ marginLeft: '17px' }}>
-                              {app}
+                              {name}
                             </span>
                           </ListGroupItem>)
                   )}
@@ -132,9 +141,13 @@ class SidePanel extends Component {
   }
 }
 
-export default connect(
-  state => ({
-    nodeInfo: state.eplSupTree.nodeInfo
-  }),
-  {}
-)(SidePanel);
+import * as actions from '../actions';
+
+export default connect(state => {
+  const nodeInfo = state.eplSupTree.nodeInfo;
+  return {
+    nodeInfo,
+    selected: nodeInfo ? nodeInfo.id : 'Applications',
+    apps: state.eplSupTree.apps
+  };
+}, actions)(SidePanel);

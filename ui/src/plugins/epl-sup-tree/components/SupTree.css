@@ -1,21 +1,13 @@
-.SupTree .graph {
-  height: 100%;
-  width: 70%;
-  float: left;
-  overflow: hidden;
-}
-
 .SupTree .side-panel {
-  width: 30%;
-  border-left: 1px solid #21252b;
+  background-color: #21252b;
+  width: 100%;
   height: 100%;
-  float: right;
   box-sizing: border-box;
   overflow-x: hidden;
 }
 
 .SupTree .head {
-  border-bottom: 1px solid #21252b;
+  border-bottom: 1px solid #181a1f;
   height: 40px;
   padding: 10px 0;
 }
@@ -41,7 +33,7 @@
   border: none;
   border-radius: 0px;
   color: inherit;
-  background-color: #282c34;
+  background-color: #181a1f;
 }
 
 .SupTree ul {
@@ -50,7 +42,7 @@
 }
 
 .SupTree .application-link {
-  border: 1px solid #21252b;
+  border: 1px solid #181a1f;
   background-color: #333842;
   padding: 5px;
   font-size: 17px;
@@ -58,8 +50,7 @@
 
 .SupTree .application-link button {
   width: 50%;
-  background-color: #282c34;
-  border: 1px solid #21252b;
+  background-color: #181a1f;;
 }
 
 .SupTree a {
@@ -72,7 +63,6 @@
   overflow-y: scroll;
   width: 100%;
 }
-
 
 .SupTree .node-info {
   width: 100%;

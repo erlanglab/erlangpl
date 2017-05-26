@@ -11,6 +11,10 @@
   margin-left: 60px;
 }
 
+button, a {
+  outline: none;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
