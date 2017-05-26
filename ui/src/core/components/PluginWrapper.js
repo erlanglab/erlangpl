@@ -1,10 +1,12 @@
 // @flow
 import React, { Component } from 'react';
+import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
+
+import 'react-reflex/styles.css';
 
 import Loader from './Loader';
+import SidePanel from './SidePanel';
 import { Container, Content } from './styled';
-
-// const SidePanel = () => null;
 
 type Props = {
   className?: string,
@@ -16,6 +18,8 @@ type Props = {
 class PluginWrapper extends Component {
   props: Props;
 
+  state = { panel: false };
+
   static defaultProps = {
     className: '',
     loaderText: 'Loading...',
@@ -24,11 +28,31 @@ class PluginWrapper extends Component {
 
   render() {
     if (this.props.loading) return <Loader text={this.props.loaderText} />;
+
+    const { panel } = this.state;
+
     return (
       <Container>
-        <Content className={this.props.className}>
-          {this.props.children}
-        </Content>
+        <ReflexContainer orientation="vertical">
+          <ReflexElement flex={panel ? 0.75 : 1}>
+            <Content className={this.props.className}>
+              {this.props.children}
+            </Content>
+          </ReflexElement>
+
+          {panel &&
+            <ReflexSplitter
+              style={{
+                borderColor: '#181a1f'
+              }}
+            />}
+
+          {panel &&
+            <ReflexElement flex={0.25}>
+              <SidePanel />
+            </ReflexElement>}
+
+        </ReflexContainer>
       </Container>
     );
   }
