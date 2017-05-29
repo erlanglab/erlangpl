@@ -120,7 +120,19 @@ function appsReducer(state: Array<*> = [], action: any) {
   return state;
 }
 
+function centerReducer(
+  state: { x: number, y: number } = { x: 0, y: 0 },
+  action: any
+) {
+  if (action.type === type.CENTER) {
+    const { x, y } = action;
+    return { x, y };
+  }
+  return state;
+}
+
 export default combineReducers({
+  center: centerReducer,
   apps: appsReducer,
   tree: treeReducer,
   nodeInfo: nodeInfoReducer

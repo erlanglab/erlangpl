@@ -20,3 +20,9 @@ export const clearApps = (apps: Array<string>) => ({
   type: type.CLEAR_APPS,
   apps
 });
+
+export const center = (x: number, y: number) => ({
+  type: type.CENTER,
+  x,
+  y
+});

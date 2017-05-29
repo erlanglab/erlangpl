@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import differenceBy from 'lodash/differenceBy';
+import get from 'lodash/get';
 
 import { SELECTED } from '../constants';
 
@@ -12,12 +13,16 @@ function embedProps(elements: mixed, extraProps: any) {
 
 class DiffManager extends Component {
   state: {
-    key: number
+    key: number,
+    center: { x: number, y: number }
   };
 
   constructor(props: any) {
     super(props);
-    this.state = { key: Math.random() };
+    this.state = {
+      key: Math.random(),
+      center: { x: 0, y: 0 }
+    };
   }
 
   componentDidMount() {
@@ -30,24 +35,24 @@ class DiffManager extends Component {
 
   componentWillReceiveProps({ selected, ...props }: any) {
     const { nodes, edges } = props.graph;
-    const sigma = props.sigma.graph;
+    const sigmaGraph = props.sigma.graph;
 
     // REMOVE OLD
     differenceBy(this.props.graph.edges, edges, 'id').forEach(e =>
-      sigma.dropEdge(e.id)
+      sigmaGraph.dropEdge(e.id)
     );
     differenceBy(this.props.graph.nodes, nodes, 'id').forEach(n =>
-      sigma.dropNode(n.id)
+      sigmaGraph.dropNode(n.id)
     );
 
     // ADD NEW
     const newNodes = differenceBy(nodes, this.props.graph.nodes, 'id');
-    newNodes.forEach(e => sigma.addNode(e));
+    newNodes.forEach(e => sigmaGraph.addNode(e));
     const newEdges = differenceBy(edges, this.props.graph.edges, 'id');
-    newEdges.forEach(e => sigma.addEdge(e));
+    newEdges.forEach(e => sigmaGraph.addEdge(e));
 
-    if (this.props.selected !== props.selected) {
-      // clear old selected node
+    if (selected && this.props.selected !== selected) {
+      // CLEAR OLD SELECTED NODE
       this.updateNode(
         this.props.selected,
         '',
@@ -55,8 +60,25 @@ class DiffManager extends Component {
         this.props.graph.edges,
         this.props.sigma.graph
       );
-      // show new selected node
-      this.updateNode(selected, SELECTED, nodes, edges, sigma);
+
+      // SHOW NEW SELECTED NODE
+      this.updateNode(selected, SELECTED, nodes, edges, sigmaGraph);
+
+      // CENTER ON NODE
+      const node = sigmaGraph.nodes().find(node => node.id === selected);
+      const { x, y } = props.sigma.camera.graphPosition(node.x, node.y);
+      // eslint-disable-next-line
+      sigma.misc.animation.camera(
+        props.sigma.camera,
+        {
+          // NOTE: this is far from being nice but it works
+          // I hope it won't break in future
+          x: x / 5,
+          y: y / 5,
+          ratio: 1
+        },
+        { duration: props.sigma.settings('animationsTime') || 300 }
+      );
     }
 
     if (newEdges.length + newNodes.length > 0)

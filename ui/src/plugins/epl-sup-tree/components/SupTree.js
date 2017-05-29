@@ -17,7 +17,9 @@ import DiffManager from './DiffManager';
 import './SupTree.css';
 
 class SupTree extends Component {
-  state = { filterKey: Math.random() };
+  state = {
+    filterKey: Math.random()
+  };
 
   handleNodeClick = ({ data }) => {
     send('epl_st_EPL', data.node.id);
@@ -75,11 +77,16 @@ class SupTree extends Component {
   }
 }
 
-export default connect(state => {
-  const info = state.eplSupTree.nodeInfo;
-  return {
-    apps: state.eplSupTree.apps,
-    tree: state.eplSupTree.tree,
-    selected: info ? info.id : ''
-  };
-}, {})(SupTree);
+import * as actions from '../actions';
+
+export default connect(
+  state => {
+    const info = state.eplSupTree.nodeInfo;
+    return {
+      apps: state.eplSupTree.apps,
+      tree: state.eplSupTree.tree,
+      selected: info ? info.id : ''
+    };
+  },
+  { center: actions.center }
+)(SupTree);
