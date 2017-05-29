@@ -15,7 +15,6 @@ type Props = {
 
 class SidePanel extends Component {
   state: {
-    apps: Array<*>,
     collapse: boolean,
     height: Array<number>
   };

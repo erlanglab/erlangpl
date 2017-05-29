@@ -11,6 +11,10 @@ function embedProps(elements: mixed, extraProps: any) {
 }
 
 class DiffManager extends Component {
+  state: {
+    key: number
+  };
+
   constructor(props: any) {
     super(props);
     this.state = { key: Math.random() };

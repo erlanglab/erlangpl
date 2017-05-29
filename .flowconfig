@@ -1,7 +1,8 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/fbjs/.*
-<PROJECT_ROOT>/node_modules/find-elm-dependencies/.*
-<PROJECT_ROOT>/node_modules/elm-webpack-loader/.*
+.*/node_modules/fbjs/.*
+.*/node_modules/find-elm-dependencies/.*
+.*/node_modules/elm-webpack-loader/.*
+.*/node_modules/styled-components/.*
 
 [include]
 
