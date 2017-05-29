@@ -41,7 +41,7 @@ export default connect(
   state => ({ search: state.eplETS.search, view: state.eplETS.view }),
   {
     push,
-    setView: actions.updateTrafficView,
-    setSearch: actions.updateTrafficSearch
+    setView: actions.updateETSView,
+    setSearch: actions.updateETSSearch
   }
 )(ETSTools);

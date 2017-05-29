@@ -79,6 +79,7 @@ class ETS extends Component {
 
   render() {
     const sidePanelWidth = 30;
+    console.log(this.props.data);
     return (
       <div className="Traffic">
         <ETSTools className="Traffic-tools" />
@@ -104,6 +105,31 @@ class ETS extends Component {
                   match={this.props.search}
                   allowDraggingOfNodes={true}
                   targetFramerate={25}
+                  definitions={{
+                    detailedNode: {
+                      volume: {
+                        default: {
+                          top: {
+                            header: 'ETS Count',
+                            data: 'etsCount',
+                            format: '0'
+                          },
+                          bottom: {
+                            header: 'ETS memory usage',
+                            data: 'etsMemUsage',
+                            format: '0.00%'
+                          }
+                        },
+                        entry: {
+                          top: {
+                            header: 'ETS Count',
+                            data: 'etsCount',
+                            format: '0'
+                          }
+                        }
+                      }
+                    }
+                  }}
                 />
                 <div
                   className="loader"
