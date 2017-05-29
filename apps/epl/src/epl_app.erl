@@ -106,7 +106,7 @@ run2(Args) ->
 run3(Node, Args) ->
     {ok, _Pid} = start_distributed(Args),
 
-    true = setcookie(Node, Args),
+    true = setcookie(Args),
 
     true = connect_node(Node),
 
@@ -358,12 +358,12 @@ start_distributed(Args) ->
             halt(1, [{flush, true}])
     end.
 
-setcookie(Node, Args) ->
+setcookie(Args) ->
     case proplists:lookup(cookie, Args) of
         none ->
             true;
         {cookie, Cookie} ->
-            erlang:set_cookie(Node, list_to_atom(Cookie))
+            erlang:set_cookie(erlang:node(), list_to_atom(Cookie))
     end.
 
 connect_node(Node) ->
