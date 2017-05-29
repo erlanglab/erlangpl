@@ -67,7 +67,7 @@ class DiffManager extends Component {
       // CENTER ON NODE
       const node = sigmaGraph.nodes().find(node => node.id === selected);
       const { x, y } = props.sigma.camera.graphPosition(node.x, node.y);
-      // eslint-disable-next-line
+      // $FlowFixMe
       sigma.misc.animation.camera(
         props.sigma.camera,
         {
