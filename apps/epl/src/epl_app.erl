@@ -369,7 +369,6 @@ setcookie(Node, Args) ->
 connect_node(Node) ->
     case net_kernel:connect_node(Node) of
         true ->
-            ok = net_kernel:allow([node()]),
             true;
         false ->
             ?ERROR("failed to connect to remote node ~p~n", [Node]),
