@@ -2,7 +2,7 @@ import * as t from '../actionTypes/';
 import * as actions from '../actions';
 
 describe('graph action creators', () => {
-  it('should handle updateTrafficData action creator', () => {
+  it('should handle updateETSData action creator', () => {
     const data = {
       name: 'edge',
       renderer: 'global',
@@ -57,15 +57,15 @@ describe('graph action creators', () => {
       ]
     };
 
-    expect(actions.updateTrafficData(data)).toEqual({
-      type: t.UPDATE_TRAFFIC_DATA,
+    expect(actions.updateETSData(data)).toEqual({
+      type: t.UPDATE_ETS_DATA,
       data
     });
   });
 
-  it('should handle updateTrafficView action creator', () => {
-    expect(actions.updateTrafficView(['us-west-1'])).toEqual({
-      type: t.UPDATE_TRAFFIC_VIEW,
+  it('should handle updateETSView action creator', () => {
+    expect(actions.updateETSView(['us-west-1'])).toEqual({
+      type: t.UPDATE_ETS_VIEW,
       view: ['us-west-1']
     });
   });

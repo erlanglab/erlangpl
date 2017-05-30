@@ -6,7 +6,7 @@ describe('traffic reducer', () => {
     expect(reducer(undefined, {})).toEqual(INITIAL_STATE);
   });
 
-  it('should handle UPDATE_TRAFFIC_DATA', () => {
+  it('should handle UPDATE_ETS_DATA', () => {
     const data = {
       name: 'edge',
       renderer: 'global',
@@ -62,7 +62,7 @@ describe('traffic reducer', () => {
     };
 
     expect(
-      reducer(INITIAL_STATE, actions.updateTrafficData(data))
+      reducer(INITIAL_STATE, actions.updateETSData(data))
     ).toMatchSnapshot();
   });
 });
