@@ -144,7 +144,7 @@ class ETS extends Component {
                       <div className="bounce2" />
                       <div className="bounce3" />
                     </div>
-                    <span>Gathering cluster data</span>
+                    <span>Gathering ETS cluster data</span>
                   </div>
                 </div>
               </div>
@@ -183,6 +183,6 @@ export default connect(
   },
   {
     push,
-    updateTrafficData: actions.updateTrafficData
+    updateETSData: actions.updateETSData
   }
 )(ETS);

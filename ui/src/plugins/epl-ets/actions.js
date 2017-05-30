@@ -2,17 +2,17 @@
 
 import * as t from './actionTypes';
 
-export const updateTrafficData = (data: any) => ({
-  type: t.UPDATE_TRAFFIC_DATA,
+export const updateETSData = (data: any) => ({
+  type: t.UPDATE_ETS_DATA,
   data
 });
 
-export const updateTrafficView = (view: Array<string>) => ({
-  type: t.UPDATE_TRAFFIC_VIEW,
+export const updateETSView = (view: Array<string>) => ({
+  type: t.UPDATE_ETS_VIEW,
   view
 });
 
-export const updateTrafficSearch = (search: string) => ({
-  type: t.UPDATE_TRAFFIC_SEARCH,
+export const updateETSSearch = (search: string) => ({
+  type: t.UPDATE_ETS_SEARCH,
   search
 });

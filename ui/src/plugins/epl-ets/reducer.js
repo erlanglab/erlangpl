@@ -32,7 +32,7 @@ const denamifyNode = ({ nodes = [], connections = [], ...node }) => {
 };
 
 const reducer = (state: any = INITIAL_STATE, action: any) => {
-  if (action.type === t.UPDATE_TRAFFIC_DATA) {
+  if (action.type === t.UPDATE_ETS_DATA) {
     const data = denamifyNode(action.data);
     return {
       ...state,
@@ -54,7 +54,7 @@ const reducer = (state: any = INITIAL_STATE, action: any) => {
     }
   }
 
-  if (action.type === t.UPDATE_TRAFFIC_SEARCH) {
+  if (action.type === t.UPDATE_ETS_SEARCH) {
     return {
       ...state,
       search: action.search
