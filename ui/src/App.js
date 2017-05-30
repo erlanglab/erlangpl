@@ -24,7 +24,7 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
     { path: '/dashboard', icon: 'television' },
     { path: '/sup-tree', icon: 'sitemap' },
     { path: '/traffic', icon: 'share-alt' },
-    { path: '/ets', icon: 'share-alt' },
+    { path: '/ets', icon: 'table' },
     { path: '/about', icon: 'question' }
   ].concat(
     plugins.reduce((acc, plugin) => {
