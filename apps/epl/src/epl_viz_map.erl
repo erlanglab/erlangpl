@@ -80,6 +80,3 @@ namify(Name) when is_binary(Name) ->
     binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]);
 namify(Name) ->
     namify(binarify(Name)).
-%%====================================================================
-%% Internals
-%%====================================================================

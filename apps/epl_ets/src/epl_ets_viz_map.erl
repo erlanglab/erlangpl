@@ -7,15 +7,15 @@
 -module(epl_ets_viz_map).
 
 %% API
--export([push_ets_basic_info/2]).
+-export([push_additional_node_info/2]).
 
 %%====================================================================
 %% API functions
 %%====================================================================
 
-push_ets_basic_info(ETSInfo, Viz = #{nodes := [Node]}) ->
-    UpdatedNode = maps:merge(Node, ETSInfo),
+%% @doc Pushes additional `Info` into cluster nodes section in Vizceral map.
+-spec push_additional_node_info(Info :: map(), Viz :: #{nodes => [map()]}) 
+                               -> map().
+push_additional_node_info(Info, Viz = #{nodes := [Node]}) ->
+    UpdatedNode = maps:merge(Node, Info),
     maps:merge(Viz, #{nodes => [UpdatedNode]}).
-%%====================================================================
-%% Internals 
-%%====================================================================

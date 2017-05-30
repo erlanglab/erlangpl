@@ -82,13 +82,14 @@ handle_info({data, {Node, _Timestamp}, _Proplist},
     VizEntity = epl_viz_map:new(Node),
     VizEntityRegion = epl_viz_map:push_region(Node, VizEntity),
     ETSBasicInfo = get_ets_basic_info(),
-    VizFinal = epl_ets_viz_map:push_ets_basic_info(ETSBasicInfo,
+    VizFinal = epl_ets_viz_map:push_additional_node_info(ETSBasicInfo,
                                                    VizEntityRegion),
     JSON = epl_json:encode(VizFinal, <<"ets-node-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
 
 terminate(_Reason, _State) ->
+    ok = epl:unsubscribe(),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -109,4 +110,5 @@ get_all_ets_count() ->
 
 get_ets_mem_usage() ->
     {ok, MemoryData} = epl_tracer:command(fun erlang:memory/0, []),
-    proplists:get_value(ets, MemoryData) / proplists:get_value(total, MemoryData).
+    proplists:get_value(ets, MemoryData) / proplists:get_value(total,
+                                                               MemoryData).
