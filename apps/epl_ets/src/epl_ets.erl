@@ -62,7 +62,7 @@ unsubscribe(Pid) ->
 %%====================================================================
 
 init([]) ->
-    epl:subscribe(),
+    ok = epl:subscribe(),
     {ok, #state{}}.
 
 handle_call(Request, _From, _State) ->
@@ -77,13 +77,14 @@ handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     NewState = State#state{subscribers = NewSubs},
     {noreply, NewState}.
 
-handle_info({data, _Key, _Proplist}, State = #state{subscribers = Subs}) ->
-    ETSCount = get_all_ets_count(),
-    ETSMemUsage = get_ets_mem_usage(),
-    JSON = epl_json:encode(#{ets_count => ETSCount,
-                             mem_usage => lists:nth(1, ETSMemUsage),
-                             ets_mem_usage => lists:nth(2, ETSMemUsage)},
-                           <<"ets-node-info">>),
+handle_info({data, {Node, _Timestamp}, _Proplist},
+            State = #state{subscribers = Subs}) ->
+    VizEntity = epl_viz_map:new(Node),
+    VizEntityRegion = epl_viz_map:push_region(Node, VizEntity),
+    ETSBasicInfo = get_ets_basic_info(),
+    VizFinal = epl_ets_viz_map:push_ets_basic_info(ETSBasicInfo,
+                                                   VizEntityRegion),
+    JSON = epl_json:encode(VizFinal, <<"ets-node-info">>),
     [Pid ! {data, JSON} || Pid <- Subs],
     {noreply, State}.
 
@@ -97,10 +98,15 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internals
 %%====================================================================
 
+get_ets_basic_info() ->
+    ETSCount = get_all_ets_count(),
+    ETSMemUsage = get_ets_mem_usage(),
+    #{etsCount => ETSCount, etsMemUsage => ETSMemUsage}.
+
 get_all_ets_count() ->
     {ok, AllETS} = epl_tracer:command(fun ets:all/0, []),
     erlang:length(AllETS).
 
 get_ets_mem_usage() ->
     {ok, MemoryData} = epl_tracer:command(fun erlang:memory/0, []),
-    [proplists:get_value(Key, MemoryData) || Key <- [total, ets]].
+    proplists:get_value(ets, MemoryData) / proplists:get_value(total, MemoryData).
