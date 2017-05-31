@@ -88,7 +88,7 @@ run1() ->
             Args = filter_flags(NonOptArgs, []),
             Options ++ Args;
         {error, {Reason, Data}} ->
-            ?ERROR("~s ~p~n", [Reason, Data]),
+            ?CONSOLE("ERROR: ~s ~p~n", [Reason, Data]),
             help()
     end.
 
