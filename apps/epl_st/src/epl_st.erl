@@ -92,11 +92,12 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 
-generate_sup_tree({_Name, Pid, worker, _Mods}) ->
+generate_sup_tree(Pid, worker) ->
     worker_node(Pid);
-generate_sup_tree({_Name, Pid, supervisor, _Mods}) ->
+generate_sup_tree(Pid, supervisor) ->
     Children = command(fun supervisor:which_children/1, [Pid]),
-    sup_node(Pid, generate_children(Children));
+    sup_node(Pid, generate_children(Children)).
+
 generate_sup_tree(undefined) ->
     #{};
 generate_sup_tree(MasterPid) ->
@@ -104,14 +105,19 @@ generate_sup_tree(MasterPid) ->
     Children = command(fun supervisor:which_children/1, [SupPid]),
     sup_node(SupPid, generate_children(Children)).
 
-generate_children(Children) ->
+generate_children(Children) when is_list(Children) ->
     lists:filtermap(
       fun({_, undefined, _, _}) ->
               false;
-         (Child) ->
-              {true, generate_sup_tree(Child)}
+         ({_, Pid, Type, _})
+            when is_pid(Pid), (Type =:= worker orelse Type =:= supervisor) ->
+              {true, generate_sup_tree(Pid, Type)};
+         (_Unexpected) ->
+              false
       end,
-      Children).
+      Children);
+generate_children(_Unexpected) ->
+    [].
 
 worker_node(Pid) ->
     tree_node(Pid, worker, []).
