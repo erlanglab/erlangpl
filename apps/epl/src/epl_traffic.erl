@@ -197,7 +197,7 @@ command(Fun) ->
     command(Fun, []).
 
 command(Fun, Args) ->
-    {ok, Result} = epl_tracer:command(default_node, Fun, Args),
+    {ok, Result} = epl:command(default_node, Fun, Args),
     Result.
 
 %%%===================================================================

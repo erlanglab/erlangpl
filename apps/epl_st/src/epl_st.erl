@@ -126,7 +126,7 @@ command(Fun) ->
     command(Fun, []).
 
 command(Fun, Args) ->
-    {ok, Result} = epl_tracer:command(default_node, Fun, Args),
+    {ok, Result} = epl:command(default_node, Fun, Args),
     Result.
 
 node_id_to_pid(NodeId) when is_list(NodeId) ->

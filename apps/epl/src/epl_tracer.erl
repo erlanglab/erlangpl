@@ -12,13 +12,8 @@
 
 %% API
 -export([start_link/1,
-         subscribe/0,
-         subscribe/1,
          subscribe/2,
-         unsubscribe/0,
-         unsubscribe/1,
          unsubscribe/2,
-         command/2,
          command/3,
          trace_pid/1]).
 
@@ -40,45 +35,30 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
+
+%% Start epl_tracer gen_server process
+-spec start_link(Node :: atom()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(Node) ->
     gen_server:start_link({local, Node}, ?MODULE, Node, []).
 
-subscribe() ->
-    Nodes = get_all_nodes(),
-    [subscribe(N) || N <- Nodes].
 
-subscribe(default_node) ->
-    Node = get_default_node(),
-    subscribe(Node);
-subscribe(Node) ->
-    subscribe(Node, self()).
-
+%% Add provided Pid to Node tracer's subscribers list
+-spec subscribe(Node :: atom(), Pid :: pid()) -> ok.
 subscribe(Node, Pid) ->
     gen_server:call(Node, {subscribe, Pid}).
 
-unsubscribe() ->
-    Nodes = get_all_nodes(),
-    [unsubscribe(N) || N <- Nodes].
-
-unsubscribe(default_node) ->
-    Node = get_default_node(),
-    unsubscribe(Node);
-unsubscribe(Node) ->
-    unsubscribe(Node, self()).
-
+%% Remove provided Pid from Node tracer's subscribers list
+-spec unsubscribe(Node :: atom(), Pid :: pid()) -> ok.
 unsubscribe(Node, Pid) ->
     gen_server:call(Node, {unsubscribe, Pid}).
 
-command(Fun, Args) ->
-    Nodes = get_all_nodes(),
-    [command(N, Fun, Args) || N <- Nodes].
-
-command(default_node, Fun, Args) ->
-    Node = get_default_node(),
-    command(Node, Fun, Args);
+%% Run provided Fun with Args on Node
+-spec command(Node :: atom(), Fun :: fun(), Args :: list()) -> tuple().
 command(Node, Fun, Args) ->
     gen_server:call(Node, {command, Fun, Args}).
 
+%% Trace provied Pid
+-spec trace_pid(Pid :: pid()) -> ok.
 trace_pid(Pid) ->
     Node = erlang:node(Pid),
     gen_server:call(Node, {trace_pid, Pid}).
@@ -300,14 +280,3 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%%%===================================================================
-%%% Internals
-%%%===================================================================
-
-get_default_node() ->
-    [{node, Node}] = epl:lookup(node),
-    Node.
-
-get_all_nodes() ->
-    erlang:nodes().
