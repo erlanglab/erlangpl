@@ -452,5 +452,5 @@ maybe_start_elixir(Args) ->
     end.
 
 start_epl_tracers() ->
-    N = erlang:nodes(),
-    [epl_tracer_sup:start_child([Node]) || Node <- N].
+    Nodes = erlang:nodes(),
+    [epl_tracer_sup:start_child([N]) || N <- Nodes].
