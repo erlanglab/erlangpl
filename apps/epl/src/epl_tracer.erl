@@ -14,9 +14,12 @@
 -export([start_link/1,
          subscribe/0,
          subscribe/1,
+         subscribe/2,
          unsubscribe/0,
          unsubscribe/1,
+         unsubscribe/2,
          command/2,
+         command/3,
          trace_pid/1]).
 
 %% gen_server callbacks
@@ -38,25 +41,47 @@
 %% API functions
 %% ===================================================================
 start_link(Node) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, Node, []).
+    gen_server:start_link({local, Node}, ?MODULE, Node, []).
 
 subscribe() ->
-    subscribe(self()).
+    Nodes = get_all_nodes(),
+    [subscribe(N) || N <- Nodes].
 
-subscribe(Pid) ->
-    gen_server:call(?MODULE, {subscribe, Pid}).
+subscribe(default_node) ->
+    Node = get_default_node(),
+    subscribe(Node);
+subscribe(Node) ->
+    subscribe(Node, self()).
+
+subscribe(Node, Pid) ->
+    gen_server:call(Node, {subscribe, Pid}).
 
 unsubscribe() ->
-    unsubscribe(self()).
+    Nodes = get_all_nodes(),
+    [unsubscribe(N) || N <- Nodes].
 
-unsubscribe(Pid) ->
-    gen_server:call(?MODULE, {unsubscribe, Pid}).
+unsubscribe(default_node) ->
+    Node = get_default_node(),
+    unsubscribe(Node);
+unsubscribe(Node) ->
+    unsubscribe(Node, self()).
+
+unsubscribe(Node, Pid) ->
+    gen_server:call(Node, {unsubscribe, Pid}).
 
 command(Fun, Args) ->
-    gen_server:call(?MODULE, {command, Fun, Args}).
+    Nodes = get_all_nodes(),
+    [command(N, Fun, Args) || N <- Nodes].
+
+command(default_node, Fun, Args) ->
+    Node = get_default_node(),
+    command(Node, Fun, Args);
+command(Node, Fun, Args) ->
+    gen_server:call(Node, {command, Fun, Args}).
 
 trace_pid(Pid) ->
-    gen_server:call(?MODULE, {trace_pid, Pid}).
+    Node = erlang:node(Pid),
+    gen_server:call(Node, {trace_pid, Pid}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -275,3 +300,14 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%%%===================================================================
+%%% Internals
+%%%===================================================================
+
+get_default_node() ->
+    [{node, Node}] = epl:lookup(node),
+    Node.
+
+get_all_nodes() ->
+    erlang:nodes().

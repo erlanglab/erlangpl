@@ -56,7 +56,7 @@ node_info(NodeId) when is_binary(NodeId) ->
 %%%===================================================================
 
 init([]) ->
-    ok = epl:subscribe(),
+    ok = epl:subscribe(default_node),
     {ok, #state{}}.
 
 handle_call(_Request, _From, State) ->
@@ -126,7 +126,7 @@ command(Fun) ->
     command(Fun, []).
 
 command(Fun, Args) ->
-    {ok, Result} = epl_tracer:command(Fun, Args),
+    {ok, Result} = epl_tracer:command(default_node, Fun, Args),
     Result.
 
 node_id_to_pid(NodeId) when is_list(NodeId) ->

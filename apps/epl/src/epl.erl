@@ -11,8 +11,10 @@
 -export([lookup/1,
          subscribe/0,
          subscribe/1,
+         subscribe/2,
          unsubscribe/0,
          unsubscribe/1,
+         unsubscribe/2,
          process_info/1,
          trace_pid/1,
          to_bin/1,
@@ -29,17 +31,24 @@ lookup(Key) ->
 subscribe() ->
     epl_tracer:subscribe().
 
-subscribe(Pid) ->
-    epl_tracer:subscribe(Pid).
+subscribe(Node) ->
+    epl_tracer:subscribe(Node).
+
+subscribe(Node, Pid) ->
+    epl_tracer:subscribe(Node, Pid).
 
 unsubscribe() ->
     epl_tracer:unsubscribe().
 
-unsubscribe(Pid) ->
-    epl_tracer:unsubscribe(Pid).
+unsubscribe(Node) ->
+    epl_tracer:unsubscribe(Node).
+
+unsubscribe(Node, Pid) ->
+    epl_tracer:unsubscribe(Node, Pid).
 
 process_info(Pid) ->
-    epl_tracer:command(fun erlang:process_info/1, [Pid]).
+    Node = erlang:node(Pid),
+    epl_tracer:command(Node, fun erlang:process_info/1, [Pid]).
 
 trace_pid(Pid) ->
     epl_tracer:trace_pid(Pid).

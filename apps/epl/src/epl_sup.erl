@@ -10,13 +10,13 @@
 
 %% API
 -export([start_link/0,
-         start_child/2]).
+         start_child/3]).
 
 %% Supervisor callbacks
 -export([init/1]).
 
 %% Helper macro for declaring children of supervisor
--define(CHILD(I, A), {I, {I, start_link, A}, permanent, 5000, worker, [I]}).
+-define(CHILD(I, A, T), {I, {I, start_link, A}, permanent, 5000, T, [I]}).
 
 %% ===================================================================
 %% API functions
@@ -24,8 +24,8 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-start_child(Module, Args) ->
-    supervisor:start_child(?MODULE, ?CHILD(Module, Args)).
+start_child(Module, Args, Type) ->
+    supervisor:start_child(?MODULE, ?CHILD(Module, Args, Type)).
 
 %% ===================================================================
 %% Supervisor callbacks

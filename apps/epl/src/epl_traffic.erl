@@ -47,7 +47,7 @@ unsubscribe() ->
 
 init([]) ->
     %% Subscribe to all events from the observed node
-    ok = epl:subscribe(),
+    ok = epl:subscribe(default_node),
 
     %% Initialise counters, so that later we can calculate deltas
     TrafficCounters = get_traffic_counters(),
@@ -197,7 +197,7 @@ command(Fun) ->
     command(Fun, []).
 
 command(Fun, Args) ->
-    {ok, Result} = epl_tracer:command(Fun, Args),
+    {ok, Result} = epl_tracer:command(default_node, Fun, Args),
     Result.
 
 %%%===================================================================
