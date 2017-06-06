@@ -13,6 +13,7 @@ const { Navigation, Footer } = core.components;
 import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
+import eplETS from './plugins/epl-ets';
 
 import about from './about';
 
@@ -23,6 +24,7 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
     { path: '/dashboard', icon: 'television' },
     { path: '/sup-tree', icon: 'sitemap' },
     { path: '/traffic', icon: 'share-alt' },
+    { path: '/ets', icon: 'table' },
     { path: '/about', icon: 'question' }
   ].concat(
     plugins.reduce((acc, plugin) => {
@@ -65,6 +67,7 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
             />
             <Route path="/sup-tree" component={eplSupTree.SupTree} />
             <Route path="/traffic/:view*" component={eplVizceral.Vizceral} />
+            <Route path="/ets/:view*" component={eplETS.ETS} />
             <Route path="/about" component={about.components.About} />
             {routes}
           </div>

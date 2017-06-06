@@ -15,6 +15,7 @@ import './index.css';
 import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
+import eplETS from './plugins/epl-ets';
 
 import core from './core';
 import store, { history } from './store';
@@ -29,6 +30,7 @@ createSockets(
       eplDashboard.sockets,
       eplSupTree.sockets,
       eplVizceral.sockets,
+      eplETS.sockets,
       core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
     ],
     store
