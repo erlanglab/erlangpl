@@ -62,7 +62,7 @@ unsubscribe(Pid) ->
 %%====================================================================
 
 init([]) ->
-    ok = epl:subscribe(),
+    ok = epl:subscribe(default_node),
     {ok, #state{}}.
 
 handle_call(Request, _From, _State) ->
@@ -89,7 +89,7 @@ handle_info({data, {Node, _Timestamp}, _Proplist},
     {noreply, State}.
 
 terminate(_Reason, _State) ->
-    ok = epl:unsubscribe(),
+    ok = epl:unsubscribe(default_node),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -105,10 +105,10 @@ get_ets_basic_info() ->
     #{etsCount => ETSCount, etsMemUsage => ETSMemUsage}.
 
 get_all_ets_count() ->
-    {ok, AllETS} = epl_tracer:command(fun ets:all/0, []),
+    {ok, AllETS} = epl:command(default_node, fun ets:all/0, []),
     erlang:length(AllETS).
 
 get_ets_mem_usage() ->
-    {ok, MemoryData} = epl_tracer:command(fun erlang:memory/0, []),
+    {ok, MemoryData} = epl:command(default_node, fun erlang:memory/0, []),
     proplists:get_value(ets, MemoryData) / proplists:get_value(total,
                                                                MemoryData).

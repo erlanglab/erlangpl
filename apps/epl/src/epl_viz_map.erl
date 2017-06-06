@@ -12,6 +12,7 @@
          pull_region/2,
          push_region/3,
          push_node/4,
+         push_additional_node_info/2,
          binarify/1,
          namify/1]).
 
