@@ -8,7 +8,8 @@
 -module(epl).
 -include_lib("epl/include/epl.hrl").
 
--export([lookup/1,
+-export([get_default_node/0,
+         lookup/1,
          subscribe/0,
          subscribe/1,
          subscribe/2,
@@ -27,6 +28,12 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
+
+%% @doc Gets default node passes as an argument to the script when starting
+%% erlangpl.
+-spec get_default_node() -> atom().
+get_default_node() ->
+    proplists:get_value(node, lookup(node)).
 
 %% @doc Lookups for given `Key' in epl_priv ets.
 -spec lookup(Key :: term()) -> [tuple()].
@@ -154,6 +161,3 @@ log_prefix(error) -> "ERROR: ".
 get_all_nodes() ->
     erlang:nodes().
 
-get_default_node() ->
-    [{node, Node}] = lookup(node),
-    Node.

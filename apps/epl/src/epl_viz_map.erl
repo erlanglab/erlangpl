@@ -12,7 +12,8 @@
          pull_region/2,
          push_region/3,
          push_node/4,
-         push_additional_node_info/2,
+         push_connection/5,
+         push_additional_node_info/3,
          binarify/1,
          namify/1]).
 
@@ -76,11 +77,29 @@ pull_node(Name, Entity) ->
     {Node, Rest}.
 
 %% @doc Pushes additional `Info' into cluster nodes section in `Vizceral' map.
--spec push_additional_node_info(Info :: map(), Vizceral :: #{nodes => [map()]})
-                               -> map().
-push_additional_node_info(Info, Vizceral = #{nodes := [Node]}) ->
+-spec push_additional_node_info(Info :: map(), Name :: atom(),
+                                Vizceral :: #{nodes => [map()]}) -> map().
+push_additional_node_info(Info, Name, Vizceral) ->
+    {Node, Rest} = pull_node(Name, Vizceral),
     UpdatedNode = maps:merge(Node, Info),
-    maps:merge(Vizceral, #{nodes => [UpdatedNode]}).
+    maps:merge(Vizceral, #{nodes => [UpdatedNode | Rest]}).
+
+%% ------------------- Connections --------------------
+%% @doc Pushes connection section to `To'.
+-spec push_connection(Source :: name(), Target :: name(), {N :: integer(),
+                                                           W :: integer(),
+                                                           D :: integer()},
+                      Additional :: map(), To :: map()) -> map().
+push_connection(Source, Target, {N, W, D}, Additional, To) ->
+    #{connections := Connections} = To,
+    New = maps:merge(Additional,
+                     #{source => namify(Source),
+                       target => namify(Target),
+                       metrics => #{normal => N,
+                                    danger => D,
+                                    warning => W}
+                      }),
+    maps:merge(To, #{connections => [New | Connections]}).
 
 %%----------------------- Names -----------------------
 %% @doc Transforms `Name' to binary.

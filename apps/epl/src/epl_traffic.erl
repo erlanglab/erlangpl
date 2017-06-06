@@ -207,32 +207,21 @@ command(Fun, Args) ->
 %%%===================================================================
 
 %% ------------------- Connections --------------------
-push_connection(Source, Target, {N, W, D} , Additional, To) ->
-    #{connections := Connections} = To,
-    New = maps:merge(Additional,
-                     #{source => epl_viz_map:namify(Source),
-                       target => epl_viz_map:namify(Target),
-                       metrics => #{normal => N,
-                                    danger => D,
-                                    warning => W}
-                      }),
-  maps:merge(To, #{connections => [New | Connections]}).
-
 push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
     %% Will crash on nonexisting
     epl_viz_map:pull_region(Source, Vizceral),
     epl_viz_map:pull_region(Target, Vizceral),
     %% Outgoing traffic
-    Viz = push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
+    Viz = epl_viz_map:push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
     %% Incoming  traffic
-    push_connection(Target, Source, {W, 0, D}, Additional, Viz).
+    epl_viz_map:push_connection(Target, Source, {W, 0, D}, Additional, Viz).
 
 push_focused_connection(S, T, RN, NWD, Vizceral) ->
     push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
 
 push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
     {Region, NewV} = epl_viz_map:pull_region(RegionName, Vizceral),
-    NewR = push_connection(Source, Target, {N,W,D}, A, Region),
+    NewR = epl_viz_map:push_connection(Source, Target, {N,W,D}, A, Region),
     epl_viz_map:push_region(RegionName, NewR, NewV).
 
 %% ---------------------- Focused ---------------------
