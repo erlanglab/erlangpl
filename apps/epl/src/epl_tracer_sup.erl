@@ -19,12 +19,12 @@
 %% API functions
 %%====================================================================
 
-%% Start epl_tracer_sup supervisor
+%% @doc Starts epl_tracer_sup supervisor.
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-%% Start epl_tracer_sup child
+%% @doc Starts epl_tracer_sup child.
 -spec start_child(Args :: list()) -> 
     {ok, term()} | {ok, term(), term()} | {error, term()}.
 start_child(Args) ->

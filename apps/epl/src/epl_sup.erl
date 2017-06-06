@@ -21,12 +21,12 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
-%% Start epl top level supervisor
+%% @doc Starts epl top level supervisor.
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-%% Start epl_sup child
+%% @doc Starts epl_sup child.
 -spec start_child(Module :: atom(), Args :: list(), Type :: atom()) -> 
     {ok, term()} | {ok, term(), term()} | {error, term()}.
 start_child(Module, Args, Type) ->

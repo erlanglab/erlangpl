@@ -36,28 +36,28 @@
 %% API functions
 %% ===================================================================
 
-%% Start epl_tracer gen_server process
+%% @doc Starts epl_tracer gen_server process.
 -spec start_link(Node :: atom()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(Node) ->
     gen_server:start_link({local, Node}, ?MODULE, Node, []).
 
 
-%% Add provided Pid to Node tracer's subscribers list
+%% @doc Adds provided `Pid' to `Node' tracer's subscribers list.
 -spec subscribe(Node :: atom(), Pid :: pid()) -> ok.
 subscribe(Node, Pid) ->
     gen_server:call(Node, {subscribe, Pid}).
 
-%% Remove provided Pid from Node tracer's subscribers list
+%% @doc Removes provided `Pid' from `Node' tracer's subscribers list.
 -spec unsubscribe(Node :: atom(), Pid :: pid()) -> ok.
 unsubscribe(Node, Pid) ->
     gen_server:call(Node, {unsubscribe, Pid}).
 
-%% Run provided Fun with Args on Node
+%% @doc Runs provided `Fun' with `Args' on `Node'.
 -spec command(Node :: atom(), Fun :: fun(), Args :: list()) -> tuple().
 command(Node, Fun, Args) ->
     gen_server:call(Node, {command, Fun, Args}).
 
-%% Trace provied Pid
+%% @doc Traces provied `Pid'.
 -spec trace_pid(Pid :: pid()) -> ok.
 trace_pid(Pid) ->
     Node = erlang:node(Pid),
