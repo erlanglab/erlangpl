@@ -111,19 +111,22 @@ class ETS extends Component {
                         default: {
                           top: {
                             header: 'ETS Count',
-                            data: 'etsCount',
+                            data: 'etsMetric.all',
                             format: '0'
                           },
                           bottom: {
                             header: 'ETS memory usage',
-                            data: 'etsMemUsage',
+                            data: 'etsMetric.memUsage',
                             format: '0.00%'
+                          },
+                          donut: {
+                            data: 'etsMetric.pieChart'
                           }
                         },
                         entry: {
                           top: {
                             header: 'ETS Count',
-                            data: 'etsCount',
+                            data: 'etsMetric.all',
                             format: '0'
                           }
                         }

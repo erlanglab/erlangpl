@@ -116,7 +116,9 @@ code_change(_OldVsn, State, _Extra) ->
 get_ets_basic_info(Node) ->
     ETSCount = get_all_ets_count(Node),
     ETSMemUsage = get_ets_mem_usage(Node),
-    #{etsCount => ETSCount, etsMemUsage => ETSMemUsage}.
+    ETSPieChart = get_ets_pie_chart(ETSMemUsage, 0, 0),
+    #{etsMetric => 
+          #{all => ETSCount, memUsage => ETSMemUsage, pieChart => ETSPieChart}}.
 
 get_all_ets_count(Node) ->
     {ok, AllETS} = epl:command(Node, fun ets:all/0, []),
@@ -124,8 +126,10 @@ get_all_ets_count(Node) ->
 
 get_ets_mem_usage(Node) ->
     {ok, MemoryData} = epl:command(Node, fun erlang:memory/0, []),
-    proplists:get_value(ets, MemoryData) / proplists:get_value(total,
-                                                               MemoryData).
+    MemoryProc = proplists:get_value(ets, MemoryData) / 
+        proplists:get_value(total, MemoryData),
+    trunc_float(MemoryProc, 4).
+    
 update_viz(Node, Viz, Nodes) ->
     VizRegion = push_unique_region(Node, Viz, maps:is_key(Node, Nodes)),
     ETSBasicInfo = get_ets_basic_info(Node),
@@ -174,3 +178,10 @@ check_node_timer() ->
 
 if_subs_ok(Res) ->
     lists:all(fun(R) -> ok == R end, Res).
+
+trunc_float(Float, Pos) ->
+    List = erlang:float_to_list(Float, [{decimals, Pos}]),
+    erlang:list_to_float(List).
+
+get_ets_pie_chart(N, D, W) ->
+    #{normal => N, danger => D, warning => W}.
