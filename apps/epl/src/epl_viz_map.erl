@@ -12,6 +12,7 @@
          pull_region/2,
          push_region/3,
          push_node/4,
+         pull_node/2,
          push_connection/5,
          push_additional_node_info/3,
          binarify/1,

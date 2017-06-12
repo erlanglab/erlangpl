@@ -68,8 +68,9 @@ unsubscribe(Pid) ->
 %%====================================================================
 
 init([]) ->
-    epl:subscribe(),
-    %check_node_timer(),
+    Res = epl:subscribe(),
+    true = if_subs_ok(Res),
+    check_node_timer(),
     Node = epl:get_default_node(),
     VizEntity = epl_viz_map:new(Node),
     {ok, #state{vizceral = VizEntity}}.
@@ -89,20 +90,21 @@ handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_info({data, {Node, _Timestamp}, _Proplist},
             State = #state{subscribers = Subs, vizceral = VizEntity,
                           nodes = SubsNodes}) ->
-    NewSubNodes = register_activity(Node, SubsNodes),
+    NewSubsNodes = register_node_activity(Node, SubsNodes),
     NewViz = update_viz(Node, VizEntity, SubsNodes),
     distribute_viz(NewViz, Subs),
-    NewState = State#state{vizceral = NewViz, nodes = NewSubNodes},
+    NewState = State#state{vizceral = NewViz, nodes = NewSubsNodes},
     {noreply, NewState};
-handle_info(remove_silent_nodes, State = #state{vizceral = VizEntity,
+handle_info(check_nodes_state, State = #state{vizceral = VizEntity,
                                                 nodes = SubsNodes}) ->
-    {NewVizEntity, NewSubsNodes} = remove_silent_nodes(VizEntity, SubsNodes),
+    NewSubsNodes = remove_outdated(SubsNodes),
+    NewVizEntity = remove_outdated(NewSubsNodes, VizEntity),
     check_node_timer(),
     NewState = State#state{vizceral = NewVizEntity, nodes = NewSubsNodes},
     {noreply, NewState}.
 
 terminate(_Reason, _State) ->
-    ok = epl:unsubscribe(default_node).
+    epl:unsubscribe().
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
@@ -143,30 +145,32 @@ push_fake_conn(Node, Viz) ->
     epl_viz_map:push_connection(epl:get_default_node(), Node, {0, 0, 0}, #{}, 
                                 Viz).
 
-register_activity(Node, Nodes) ->
+register_node_activity(Node, Nodes) ->
     maps:put(Node, erlang:system_time(millisecond), Nodes).
 
-remove_silent_nodes(Viz, Nodes) ->
+remove_outdated(Nodes) ->
     Now = erlang:system_time(millisecond),
-    AliveNodes = maps:filter(fun(_Node, Timestamp) ->
-                                   Now - Timestamp < ?ALIVE_TIMEOUT end, Nodes),
-    {remove_silent_nodes_from_viz(Viz, AliveNodes), AliveNodes}.
+    maps:filter(fun(_Node, Timestamp) ->
+                                   Now - Timestamp < ?ALIVE_TIMEOUT end, Nodes).
 
-remove_silent_nodes_from_viz(Viz = #{nodes := Nodes, connections := Conn},
-                             AliveNodes) ->
-    NewNodes = remove_elem_from_list_of_map_by_key(Nodes, maps:keys(AliveNodes),
-                                                   name),
-    NewConn = remove_elem_from_list_of_map_by_key(Conn, maps:keys(AliveNodes),
-                                                   source),
-    NewViz = maps:merge(Viz, #{nodes => NewNodes}),
-    maps:merge(NewViz, #{connections => NewConn}).
+remove_outdated(Nodes, Viz) ->
+    NodesList = maps:keys(Nodes),
+    VizNodes = [pull_node(N, Viz) || N <- NodesList],
+    VizConn = [pull_fake_conn(N, Viz) || N <- NodesList],
+    NewViz = maps:merge(Viz, #{nodes => VizNodes}),
+    maps:merge(NewViz, #{connections => VizConn}).
 
-remove_elem_from_list_of_map_by_key(L, [], _Key) ->
-    L;
-remove_elem_from_list_of_map_by_key(L, [H | T], Key) ->
-    L2 = lists:filter(fun(N) -> maps:get(Key, N) == epl_viz_map:namify(H) end, 
-                      L),
-    remove_elem_from_list_of_map_by_key(L2, T, Key).
+pull_node(Node, Viz) ->
+    {N, _Rest} = epl_viz_map:pull_node(Node, Viz),
+    N.
+
+pull_fake_conn(Node, #{connections := Conns}) ->
+    [Conn] = lists:filter(fun(Elem) -> maps:get(target, Elem) == 
+                                           epl_viz_map:namify(Node) end, Conns),
+    Conn.
 
 check_node_timer() ->
-    erlang:send_after(?CHECK_NODE_TIMER, self(), remove_silent_nodes).
+    erlang:send_after(?CHECK_NODE_TIMER, self(), check_nodes_state).
+
+if_subs_ok(Res) ->
+    lists:all(fun(R) -> ok == R end, Res).
