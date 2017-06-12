@@ -79,7 +79,6 @@ class ETS extends Component {
 
   render() {
     const sidePanelWidth = 30;
-    console.log(this.props.data);
     return (
       <div className="Traffic">
         <ETSTools className="Traffic-tools" />
