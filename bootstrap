@@ -12,7 +12,7 @@ main(_) ->
     case zip:create("mem", Files, [memory]) of
         {ok, {"mem", ZipBin}} ->
             Shebang = "#!/usr/bin/env escript\n",
-            EmuArgs = "%%! -hidden\n",
+            EmuArgs = "%%! -setcookie erlangpl\n",
             Script = iolist_to_binary([Shebang, EmuArgs, ZipBin]),
             case file:write_file(Filename, Script) of
                 ok ->

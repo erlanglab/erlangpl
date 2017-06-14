@@ -11,8 +11,12 @@
 -export([lookup/1,
          subscribe/0,
          subscribe/1,
+         subscribe/2,
          unsubscribe/0,
          unsubscribe/1,
+         unsubscribe/2,
+         command/2,
+         command/3,
          process_info/1,
          trace_pid/1,
          to_bin/1,
@@ -23,24 +27,76 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
+
+%% @doc Lookups for given `Key' in epl_priv ets.
+-spec lookup(Key :: term()) -> [tuple()].
 lookup(Key) ->
     ets:lookup(epl_priv, Key).
 
+%% @doc For each node in the cluster we spawn a gen_server process, which is
+%% implemented in the epl_tracer module. Process calling this function is
+%% added to the subscribers list, which is kept in the state of the epl_tracer 
+%% gen_server.
+-spec subscribe() -> [ok].
 subscribe() ->
-    epl_tracer:subscribe().
+    Nodes = get_all_nodes(),
+    [subscribe(N) || N <- Nodes].
 
-subscribe(Pid) ->
-    epl_tracer:subscribe(Pid).
+%% @doc Adds calling process to `Node' tracer's subscribers list.
+-spec subscribe(Node :: atom() | default_node) -> ok.
+subscribe(default_node) ->
+    Node = get_default_node(),
+    subscribe(Node);
+subscribe(Node) ->
+    subscribe(Node, self()).
 
+%% @doc Adds provided `Pid' to `Node' tracer's subscribers list.
+-spec subscribe(Node :: atom(), Pid :: pid()) -> ok.
+subscribe(Node, Pid) ->
+    epl_tracer:subscribe(Node, Pid).
+
+%% @doc Removes calling process from every epl_tracers' subscribers list.
+-spec unsubscribe() -> [ok].
 unsubscribe() ->
-    epl_tracer:unsubscribe().
+    Nodes = get_all_nodes(),
+    [unsubscribe(N) || N <- Nodes].
 
-unsubscribe(Pid) ->
-    epl_tracer:unsubscribe(Pid).
+%% @doc Removes calling process from `Node' tracer's subscribers list.
+-spec unsubscribe(Node :: atom() | default_node) -> ok.
+unsubscribe(default_node) ->
+    Node = get_default_node(),
+    unsubscribe(Node);
+unsubscribe(Node) ->
+    unsubscribe(Node, self()).
 
+%% @doc Removes provided `Pid' from `Node' tracer's subscribers list.
+-spec unsubscribe(Node :: atom(), Pid :: pid()) -> ok.
+unsubscribe(Node, Pid) ->
+    epl_tracer:unsubscribe(Node, Pid).
+
+%% @doc Runs provided `Fun' with `Args' on every of the observed nodes.
+-spec command(Fun :: fun(), Args :: list()) -> [tuple()].
+command(Fun, Args) ->
+    Nodes = get_all_nodes(),
+    [command(N, Fun, Args) || N <- Nodes].
+
+%% @doc Runs provided `Fun' with `Args' on default/provided node.
+-spec command(Node :: atom() | default_node, Fun :: fun(), Args :: list()) -> 
+          tuple().
+command(default_node, Fun, Args) ->
+    Node = get_default_node(),
+    command(Node, Fun, Args);
+command(Node, Fun, Args) ->
+    epl_tracer:command(Node, Fun, Args).
+
+%% @doc Gets information about process identified by provided `Pid'.
+-spec process_info(Pid :: pid()) -> tuple().
 process_info(Pid) ->
-    epl_tracer:command(fun erlang:process_info/1, [Pid]).
+    Node = erlang:node(Pid),
+    epl_tracer:command(Node, fun erlang:process_info/1, [Pid]).
 
+%% @doc Traces provied `Pid'.
+-spec trace_pid(Pid :: pid()) -> ok.
 trace_pid(Pid) ->
     epl_tracer:trace_pid(Pid).
 
@@ -97,3 +153,10 @@ log_prefix(debug) -> "DEBUG: ";
 log_prefix(info)  -> "INFO:  ";
 log_prefix(warn)  -> "WARN:  ";
 log_prefix(error) -> "ERROR: ".
+
+get_all_nodes() ->
+    erlang:nodes().
+
+get_default_node() ->
+    [{node, Node}] = lookup(node),
+    Node.

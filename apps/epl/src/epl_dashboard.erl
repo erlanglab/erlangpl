@@ -39,7 +39,7 @@ unsubscribe() ->
 %%% gen_server callbacks
 %%%===================================================================
 init(no_args) ->
-    ok = epl:subscribe(),
+    ok = epl:subscribe(default_node),
     {ok, #state{}}.
 
 handle_call(Request, _From, _State) ->
