@@ -5,10 +5,13 @@ import Highlight from 'react-highlight';
 import { Link } from 'react-router-dom';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import List from 'react-virtualized/dist/commonjs/List';
+import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
 
 import { send } from '../../../sockets';
 import * as actions from '../actions';
+
 import 'highlight.js/styles/atom-one-dark.css';
+import 'react-reflex/styles.css';
 import './style.css';
 
 class Component_ extends Component {
@@ -41,6 +44,7 @@ class Component_ extends Component {
   }
 
   componentDidMount() {
+    // $FlowFixMe
     document.body.addEventListener(
       'keydown',
       this.changeByArrows.bind(this),
@@ -55,6 +59,7 @@ class Component_ extends Component {
   }
 
   componentWillUnmount() {
+    // $FlowFixMe
     document.body.removeEventListener(
       'keydown',
       this.changeByArrows.bind(this),
@@ -89,10 +94,12 @@ class Component_ extends Component {
       <div className="Timeline">
         <ul className="Dashboard-navigation nav nav-tabs">
 
-          {this.props.timelines.map(({ pid, timeline }) => (
+          {this.props.timelines.map(({ pid, timeline }) =>
             <li
               key={pid}
-              className={`nav-item ${pid === this.props.pid ? 'Dashboard-active' : ''}`}
+              className={`nav-item ${pid === this.props.pid
+                ? 'Dashboard-active'
+                : ''}`}
               onClick={this.handlePidClick.bind(this, pid)}
             >
               <Link to={`/timeline/${pid}`}>
@@ -106,7 +113,7 @@ class Component_ extends Component {
                 />
               </Link>
             </li>
-          ))}
+          )}
           <li className="nav-item" style={{ paddingLeft: '5px' }}>
             {`<${this.props.pidPrefix}.`}
           </li>
@@ -133,48 +140,61 @@ class Component_ extends Component {
 
         {currentState
           ? <div className="pane">
-              <div className="messages">
-                <AutoSizer>
-                  {({ height, width }) => (
-                    <List
-                      scrollToIndex={this.props.msg}
-                      width={width}
-                      height={height}
-                      rowCount={currentTimeline.length}
-                      rowHeight={35}
-                      rowRenderer={({ index, key, style }) => {
-                        const t = currentTimeline[index];
-                        return (
-                          <div
-                            style={style}
-                            key={key}
-                            className={`message ${index === this.props.msg ? 'active' : ''}`}
-                            onClick={() => this.props.setCurrentMsg(index)}
-                          >
-                            <span className="content">{t.message}</span>
-                            <span className="index">
-                              {index}
-                            </span>
-                          </div>
-                        );
+              <ReflexContainer orientation="vertical">
+
+                <ReflexElement flex={0.25}>
+                  <div className="messages">
+                    <AutoSizer>
+                      {({ height, width }) =>
+                        <List
+                          scrollToIndex={this.props.msg}
+                          width={width}
+                          height={height}
+                          rowCount={currentTimeline.length}
+                          rowHeight={35}
+                          rowRenderer={({ index, key, style }) => {
+                            const t = currentTimeline[index];
+                            return (
+                              <div
+                                style={style}
+                                key={key}
+                                className={`message ${index === this.props.msg
+                                  ? 'active'
+                                  : ''}`}
+                                onClick={() => this.props.setCurrentMsg(index)}
+                              >
+                                <span className="content">{t.message}</span>
+                                <span className="index">
+                                  {index}
+                                </span>
+                              </div>
+                            );
+                          }}
+                        />}
+                    </AutoSizer>
+                  </div>
+                </ReflexElement>
+
+                <ReflexSplitter />
+
+                <ReflexElement flex={0.75}>
+                  <div className="state">
+                    <h3 ref={node => (this.header = node)}>
+                      {currentTimeline[this.props.msg].message}
+                    </h3>
+                    <Highlight
+                      className="erlang"
+                      style={{
+                        height: `calc(100% - ${this.header
+                          ? this.header.clientHeight
+                          : '0'}px)`
                       }}
-                    />
-                  )}
-                </AutoSizer>
-              </div>
-              <div className="state">
-                <h3 ref={node => (this.header = node)}>
-                  {currentTimeline[this.props.msg].message}
-                </h3>
-                <Highlight
-                  className="erlang"
-                  style={{
-                    height: `calc(100% - ${this.header ? this.header.clientHeight : '0'}px)`
-                  }}
-                >
-                  {currentState.state}
-                </Highlight>
-              </div>
+                    >
+                      {currentState.state}
+                    </Highlight>
+                  </div>
+                </ReflexElement>
+              </ReflexContainer>
             </div>
           : <div
               className="pane"
