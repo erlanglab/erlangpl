@@ -1,7 +1,7 @@
 %%%-------------------------------------------------------------------
 %% @doc epl_subs_manager module.
 %% It is a gen_server listening to messages about nodes' state. Basing on
-%% that information it enables/disables subscription for a particular node.
+%% that information it enables/disables subscription to a particular node.
 %% @end
 %%%-------------------------------------------------------------------
 
@@ -35,7 +35,7 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-%% @doc Dynamically makes provided `Pid' subscriber for every newly connected
+%% @doc Dynamically makes provided `Pid' subscribe to every newly connected
 %% node.
 -spec enable_dynamic_sub(Pid :: pid()) -> ok.
 enable_dynamic_sub(Pid) ->
