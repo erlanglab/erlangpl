@@ -49,15 +49,18 @@ start(_StartType, _StartArgs) ->
 
     %% Start top supervisor
     {ok, Pid} = epl_sup:start_link(),
-
-    %% Start EPL tracer on remote node
-    {ok, _} = epl_sup:start_child(epl_tracer, [Node]),
+    
+    %% Start epl_tracer supervisor
+    {ok, _} = epl_sup:start_child(epl_tracer_sup, [], supervisor),
+    
+    %% Start epl_tracer per node
+    start_epl_tracers(),
 
     %% Start EPL Dashboard
-    {ok, _} = epl_sup:start_child(epl_dashboard, []),
+    {ok, _} = epl_sup:start_child(epl_dashboard, [], worker),
 
     %% Start EPL Dashboard
-    {ok, _} = epl_sup:start_child(epl_traffic, []),
+    {ok, _} = epl_sup:start_child(epl_traffic, [], worker),
 
     %% load plugins
     PluginApps = plugins(Args),
@@ -106,7 +109,7 @@ run2(Args) ->
 run3(Node, Args) ->
     {ok, _Pid} = start_distributed(Args),
 
-    true = setcookie(Node, Args),
+    true = setcookie(Args),
 
     true = connect_node(Node),
 
@@ -358,18 +361,17 @@ start_distributed(Args) ->
             halt(1, [{flush, true}])
     end.
 
-setcookie(Node, Args) ->
+setcookie(Args) ->
     case proplists:lookup(cookie, Args) of
         none ->
             true;
         {cookie, Cookie} ->
-            erlang:set_cookie(Node, list_to_atom(Cookie))
+            erlang:set_cookie(erlang:node(), list_to_atom(Cookie))
     end.
 
 connect_node(Node) ->
     case net_kernel:connect_node(Node) of
         true ->
-            ok = net_kernel:allow([node()]),
             true;
         false ->
             ?ERROR("failed to connect to remote node ~p~n", [Node]),
@@ -448,3 +450,7 @@ maybe_start_elixir(Args) ->
         _ ->
             ?DEBUG("Couldn't start Elixir~n", [])
     end.
+
+start_epl_tracers() ->
+    Nodes = erlang:nodes(),
+    [epl_tracer_sup:start_child([N]) || N <- Nodes].
