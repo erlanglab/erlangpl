@@ -40,7 +40,10 @@ get_default_node() ->
 lookup(Key) ->
     ets:lookup(epl_priv, Key).
 
-%% @doc Adds calling process to every epl_tracers' subscribers list.
+%% @doc For each node in the cluster we spawn a gen_server process, which is
+%% implemented in the epl_tracer module. Process calling this function is
+%% added to the subscribers list, which is kept in the state of the epl_tracer 
+%% gen_server.
 -spec subscribe() -> [ok].
 subscribe() ->
     Nodes = get_all_nodes(),
