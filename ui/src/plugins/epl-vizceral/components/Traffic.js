@@ -5,7 +5,7 @@ import Vizceral from 'vizceral-react';
 import { Motion, spring } from 'react-motion';
 import { push } from 'react-router-redux';
 
-import 'vizceral-react/dist/vizceral.css';
+import 'vizceral-react/src/vizceral.css';
 import './Traffic.css';
 
 import TrafficTools from './TrafficTools';
@@ -88,7 +88,7 @@ class Traffic extends Component {
             x: spring(this.state.end),
             y: this.state.graph ? spring(0) : 1
           }}
-          children={({ x, y }) => (
+          children={({ x, y }) =>
             <div className="Traffic-container">
               <div
                 className="Traffic-panel"
@@ -104,6 +104,50 @@ class Traffic extends Component {
                   match={this.props.search}
                   allowDraggingOfNodes={true}
                   targetFramerate={25}
+                  definitions={{
+                    detailedNode: {
+                      volume: {
+                        default: {
+                          top: {
+                            header: 'RPS',
+                            data: 'data.volumePercent',
+                            format: '0.0%'
+                          },
+                          bottom: {
+                            header: 'ERROR RATE',
+                            data: 'data.classPercents.danger',
+                            format: '0.00%'
+                          },
+                          donut: {
+                            data: 'data.globalClassPercents',
+                            indices: [
+                              { key: 'danger' },
+                              { key: 'warning' },
+                              { key: 'normal', class: 'normalDonut' }
+                            ]
+                          },
+                          arc: {}
+                        },
+                        focused: {
+                          top: {
+                            header: 'RPS',
+                            data: 'data.volume',
+                            format: '0,0'
+                          },
+                          donut: {
+                            data: 'data.classPercents'
+                          }
+                        },
+                        entry: {
+                          top: {
+                            header: 'TOTAL RPS',
+                            data: 'data.volume',
+                            format: '0,0'
+                          }
+                        }
+                      }
+                    }
+                  }}
                 />
                 <div
                   className="loader"
@@ -138,8 +182,7 @@ class Traffic extends Component {
                   </code>
                 </pre>
               </div>
-            </div>
-          )}
+            </div>}
         />
       </div>
     );
