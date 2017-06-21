@@ -19,6 +19,8 @@
 %% API functions
 %%====================================================================
 
+%% @doc Starts epl_ets top level supervisor.
+-spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 

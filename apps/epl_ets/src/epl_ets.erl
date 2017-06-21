@@ -117,7 +117,7 @@ get_ets_basic_info(Node) ->
     ETSCount = get_all_ets_count(Node),
     ETSMemUsage = get_ets_mem_usage(Node),
     ETSPieChart = get_ets_pie_chart(ETSMemUsage, 0, 0),
-    #{etsMetric => 
+    #{etsMetrics => 
           #{all => ETSCount, memUsage => ETSMemUsage, pieChart => ETSPieChart}}.
 
 get_all_ets_count(Node) ->
@@ -126,9 +126,9 @@ get_all_ets_count(Node) ->
 
 get_ets_mem_usage(Node) ->
     {ok, MemoryData} = epl:command(Node, fun erlang:memory/0, []),
-    MemoryProc = proplists:get_value(ets, MemoryData) / 
+    MemoryPercent = proplists:get_value(ets, MemoryData) / 
         proplists:get_value(total, MemoryData),
-    trunc_float(MemoryProc, 4).
+    trunc_float(MemoryPercent, 4).
     
 update_viz(Node, Viz, Nodes) ->
     VizRegion = push_unique_region(Node, Viz, maps:is_key(Node, Nodes)),
