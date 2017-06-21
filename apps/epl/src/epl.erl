@@ -41,7 +41,7 @@ lookup(Key) ->
 subscribe() ->
     Nodes = get_all_nodes(),
     [subscribe(N) || N <- Nodes],
-    dynamic_sub(true).
+    enable_dynamic_sub().
 
 %% @doc Adds calling process to `Node' tracer's subscribers list.
 -spec subscribe(Node :: atom() | default_node) -> ok.
@@ -61,7 +61,7 @@ subscribe(Node, Pid) ->
 unsubscribe() ->
     Nodes = get_all_nodes(),
     [unsubscribe(N) || N <- Nodes],
-    dynamic_sub(false).
+    disable_dynamic_sub().
 
 %% @doc Removes calling process from `Node' tracer's subscribers list.
 -spec unsubscribe(Node :: atom() | default_node) -> ok.
@@ -163,7 +163,8 @@ get_default_node() ->
     [{node, Node}] = lookup(node),
     Node.
 
-dynamic_sub(true) ->
-    epl_subs_manager:enable_dynamic_sub(self());
-dynamic_sub(false) ->
+enable_dynamic_sub() ->
+    epl_subs_manager:enable_dynamic_sub(self()).
+
+disable_dynamic_sub() ->
     epl_subs_manager:disable_dynamic_sub(self()).
