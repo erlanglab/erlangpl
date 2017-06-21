@@ -2,7 +2,7 @@ language: erlang
 sudo: false
 
 os: linux
-otp_release: 18.0
+otp_release: 19.2
 
 matrix:
   include:
