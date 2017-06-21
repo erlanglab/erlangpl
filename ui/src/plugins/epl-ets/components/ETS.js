@@ -6,14 +6,14 @@ import { Motion, spring } from 'react-motion';
 import { push } from 'react-router-redux';
 
 import 'vizceral-react/dist/vizceral.css';
-import './Traffic.css';
+import './ETS.css';
 
-import TrafficTools from './TrafficTools';
+import ETSTools from './ETSTools';
 import * as actions from '../actions';
 
-/* import sampleData from '../sample_data.json';*/
+// import sampleData from '../sample_data.json';
 
-class Traffic extends Component {
+class ETS extends Component {
   state: {
     start: number,
     end: number,
@@ -73,7 +73,7 @@ class Traffic extends Component {
       graph: graph !== null
     });
 
-    const path = `/traffic${view.length > 0 ? '/' : ''}${view.join('/')}`;
+    const path = `/ets${view.length > 0 ? '/' : ''}${view.join('/')}`;
     this.props.push(path);
   };
 
@@ -81,7 +81,7 @@ class Traffic extends Component {
     const sidePanelWidth = 30;
     return (
       <div className="Traffic">
-        <TrafficTools className="Traffic-tools" />
+        <ETSTools className="Traffic-tools" />
         <Motion
           defaultStyle={{ x: this.state.start, y: 1 }}
           style={{
@@ -109,40 +109,24 @@ class Traffic extends Component {
                       volume: {
                         default: {
                           top: {
-                            header: 'RPS',
-                            data: 'data.volumePercent',
-                            format: '0.0%'
+                            header: 'ETS Count',
+                            data: 'etsMetrics.all',
+                            format: '0'
                           },
                           bottom: {
-                            header: 'ERROR RATE',
-                            data: 'data.classPercents.danger',
+                            header: 'ETS memory usage',
+                            data: 'etsMetrics.memUsage',
                             format: '0.00%'
                           },
                           donut: {
-                            data: 'data.globalClassPercents',
-                            indices: [
-                              { key: 'danger' },
-                              { key: 'warning' },
-                              { key: 'normal', class: 'normalDonut' }
-                            ]
-                          },
-                          arc: {}
-                        },
-                        focused: {
-                          top: {
-                            header: 'RPS',
-                            data: 'data.volume',
-                            format: '0,0'
-                          },
-                          donut: {
-                            data: 'data.classPercents'
+                            data: 'etsMetrics.pieChart'
                           }
                         },
                         entry: {
                           top: {
-                            header: 'TOTAL RPS',
-                            data: 'data.volume',
-                            format: '0,0'
+                            header: 'ETS Count',
+                            data: 'etsMetrics.all',
+                            format: '0'
                           }
                         }
                       }
@@ -162,7 +146,7 @@ class Traffic extends Component {
                       <div className="bounce2" />
                       <div className="bounce3" />
                     </div>
-                    <span>Gathering cluster data</span>
+                    <span>Gathering ETS cluster data</span>
                   </div>
                 </div>
               </div>
@@ -193,14 +177,14 @@ class Traffic extends Component {
 export default connect(
   state => {
     return {
-      search: state.eplVizceral.search,
+      search: state.eplETS.search,
       nodeInfo: state.eplSupTree.nodeInfo,
-      data: state.eplVizceral.data,
-      view: state.eplVizceral.view
+      data: state.eplETS.data,
+      view: state.eplETS.view
     };
   },
   {
     push,
-    updateTrafficData: actions.updateTrafficData
+    updateETSData: actions.updateETSData
   }
-)(Traffic);
+)(ETS);
