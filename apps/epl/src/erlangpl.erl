@@ -11,14 +11,9 @@
 -export([main/1]).
 
 main(_) ->
-    ok = application:start(crypto),
-    ok = application:start(getopt),
-    ok = application:start(ranch),
-    ok = application:start(cowboy),
-    ok = application:start(jsone),
-    ok = application:start(epl),
-    ok = application:start(epl_st),
-    ok = application:start(epl_ets),
+    {ok, _} = application:ensure_all_started(epl),
+    {ok, _} = application:ensure_all_started(epl_st),
+    {ok, _} = application:ensure_all_started(epl_ets),
 
     %% Start applications because escript can't take -boot argument
     %% TODO: start sasl if escript run with debug flags

@@ -58,6 +58,9 @@ start(_StartType, _StartArgs) ->
     
     %% Start epl_tracer per node
     start_epl_tracers(),
+    
+    %% Start epl_subs_manager
+    {ok, _} = epl_sup:start_child(epl_subs_manager, [], worker),
 
     %% Start EPL Dashboard
     {ok, _} = epl_sup:start_child(epl_dashboard, [], worker),
@@ -94,7 +97,7 @@ run1() ->
             Args = filter_flags(NonOptArgs, []),
             Options ++ Args;
         {error, {Reason, Data}} ->
-            ?ERROR("~s ~p~n", [Reason, Data]),
+            ?CONSOLE("ERROR: ~s ~p~n", [Reason, Data]),
             help()
     end.
 

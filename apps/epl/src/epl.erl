@@ -46,6 +46,7 @@ lookup(Key) ->
 %% gen_server.
 -spec subscribe() -> [ok].
 subscribe() ->
+    enable_dynamic_sub(),
     Nodes = get_all_nodes(),
     [subscribe(N) || N <- Nodes].
 
@@ -65,6 +66,7 @@ subscribe(Node, Pid) ->
 %% @doc Removes calling process from every epl_tracers' subscribers list.
 -spec unsubscribe() -> [ok].
 unsubscribe() ->
+    disable_dynamic_sub(),
     Nodes = get_all_nodes(),
     [unsubscribe(N) || N <- Nodes].
 
@@ -164,3 +166,8 @@ log_prefix(error) -> "ERROR: ".
 get_all_nodes() ->
     erlang:nodes().
 
+enable_dynamic_sub() ->
+    epl_subs_manager:enable_dynamic_sub(self()).
+
+disable_dynamic_sub() ->
+    epl_subs_manager:disable_dynamic_sub(self()).
