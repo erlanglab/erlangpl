@@ -26,7 +26,7 @@ update msg ( logo, vsn ) =
 getTodos : Cmd Msg
 getTodos =
     Http.send RequestVersion <|
-        Http.get "http://localhost:8000/epl_version_EPL" <|
+        Http.get "http://localhost:37575/epl_version_EPL" <|
             Decode.field "version" Decode.string
 
 
