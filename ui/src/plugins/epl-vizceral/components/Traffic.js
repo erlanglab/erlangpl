@@ -5,7 +5,7 @@ import Vizceral from 'vizceral-react';
 import { Motion, spring } from 'react-motion';
 import { push } from 'react-router-redux';
 
-import 'vizceral-react/src/vizceral.css';
+import 'vizceral-react/dist/vizceral.css';
 import './Traffic.css';
 
 import TrafficTools from './TrafficTools';
@@ -88,7 +88,7 @@ class Traffic extends Component {
             x: spring(this.state.end),
             y: this.state.graph ? spring(0) : 1
           }}
-          children={({ x, y }) =>
+          children={({ x, y }) => (
             <div className="Traffic-container">
               <div
                 className="Traffic-panel"
@@ -182,7 +182,8 @@ class Traffic extends Component {
                   </code>
                 </pre>
               </div>
-            </div>}
+            </div>
+          )}
         />
       </div>
     );
