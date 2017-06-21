@@ -13,6 +13,9 @@
 %% Application callbacks
 -export([start/2, stop/1]).
 
+%% Consts
+-define(ERL_DISTR_TIMEOUT, 500).
+
 %% ===================================================================
 %% Application callbacks
 %% ===================================================================
@@ -452,5 +455,9 @@ maybe_start_elixir(Args) ->
     end.
 
 start_epl_tracers() ->
+    wait_for_erl_distr(),
     Nodes = erlang:nodes(),
     [epl_tracer_sup:start_child([N]) || N <- Nodes].
+
+wait_for_erl_distr() ->
+    timer:sleep(?ERL_DISTR_TIMEOUT).
