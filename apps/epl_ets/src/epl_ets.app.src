@@ -6,7 +6,8 @@
   {applications,
    [kernel,
     stdlib,
-    epl
+    epl,
+    cowboy
    ]},
   {env,[]},
   {modules, []},
