@@ -127,6 +127,7 @@
 }
 
 .Timeline .message .content {
+  width: calc(100% - 7ch);
   padding-left: 1ch;
   text-overflow: ellipsis;
   white-space: nowrap;

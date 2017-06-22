@@ -5,6 +5,7 @@ import Highlight from 'react-highlight';
 import { Link } from 'react-router-dom';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import List from 'react-virtualized/dist/commonjs/List';
+import ArrowKeyStepper from 'react-virtualized/dist/commonjs/ArrowKeyStepper';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
 
 import { send } from '../../../sockets';
@@ -29,28 +30,7 @@ class Component_ extends Component {
     };
   }
 
-  changeByArrows(e: any) {
-    const current = this.props.timelines.find(t => t.pid === this.props.pid);
-    const currentTimeline = current ? current.timeline : [];
-    if (e.which === 40 && this.props.msg < currentTimeline.length - 1) {
-      //down
-      e.preventDefault();
-      this.props.setCurrentMsg(this.props.msg + 1);
-    } else if (e.which === 38 && this.props.msg > 0) {
-      //up
-      e.preventDefault();
-      this.props.setCurrentMsg(this.props.msg - 1);
-    }
-  }
-
   componentDidMount() {
-    // $FlowFixMe
-    document.body.addEventListener(
-      'keydown',
-      this.changeByArrows.bind(this),
-      false
-    );
-
     const pid = this.props.match.params.pid;
     if (pid) return this.props.setCurrentPid(pid);
 
@@ -58,14 +38,7 @@ class Component_ extends Component {
       return this.props.setCurrentPid(this.props.timelines[0].pid);
   }
 
-  componentWillUnmount() {
-    // $FlowFixMe
-    document.body.removeEventListener(
-      'keydown',
-      this.changeByArrows.bind(this),
-      false
-    );
-  }
+  _selectCell = ({ scrollToRow }) => this.props.setCurrentMsg(scrollToRow);
 
   addPid(event: any) {
     if (event.which === 13) {
@@ -143,36 +116,50 @@ class Component_ extends Component {
               <ReflexContainer orientation="vertical">
 
                 <ReflexElement flex={0.25}>
-                  <div className="messages">
-                    <AutoSizer>
-                      {({ height, width }) =>
-                        <List
-                          scrollToIndex={this.props.msg}
-                          width={width}
-                          height={height}
-                          rowCount={currentTimeline.length}
-                          rowHeight={35}
-                          rowRenderer={({ index, key, style }) => {
-                            const t = currentTimeline[index];
-                            return (
-                              <div
-                                style={style}
-                                key={key}
-                                className={`message ${index === this.props.msg
-                                  ? 'active'
-                                  : ''}`}
-                                onClick={() => this.props.setCurrentMsg(index)}
-                              >
-                                <span className="content">{t.message}</span>
-                                <span className="index">
-                                  {index}
-                                </span>
-                              </div>
-                            );
-                          }}
-                        />}
-                    </AutoSizer>
-                  </div>
+                  <ArrowKeyStepper
+                    className="messages"
+                    columnCount={1}
+                    mode="cells"
+                    isControlled
+                    scrollToRow={this.props.msg}
+                    onScrollToChange={this._selectCell}
+                    rowCount={currentTimeline.length}
+                    children={({ onSectionRendered, scrollToRow }) =>
+                      <AutoSizer>
+                        {({ height, width }) =>
+                          <List
+                            onSectionRendered={onSectionRendered}
+                            scrollToIndex={scrollToRow}
+                            width={width}
+                            height={height}
+                            rowCount={currentTimeline.length}
+                            rowHeight={35}
+                            rowRenderer={({ index, key, style }) => {
+                              const { message } = currentTimeline[index];
+                              const className = `message ${index === scrollToRow
+                                ? 'active'
+                                : ''}`;
+
+                              return (
+                                <div
+                                  style={style}
+                                  key={key}
+                                  className={className}
+                                  onClick={() =>
+                                    this.props.setCurrentMsg(index)}
+                                >
+                                  <span className="content">
+                                    {message}
+                                  </span>
+                                  <span className="index">
+                                    {index}
+                                  </span>
+                                </div>
+                              );
+                            }}
+                          />}
+                      </AutoSizer>}
+                  />
                 </ReflexElement>
 
                 <ReflexSplitter />
