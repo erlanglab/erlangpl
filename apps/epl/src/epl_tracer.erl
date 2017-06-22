@@ -97,10 +97,10 @@ init(Node) ->
                                                    [{Pid, Timeline}]  -> Timeline
 
                                                end,
-                                 NewValue = {Msg, sys:get_state(Pid)},
                                  case Msg of
                                      {system, _,_} -> ok;
                                      _ ->
+                                         NewValue = {Msg, sys:get_state(Pid)},
                                          ets:delete(epl_timeline_cache, Pid),
                                          ets:insert(epl_timeline_cache, {Pid, [NewValue | TimelineOld]})
                                  end
