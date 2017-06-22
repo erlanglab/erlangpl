@@ -1,0 +1,16 @@
+{"1.1.0",
+[{<<"cowboy">>,{pkg,<<"cowboy">>,<<"1.1.2">>},0},
+ {<<"cowlib">>,{pkg,<<"cowlib">>,<<"1.0.2">>},1},
+ {<<"getopt">>,{pkg,<<"getopt">>,<<"0.8.2">>},0},
+ {<<"jsone">>,
+  {git,"git://github.com/erlanglab/jsone.git",
+       {ref,"dd2304fadac11eb317a43cd297d92a246216c26f"}},
+  0},
+ {<<"ranch">>,{pkg,<<"ranch">>,<<"1.3.2">>},1}]}.
+[
+{pkg_hash,[
+ {<<"cowboy">>, <<"61AC29EA970389A88ECA5A65601460162D370A70018AFE6F949A29DCA91F3BB0">>},
+ {<<"cowlib">>, <<"9D769A1D062C9C3AC753096F868CA121E2730B9A377DE23DEC0F7E08B1DF84EE">>},
+ {<<"getopt">>, <<"B17556DB683000BA50370B16C0619DF1337E7AF7ECBF7D64FBF8D1D6BCE3109B">>},
+ {<<"ranch">>, <<"E4965A144DC9FBE70E5C077C65E73C57165416A901BD02EA899CFD95AA890986">>}]}
+].
