@@ -37,11 +37,21 @@ start(_StartType, _StartArgs) ->
     %% Check if 'node' argument has been passed
     Node = run2(Args),
 
+    %% settings and static files are kept in epl_priv ets table
+    ets:insert(epl_priv, {node, Node}),
+
+    %% Start top supervisor
+    {ok, Pid} = epl_sup:start_link(),
+
+    %% Start epl_tracer supervisor
+    {ok, _} = epl_sup:start_child(epl_tracer_sup, [], supervisor),
+
+    %% Start epl_subs_manager
+    {ok, _} = epl_sup:start_child(epl_subs_manager, [], worker),
+
     %% Connect to remote node and get its OS pid
     NodeSettings = run3(Node, Args),
 
-    %% settings and static files are kept in epl_priv ets table
-    ets:insert(epl_priv, {node, Node}),
     ets:insert(epl_priv, {node_settings, NodeSettings}),
 
     %% Load priv files to ets
@@ -49,18 +59,6 @@ start(_StartType, _StartArgs) ->
 
     %% Try to start Elixir
     maybe_start_elixir(Args),
-
-    %% Start top supervisor
-    {ok, Pid} = epl_sup:start_link(),
-    
-    %% Start epl_tracer supervisor
-    {ok, _} = epl_sup:start_child(epl_tracer_sup, [], supervisor),
-    
-    %% Start epl_tracer per node
-    start_epl_tracers(),
-    
-    %% Start epl_subs_manager
-    {ok, _} = epl_sup:start_child(epl_subs_manager, [], worker),
 
     %% Start EPL Dashboard
     {ok, _} = epl_sup:start_child(epl_dashboard, [], worker),
@@ -456,11 +454,3 @@ maybe_start_elixir(Args) ->
         _ ->
             ?DEBUG("Couldn't start Elixir~n", [])
     end.
-
-start_epl_tracers() ->
-    wait_for_erl_distr(),
-    Nodes = erlang:nodes(),
-    [epl_tracer_sup:start_child([N]) || N <- Nodes].
-
-wait_for_erl_distr() ->
-    timer:sleep(?ERL_DISTR_TIMEOUT).
