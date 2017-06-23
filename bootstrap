@@ -9,7 +9,7 @@ main(_) ->
     Filename = "erlangpl",
     Files = get_files(),
 
-    case zip:create("mem", Files, [memory]) of
+    case zip:create("mem", Files, [memory, verbose]) of
         {ok, {"mem", ZipBin}} ->
             Shebang = "#!/usr/bin/env escript\n",
             EmuArgs = "%%! -setcookie erlangpl\n",
@@ -31,17 +31,17 @@ main(_) ->
 get_files() ->
     %% find all directories in apps/ and deps/
     %% each directory represents an erlang application
-    Apps = filelib:wildcard("{apps,deps}/*"),
+    Apps = filelib:wildcard("_build/default/lib/*"),
 
     %% read contents of all .app and .beam files
     %% as well as contents of priv/ directories
-    Fun = fun(Path, Acc) when Path == "apps/epl/ebin/erlangpl.beam" ->
+    Fun = fun(Path, Acc) when Path == "_build/default/lib/epl/ebin/erlangpl.beam" ->
                   %% escript requires us to put erlangpl.beam in top-level dir
                   [{"erlangpl.beam", file_contents(Path)} | Acc];
              (Path, Acc) ->
                   %% all other files will appear under application dir
                   %% e.g. {"epl/ebin/epl.app", "...<contents>..."}
-                  Filename = filename:join(tl(filename:split(Path))),
+                  ["_build", "default", "lib" | Filename] = filename:split(Path),
                   [{Filename, file_contents(Path)} | Acc]
           end,
 
