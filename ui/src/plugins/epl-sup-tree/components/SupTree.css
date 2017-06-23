@@ -1,26 +1,13 @@
-.SupTree {
+.SupTree .side-panel {
+  background-color: #21252b;
   width: 100%;
   height: 100%;
-}
-
-.SupTree .graph {
-  height: 100%;
-  width: 70%;
-  float: left;
-  overflow: hidden;
-}
-
-.SupTree .side-panel {
-  width: 30%;
-  border-left: 1px solid #21252b;
-  height: 100%;
-  float: right;
   box-sizing: border-box;
   overflow-x: hidden;
 }
 
 .SupTree .head {
-  border-bottom: 1px solid #21252b;
+  border-bottom: 1px solid #181a1f;
   height: 40px;
   padding: 10px 0;
 }
@@ -46,7 +33,7 @@
   border: none;
   border-radius: 0px;
   color: inherit;
-  background-color: #282c34;
+  background-color: #181a1f;
 }
 
 .SupTree ul {
@@ -55,7 +42,7 @@
 }
 
 .SupTree .application-link {
-  border: 1px solid #21252b;
+  border: 1px solid #181a1f;
   background-color: #333842;
   padding: 5px;
   font-size: 17px;
@@ -63,8 +50,7 @@
 
 .SupTree .application-link button {
   width: 50%;
-  background-color: #282c34;
-  border: 1px solid #21252b;
+  background-color: #181a1f;;
 }
 
 .SupTree a {
@@ -78,68 +64,8 @@
   width: 100%;
 }
 
-.SupTree .loader {
-  z-index: 1;
-  background-color: #282c34;
-  position: absolute;
-  left: 60px;
-  right: 0;
-  top: 0;
-  bottom: 30px;
-}
-
-.SupTree .loader > div {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
 .SupTree .node-info {
   width: 100%;
   overflow-y: scroll;
   height: calc(50%);
-}
-
-/* loader animation */
-
-.spinner {
-  margin: 0px auto 10px;
-  width: 70px;
-  text-align: center;
-}
-
-.spinner > div {
-  width: 18px;
-  height: 18px;
-  background-color: #9da5b4;
-  border-radius: 100%;
-  display: inline-block;
-  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-}
-
-.spinner .bounce1 {
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-
-.spinner .bounce2 {
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-
-@-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% { -webkit-transform: scale(0) }
-  40% { -webkit-transform: scale(1.0) }
-}
-
-@keyframes sk-bouncedelay {
-  0%, 80%, 100% {
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  } 40% {
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
-  }
 }

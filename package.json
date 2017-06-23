@@ -65,12 +65,14 @@
     "react-measure": "^1.4.5",
     "react-motion": "^0.4.7",
     "react-redux": "^5.0.2",
+    "react-reflex": "^2.0.0",
     "react-router-dom": "^4.0.0",
     "react-router-redux": "next",
+    "react-sigma": "^1.2.17",
     "react-virtualized": "^9.0.4",
     "recharts": "^0.21.2",
     "redux": "^3.6.0",
-    "vivagraphjs": "^0.8.2",
+    "styled-components": "^2.0.0",
     "vizceral-react": "4.4.0"
   },
   "scripts": {
