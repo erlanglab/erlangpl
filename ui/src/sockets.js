@@ -29,7 +29,7 @@ export const on = (
   };
 };
 
-export const onWithStore = (handler: mixed): ((store: any) => Socket) => {
+export const onWithStore = (handler: any): ((store: any) => Socket) => {
   return (store: mixed) => handler(store, on);
 };
 
