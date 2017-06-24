@@ -2,6 +2,7 @@
 
 import { combineReducers } from 'redux';
 
+import { clearState } from '../localStorage';
 import * as t from './actionTypes';
 
 export const INITIAL_STATE = 'disconnected';
@@ -27,7 +28,19 @@ const node = (state: string = '', action: any): string => {
   return state;
 };
 
+const timestamp = (state: number = 0, action: any): number => {
+  if (action.type === t.SET_TIMESTAMP) {
+    // NOTE: It's sideeffect in reducer. Not nice but not that harmful
+    if (action.timestamp !== state) {
+      clearState();
+    }
+    return action.timestamp;
+  }
+  return state;
+};
+
 export default combineReducers({
   connection,
-  node
+  node,
+  timestamp
 });

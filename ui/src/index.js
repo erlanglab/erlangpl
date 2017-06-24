@@ -31,7 +31,7 @@ createSockets(
       eplSupTree.sockets,
       eplVizceral.sockets,
       eplETS.sockets,
-      core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
+      ...core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
     ],
     store
   )
