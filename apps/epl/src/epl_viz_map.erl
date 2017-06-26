@@ -15,6 +15,8 @@
          pull_node/2,
          push_connection/5,
          push_additional_node_info/3,
+         push_focused/3,
+         push_focused/4,
          binarify/1,
          namify/1]).
 
@@ -101,6 +103,20 @@ push_connection(Source, Target, {N, W, D}, Additional, To) ->
                                     warning => W}
                       }),
     maps:merge(To, #{connections => [New | Connections]}).
+
+%% ---------------------- Focused ---------------------
+push_focused(Name, Region, Vizceral) ->
+    push_focused(Name, Region, #{} ,Vizceral).
+
+push_focused(Name, RegionName, Additional, Vizceral) ->
+    #{nodes := Nodes} = Vizceral,
+    {[Region], Rest} = lists:partition(
+                         fun(A) ->
+                                 maps:get(name, A) 
+                                     == epl_viz_map:namify(RegionName)
+                         end, Nodes),
+    NewRegion = epl_viz_map:push_node(focusedChild, Name, Additional, Region),
+    maps:merge(Vizceral, #{nodes => [NewRegion | Rest]}).
 
 %%----------------------- Names -----------------------
 %% @doc Transforms `Name' to binary.
