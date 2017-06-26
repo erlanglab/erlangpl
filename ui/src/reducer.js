@@ -9,6 +9,7 @@ import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
 import eplTimeline from './plugins/epl-timeline';
+import eplETS from './plugins/epl-ets';
 
 import plugins from './plugins';
 
@@ -26,6 +27,7 @@ const reducers = plugins.reduce((acc, plugin) => {
 export default combineReducers({
   core: core.reducer,
   eplVizceral: eplVizceral.reducer,
+  eplETS: eplETS.reducer,
   eplDashboard: eplDashboard.reducer,
   eplSupTree: eplSupTree.reducer,
   eplTimeline: eplTimeline.reducer,

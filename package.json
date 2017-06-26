@@ -1,6 +1,6 @@
 {
   "name": "erlangpl",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
   "devDependencies": {
     "autoprefixer": "6.7.2",
@@ -17,6 +17,7 @@
     "css-loader": "0.26.1",
     "detect-port": "1.0.1",
     "dotenv": "2.0.0",
+    "elm-format": "^0.6.1-alpha",
     "elm-webpack-loader": "^4.3.0",
     "eslint": "3.8.1",
     "eslint-config-react-app": "^0.5.1",
@@ -33,10 +34,13 @@
     "gzip-size": "3.0.0",
     "html-webpack-plugin": "2.24.0",
     "http-proxy-middleware": "0.17.3",
+    "husky": "^0.13.3",
     "jest": "18.1.0",
     "json-loader": "0.5.4",
+    "lint-staged": "^3.4.0",
     "object-assign": "4.1.1",
     "postcss-loader": "1.2.2",
+    "prettier": "^1.2.2",
     "promise": "7.1.1",
     "react-dev-utils": "^0.5.0",
     "recursive-readdir": "2.1.0",
@@ -74,6 +78,7 @@
   },
   "scripts": {
     "flow": "flow",
+    "precommit": "lint-staged",
     "coverage": "node ui/scripts/test.js --env=jsdom --coverage",
     "start": "node ui/scripts/start.js",
     "build": "node ui/scripts/build.js",
@@ -111,5 +116,15 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "plugins": []
+  "plugins": [],
+  "lint-staged": {
+    "*.js": [
+      "prettier --write --single-quote",
+      "git add"
+    ],
+    "*.elm": [
+      "elm-format --yes",
+      "git add"
+    ]
+  }
 }

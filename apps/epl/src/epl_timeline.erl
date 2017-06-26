@@ -52,7 +52,7 @@ handle_pid(Action, Pid) when is_binary(Pid) ->
 %%%===================================================================
 
 init([]) ->
-    ok = epl:subscribe(),
+    ok = epl:subscribe(default_node),
     {ok, #state{}}.
 
 handle_call(_Request, _From, State) ->

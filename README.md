@@ -9,7 +9,7 @@ The Erlang Performance Lab tool (erlangpl for short) can be started using escrip
 ### Download prebuilt script
 
 The easiest way to get started is to download a prebuilt `erlangpl` script
-([download link](https://github.com/erlanglab/erlangpl/releases/download/0.6.1/erlangpl.tar.gz)).
+([download link](https://github.com/erlanglab/erlangpl/releases/download/0.7.0/erlangpl.tar.gz)).
 
 ### Build it manually
 
@@ -26,10 +26,7 @@ download for the first time. Second time dependencies will be cached.
 ```
 $ git clone https://github.com/erlanglab/erlangpl.git
 $ cd erlangpl
-$ make rebar
-$ make ui
-$ make
-$ ./bootstrap
+$ make release
 ```
 
 ## Running erlangpl script
@@ -123,7 +120,7 @@ Now, application can be found at `localhost:3000` and will be listening for mess
 
 #### Writing Elm code
 
-Although `erlangpl-ui` is written in React we belive in Elm power. Because of that we support Elm in out build process.
+Although `erlangpl-ui` is written in React we belive in Elm's power. Because of that we support Elm in our build process.
 This is possible because of [react-elm-components](https://github.com/evancz/react-elm-components) and [elm-webpack](https://github.com/elm-community/elm-webpack-loader).
 
 You can write any separate component in Elm and then wrap it into React component which can be integrated with whole application. Elm code should be placed in `ui/src/elm` and every component whould have main file in this directory and all files related to this component in directory with the same name. React wrapper file should have the same name as Elm component and `flow` should be disabled for this file.

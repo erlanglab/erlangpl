@@ -47,7 +47,7 @@ unsubscribe() ->
 
 init([]) ->
     %% Subscribe to all events from the observed node
-    ok = epl:subscribe(),
+    ok = epl:subscribe(default_node),
 
     %% Initialise counters, so that later we can calculate deltas
     TrafficCounters = get_traffic_counters(),
@@ -68,7 +68,8 @@ handle_info({data, {Node, _Timestamp}, Proplist},
                            traffic = OldTraffic,
                            msg_pass = OldMsgPass}) ->
 
-    {Viz1, NewTraffic} = update_traffic_graph(Node, OldTraffic, new(Node)),
+    {Viz1, NewTraffic} = update_traffic_graph(Node, OldTraffic,
+                                              epl_viz_map:new(Node)),
 
 
     %% We're starting from observed node which is our graph entry point
@@ -166,11 +167,12 @@ update_traffic_graph(EntryNode, OldCounters, Vizceral) ->
 
     %% start creating a map, which represents the Vizceral JSON document
     %% region named <<"INTERNET">> represents the observed node
-    V1 = push_region(EntryNode, Vizceral),
+    V1 = epl_viz_map:push_region(EntryNode, Vizceral),
 
     %% add as many regions as there are nodes in the cluster
     V2 = lists:foldl(fun({Node,_,_}, V) ->
-                             push_region(binarify(Node), V)
+                             epl_viz_map:push_region(epl_viz_map:binarify(Node),
+                                                     V)
                      end, V1, NewCounters),
 
     %% add links between "INTERNET" and all nodes
@@ -178,7 +180,7 @@ update_traffic_graph(EntryNode, OldCounters, Vizceral) ->
     V3 = lists:foldl(
            fun({Node, NewIn, NewOut}, V) ->
                    {OldIn, OldOut} = get_in_out(Node, OldCounters),
-                   push_region_connection(EntryNode, binarify(Node),
+                   push_region_connection(EntryNode, epl_viz_map:binarify(Node),
                                           {NewOut-OldOut, NewIn-OldIn, 0},
                                           #{}, V)
            end, V2, NewCounters),
@@ -197,107 +199,30 @@ command(Fun) ->
     command(Fun, []).
 
 command(Fun, Args) ->
-    {ok, Result} = epl_tracer:command(Fun, Args),
+    {ok, Result} = epl:command(default_node, Fun, Args),
     Result.
 
 %%%===================================================================
 %%% functions manipulating Vizceral map
 %%%===================================================================
-new(EntryNode) ->
-    entity(global, "edge", [], #{connections => [], entryNode => EntryNode}).
-
-entity(Renderer, Name, Nodes, Additional) ->
-    Map = #{
-      renderer => Renderer,
-      name => namify(Name),
-      displayName => binarify(Name),
-      nodes => Nodes
-     },
-    maps:merge(Map, Additional).
-
-binarify(Name) when is_list(Name) ->
-    list_to_binary(Name);
-binarify(Name) when is_atom(Name) ->
-    atom_to_binary(Name, latin1);
-binarify(Name) when is_pid(Name) ->
-    list_to_binary(pid_to_list(Name));
-binarify(Name) when is_port(Name) ->
-    list_to_binary(erlang:port_to_list(Name));
-binarify(Name) when is_binary(Name) ->
-    Name.
-
-
-namify(Name) when is_binary(Name) ->
-    Name1 = binary:replace(binarify(Name), <<"@">>, <<"_at_">>),
-    Name2 = binary:replace(binarify(Name1), <<"<">>, <<"">>),
-    Name3 = binary:replace(binarify(Name2), <<">">>, <<"">>),
-    binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]);
-namify(Name) ->
-    namify(binarify(Name)).
-
-
-
-%% ---------------------- Regions ---------------------
-push_region(Name, Vizceral) ->
-    push_region(Name, #{}, Vizceral).
-
-push_region(Name, Additional, Vizceral) ->
-    %% We assume that INTERNET is entryNode for every region
-    %% Vizceral has backward compatibility and in region view INTERNET node is
-    %% default entryNode if other isn't specified
-    A = maps:merge(#{
-                      connections => [],
-                      maxVolume => 5000
-                    },
-                   Additional),
-    push_node(region, Name, A, Vizceral).
-
-pull_region(Name, Vizceral) ->
-    {Region, Newlist} = pull_node(Name, Vizceral),
-    {Region, maps:merge(Vizceral, #{nodes => Newlist})}.
-
-%% ---------------------- Nodes -----------------------
-push_node(Renderer, Name, Additional, Entity) ->
-    #{nodes := Nodes} = Entity,
-    Newnode = entity(Renderer, Name, [], Additional),
-    maps:merge(Entity, #{nodes => [Newnode | Nodes]}).
-
-pull_node(Name, Entity) ->
-    #{nodes := Nodes} = Entity,
-    {[Node], Rest} = lists:partition(
-                       fun(A) ->
-                               maps:get(name, A) == namify(Name)
-                       end, Nodes),
-    {Node, Rest}.
 
 %% ------------------- Connections --------------------
-push_connection(Source, Target, {N, W, D} , Additional, To) ->
-    #{connections := Connections} = To,
-    New = maps:merge(Additional,
-                     #{source => namify(Source),
-                       target => namify(Target),
-                       metrics => #{normal => N,
-                                    danger => D,
-                                    warning => W}
-                      }),
-  maps:merge(To, #{connections => [New | Connections]}).
-
 push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
     %% Will crash on nonexisting
-    pull_region(Source, Vizceral),
-    pull_region(Target, Vizceral),
+    epl_viz_map:pull_region(Source, Vizceral),
+    epl_viz_map:pull_region(Target, Vizceral),
     %% Outgoing traffic
-    Viz = push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
+    Viz = epl_viz_map:push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
     %% Incoming  traffic
-    push_connection(Target, Source, {W, 0, D}, Additional, Viz).
+    epl_viz_map:push_connection(Target, Source, {W, 0, D}, Additional, Viz).
 
 push_focused_connection(S, T, RN, NWD, Vizceral) ->
     push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
 
 push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
-    {Region, NewV} = pull_region(RegionName, Vizceral),
-    NewR = push_connection(Source, Target, {N,W,D}, A, Region),
-    push_region(RegionName, NewR, NewV).
+    {Region, NewV} = epl_viz_map:pull_region(RegionName, Vizceral),
+    NewR = epl_viz_map:push_connection(Source, Target, {N,W,D}, A, Region),
+    epl_viz_map:push_region(RegionName, NewR, NewV).
 
 %% ---------------------- Focused ---------------------
 push_focused(Name, Region, Vizceral) ->
@@ -307,7 +232,8 @@ push_focused(Name, RegionName, Additional, Vizceral) ->
     #{nodes := Nodes} = Vizceral,
     {[Region], Rest} = lists:partition(
                          fun(A) ->
-                                 maps:get(name, A) == namify(RegionName)
+                                 maps:get(name, A) 
+                                     == epl_viz_map:namify(RegionName)
                          end, Nodes),
-    NewRegion = push_node(focusedChild, Name, Additional, Region),
+    NewRegion = epl_viz_map:push_node(focusedChild, Name, Additional, Region),
     maps:merge(Vizceral, #{nodes => [NewRegion | Rest]}).

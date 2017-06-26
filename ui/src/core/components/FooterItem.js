@@ -17,11 +17,9 @@ const FooterItem = ({ title, item, popover, id }: Props) => {
         trigger={['hover']}
         placement="top"
         overlay={
-          (
-            <Popover id={id} title={title}>
-              {popover}
-            </Popover>
-          )
+          <Popover id={id} title={title}>
+            {popover}
+          </Popover>
         }
       >
         {item}

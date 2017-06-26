@@ -16,12 +16,13 @@ import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
 import eplTimeline from './plugins/epl-timeline';
+import eplETS from './plugins/epl-ets';
 
 import core from './core';
 import store, { history } from './store';
 
 /* register new handlers
-   every plugin should return array of handlers which will be passed to
+   every plugin should return handlers which will be passed to
    combineSockets in main application
  */
 createSockets(
@@ -31,7 +32,9 @@ createSockets(
       eplSupTree.sockets,
       eplVizceral.sockets,
       eplTimeline.sockets,
-      core.sockets /*, handlers from other plugins or other handlers from the same plugin*/
+      eplETS.sockets,
+      ...core.sockets
+      /* other handlers */
     ],
     store
   )

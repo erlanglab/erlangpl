@@ -129,12 +129,9 @@ class SystemOverview extends Component {
   }
 }
 
-export default connect(
-  state => {
-    return {
-      info: state.eplDashboard.systemInfo,
-      overview: state.eplDashboard.systemOverview
-    };
-  },
-  {}
-)(SystemOverview);
+export default connect(state => {
+  return {
+    info: state.eplDashboard.systemInfo,
+    overview: state.eplDashboard.systemOverview
+  };
+}, {})(SystemOverview);

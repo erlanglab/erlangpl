@@ -237,26 +237,23 @@ module.exports = {
     }),
 
     new CopyWebpackPlugin(
-      plugins.reduce(
-        (acc, plugin) => {
-          let tmp = [];
-          if (plugin.media)
-            tmp.push({
-              from: `${plugin.media}/`,
-              to: `${plugin.name}/`
-            });
+      plugins.reduce((acc, plugin) => {
+        let tmp = [];
+        if (plugin.media)
+          tmp.push({
+            from: `${plugin.media}/`,
+            to: `${plugin.name}/`
+          });
 
-          return acc.concat(
-            tmp.concat(
-              plugin.styles.concat(plugin.scripts).map(file => ({
-                from: file.dir,
-                to: `${plugin.name}/`
-              }))
-            )
-          );
-        },
-        []
-      ),
+        return acc.concat(
+          tmp.concat(
+            plugin.styles.concat(plugin.scripts).map(file => ({
+              from: file.dir,
+              to: `${plugin.name}/`
+            }))
+          )
+        );
+      }, []),
       { debug: 'info' }
     )
   ],

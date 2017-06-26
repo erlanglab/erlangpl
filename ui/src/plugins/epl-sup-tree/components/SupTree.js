@@ -43,8 +43,8 @@ class SupTree extends Component {
       renderer: null,
       events: null,
 
-      collapse: false,
-      height: [50, 50],
+      collapse: true,
+      height: [0, 50],
       selected: { id: 'Applications', color: 0, type: '' },
       appsNodes: [],
       apps: [],
@@ -263,7 +263,7 @@ class SupTree extends Component {
             </div>
           </div>}
 
-        <div className="graph" ref={node => this.div = node} />
+        <div className="graph" ref={node => (this.div = node)} />
         <div className="side-panel">
 
           <div className="head">

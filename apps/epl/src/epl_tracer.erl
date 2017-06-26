@@ -12,11 +12,9 @@
 
 %% API
 -export([start_link/1,
-         subscribe/0,
-         subscribe/1,
-         unsubscribe/0,
-         unsubscribe/1,
-         command/2,
+         subscribe/2,
+         unsubscribe/2,
+         command/3,
          trace_pid/1,
          track_timeline/1]).
 
@@ -38,26 +36,33 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
+
+%% @doc Starts epl_tracer gen_server process.
+-spec start_link(Node :: atom()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(Node) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, Node, []).
+    gen_server:start_link({local, Node}, ?MODULE, Node, []).
 
-subscribe() ->
-    subscribe(self()).
 
-subscribe(Pid) ->
-    gen_server:call(?MODULE, {subscribe, Pid}).
+%% @doc Adds provided `Pid' to `Node' tracer's subscribers list.
+-spec subscribe(Node :: atom(), Pid :: pid()) -> ok.
+subscribe(Node, Pid) ->
+    gen_server:call(Node, {subscribe, Pid}).
 
-unsubscribe() ->
-    unsubscribe(self()).
+%% @doc Removes provided `Pid' from `Node' tracer's subscribers list.
+-spec unsubscribe(Node :: atom(), Pid :: pid()) -> ok.
+unsubscribe(Node, Pid) ->
+    gen_server:call(Node, {unsubscribe, Pid}).
 
-unsubscribe(Pid) ->
-    gen_server:call(?MODULE, {unsubscribe, Pid}).
+%% @doc Runs provided `Fun' with `Args' on `Node'.
+-spec command(Node :: atom(), Fun :: fun(), Args :: list()) -> tuple().
+command(Node, Fun, Args) ->
+    gen_server:call(Node, {command, Fun, Args}).
 
-command(Fun, Args) ->
-    gen_server:call(?MODULE, {command, Fun, Args}).
-
+%% @doc Traces provied `Pid'.
+-spec trace_pid(Pid :: pid()) -> ok.
 trace_pid(Pid) ->
-    gen_server:call(?MODULE, {trace_pid, Pid}).
+    Node = erlang:node(Pid),
+    gen_server:call(Node, {trace_pid, Pid}).
 
 track_timeline(Pid) ->
     gen_server:cast(?MODULE, {track_timeline, Pid}).

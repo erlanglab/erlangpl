@@ -13,6 +13,9 @@
 %% Application callbacks
 -export([start/2, stop/1]).
 
+%% Consts
+-define(ERL_DISTR_TIMEOUT, 500).
+
 %% ===================================================================
 %% Application callbacks
 %% ===================================================================
@@ -34,12 +37,26 @@ start(_StartType, _StartArgs) ->
     %% Check if 'node' argument has been passed
     Node = run2(Args),
 
+    %% settings and static files are kept in epl_priv ets table
+    ets:insert(epl_priv, {node, Node}),
+
+    %% Start top supervisor
+    {ok, Pid} = epl_sup:start_link(),
+
+    %% Start epl_tracer supervisor
+    {ok, _} = epl_sup:start_child(epl_tracer_sup, [], supervisor),
+
+    %% Start epl_subs_manager
+    {ok, _} = epl_sup:start_child(epl_subs_manager, [], worker),
+
     %% Connect to remote node and get its OS pid
     NodeSettings = run3(Node, Args),
 
-    %% settings and static files are kept in epl_priv ets table
-    ets:insert(epl_priv, {node, Node}),
     ets:insert(epl_priv, {node_settings, NodeSettings}),
+
+    %% Store timestamp on when epl instance was started
+    %% Used for front-end caching
+    ets:insert(epl_priv, {started_at, get_timestamp()}),
 
     %% Load priv files to ets
     ok = run4(),
@@ -47,20 +64,14 @@ start(_StartType, _StartArgs) ->
     %% Try to start Elixir
     maybe_start_elixir(Args),
 
-    %% Start top supervisor
-    {ok, Pid} = epl_sup:start_link(),
-
-    %% Start EPL tracer on remote node
-    {ok, _} = epl_sup:start_child(epl_tracer, [Node]),
+    %% Start EPL Dashboard
+    {ok, _} = epl_sup:start_child(epl_dashboard, [], worker),
 
     %% Start EPL Dashboard
-    {ok, _} = epl_sup:start_child(epl_dashboard, []),
-
-    %% Start EPL Traffic
-    {ok, _} = epl_sup:start_child(epl_traffic, []),
+    {ok, _} = epl_sup:start_child(epl_traffic, [], worker),
 
     %% Start EPL Timeline
-    {ok, _} = epl_sup:start_child(epl_timeline, []),
+    {ok, _} = epl_sup:start_child(epl_timeline, [], worker),
 
     %% load plugins
     PluginApps = plugins(Args),
@@ -91,7 +102,7 @@ run1() ->
             Args = filter_flags(NonOptArgs, []),
             Options ++ Args;
         {error, {Reason, Data}} ->
-            ?ERROR("~s ~p~n", [Reason, Data]),
+            ?CONSOLE("ERROR: ~s ~p~n", [Reason, Data]),
             help()
     end.
 
@@ -109,7 +120,7 @@ run2(Args) ->
 run3(Node, Args) ->
     {ok, _Pid} = start_distributed(Args),
 
-    true = setcookie(Node, Args),
+    true = setcookie(Args),
 
     true = connect_node(Node),
 
@@ -361,18 +372,17 @@ start_distributed(Args) ->
             halt(1, [{flush, true}])
     end.
 
-setcookie(Node, Args) ->
+setcookie(Args) ->
     case proplists:lookup(cookie, Args) of
         none ->
             true;
         {cookie, Cookie} ->
-            erlang:set_cookie(Node, list_to_atom(Cookie))
+            erlang:set_cookie(erlang:node(), list_to_atom(Cookie))
     end.
 
 connect_node(Node) ->
     case net_kernel:connect_node(Node) of
         true ->
-            ok = net_kernel:allow([node()]),
             true;
         false ->
             ?ERROR("failed to connect to remote node ~p~n", [Node]),
@@ -451,3 +461,10 @@ maybe_start_elixir(Args) ->
         _ ->
             ?DEBUG("Couldn't start Elixir~n", [])
     end.
+
+
+%% Retuns current timestamp in milliseconds
+-spec get_timestamp() -> integer().
+get_timestamp() ->
+  {Mega, Sec, Micro} = os:timestamp(),
+  (Mega*1000000 + Sec)*1000 + round(Micro/1000).
