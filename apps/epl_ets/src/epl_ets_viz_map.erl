@@ -1,6 +1,6 @@
 %%%-------------------------------------------------------------------
 %% @doc epl_ets_viz_map module.
-%% This module provides API for building a Vizceral data structure which
+%% This module provides an APIs for manipulating a Vizceral data structure which
 %% makes it possible to visualise ETS charcteristics.
 %% @end
 %%%-------------------------------------------------------------------
