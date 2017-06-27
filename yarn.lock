@@ -845,7 +845,7 @@ babel-runtime@6.22.0:
     core-js "^2.4.0"
     regenerator-runtime "^0.10.0"
 
-babel-runtime@^6.11.6, babel-runtime@^6.18.0, babel-runtime@^6.20.0, babel-runtime@^6.22.0:
+babel-runtime@^6.11.6, babel-runtime@^6.18.0, babel-runtime@^6.20.0, babel-runtime@^6.22.0, babel-runtime@^6.23.0:
   version "6.23.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.23.0.tgz#0a9489f144de70efb3ce4300accdb329e2fc543b"
   dependencies:
@@ -2663,6 +2663,10 @@ he@1.1.x:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
+highlight.js@^9.6.0:
+  version "9.11.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.11.0.tgz#47f98c7399918700db2caf230ded12cec41a84ae"
+
 history@^4.5.1, history@^4.6.0:
   version "4.6.1"
   resolved "https://registry.yarnpkg.com/history/-/history-4.6.1.tgz#911cf8eb65728555a94f2b12780a0c531a14d2fd"
@@ -2816,6 +2820,10 @@ ieee754@^1.1.4:
 ignore@^3.1.5:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.2.7.tgz#4810ca5f1d8eca5595213a34b94f2eb4ed926bbd"
+
+immutable@^3.8.1:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.1.tgz#200807f11ab0f72710ea485542de088075f68cd2"
 
 imurmurhash@^0.1.4:
   version "0.1.4"
@@ -3667,6 +3675,10 @@ lodash.memoize@^4.1.2:
 lodash.pickby@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.pickby/-/lodash.pickby-4.6.0.tgz#7dea21d8c18d7703a27c704c15d3b84a67e33aff"
+
+lodash.throttle@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
 
 lodash.uniq@^4.5.0:
   version "4.5.0"
@@ -4699,11 +4711,18 @@ promise@7.1.1, promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.0.0, prop-types@^15.5.2, prop-types@^15.5.4, prop-types@~15.5.0:
+prop-types@^15.0.0, prop-types@^15.5.2, prop-types@~15.5.0:
   version "15.5.6"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.6.tgz#797a915b1714b645ebb7c5d6cc690346205bd2aa"
   dependencies:
     fbjs "^0.8.9"
+
+prop-types@^15.5.4, prop-types@^15.5.8:
+  version "15.5.10"
+  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
+  dependencies:
+    fbjs "^0.8.9"
+    loose-envify "^1.3.1"
 
 proxy-addr@~1.1.3:
   version "1.1.4"
@@ -4830,7 +4849,7 @@ react-dev-utils@^0.5.0:
     sockjs-client "1.0.1"
     strip-ansi "3.0.1"
 
-react-dom@^15.4.2:
+"react-dom@^0.14.0 || ^15.0.0", react-dom@^15.4.2:
   version "15.5.3"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.5.3.tgz#2ee127ce942df55da53111ae303316e68072b5c5"
   dependencies:
@@ -4843,11 +4862,27 @@ react-elm-components@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-elm-components/-/react-elm-components-1.0.1.tgz#19c7766b5c5ff4412867acc22dcf9f1d9eae9e3d"
 
+react-highlight@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/react-highlight/-/react-highlight-0.9.0.tgz#d5edee744ccb8689f7938794b6a1b554bb150eb7"
+  dependencies:
+    highlight.js "^9.6.0"
+    react "^0.14.0 || ^15.0.0"
+    react-dom "^0.14.0 || ^15.0.0"
+
 react-measure@^1.4.5:
   version "1.4.6"
   resolved "https://registry.yarnpkg.com/react-measure/-/react-measure-1.4.6.tgz#db3f91bf819922933cc9af34664d098d3242a955"
   dependencies:
     get-node-dimensions "^1.2.0"
+    resize-observer-polyfill "^1.4.1"
+
+react-measure@^1.4.7:
+  version "1.4.7"
+  resolved "https://registry.yarnpkg.com/react-measure/-/react-measure-1.4.7.tgz#a1d2ca0dcfef04978b7ac263a765dcb6a0936fdb"
+  dependencies:
+    get-node-dimensions "^1.2.0"
+    prop-types "^15.5.4"
     resize-observer-polyfill "^1.4.1"
 
 react-motion@^0.4.7:
@@ -4883,6 +4918,15 @@ react-redux@^5.0.2:
     lodash-es "^4.2.0"
     loose-envify "^1.1.0"
     prop-types "^15.0.0"
+
+react-reflex@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/react-reflex/-/react-reflex-2.0.2.tgz#3eb5d1a6421c8bf816039f156a24088cfc5c43fe"
+  dependencies:
+    babel-runtime "^6.23.0"
+    lodash.throttle "^4.1.1"
+    prop-types "^15.5.8"
+    react-measure "^1.4.7"
 
 react-resize-detector@0.3.3:
   version "0.3.3"
@@ -4920,9 +4964,9 @@ react-smooth@0.1.20:
     raf "^3.2.0"
     react-addons-transition-group "^0.14.0 || ^15.0.0"
 
-react-virtualized@^9.0.4:
-  version "9.7.2"
-  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.7.2.tgz#860d2438e3fa464e9d021ce2984d484c4d98a1ae"
+react-virtualized@^9.8.0:
+  version "9.8.0"
+  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.8.0.tgz#7c1fe9b723ce39a1c4916cabe1c4f1bda5dbc04b"
   dependencies:
     babel-runtime "^6.11.6"
     classnames "^2.2.3"
@@ -4930,7 +4974,7 @@ react-virtualized@^9.0.4:
     loose-envify "^1.3.0"
     prop-types "^15.5.4"
 
-react@^15.4.2:
+"react@^0.14.0 || ^15.0.0", react@^15.4.2:
   version "15.5.3"
   resolved "https://registry.yarnpkg.com/react/-/react-15.5.3.tgz#84055382c025dec4e3b902bb61a8697cc79c1258"
   dependencies:

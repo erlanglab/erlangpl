@@ -4,9 +4,12 @@
 }
 
 .Dashboard-navigation {
+  white-space: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden;
   background-color: #21252b;
   height: 42px;
-  width: 100%;
+  min-height: 42px;
   border-bottom: 1px solid #21252b !important;
 }
 
@@ -21,7 +24,7 @@
   border-color: transparent !important;
 }
 
-.Dashboard-active a {
+.Dashboard-active a, .Dashboard-active a:focus, .Dashboard-active a:active {
   background-color: #282c34 !important;
   border-left: 2px solid #8FBF47 !important;
   border-bottom-color: #282c34 !important;

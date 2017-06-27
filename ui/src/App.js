@@ -13,6 +13,7 @@ const { Navigation, Footer } = core.components;
 import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
+import eplTimeline from './plugins/epl-timeline';
 import eplETS from './plugins/epl-ets';
 
 import about from './about';
@@ -24,6 +25,7 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
     { path: '/dashboard', icon: 'television' },
     { path: '/sup-tree', icon: 'sitemap' },
     { path: '/traffic', icon: 'share-alt' },
+    { path: '/timeline', icon: 'repeat' },
     { path: '/ets', icon: 'table' },
     { path: '/about', icon: 'question' }
   ].concat(
@@ -61,14 +63,22 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
 
           <div className="App-container">
             <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
+
             <Route
               path="/dashboard/:subRoute*"
               component={eplDashboard.Dashboard}
             />
+
             <Route path="/sup-tree" component={eplSupTree.SupTree} />
+
             <Route path="/traffic/:view*" component={eplVizceral.Vizceral} />
+
+            <Route path="/timeline/:pid*" component={eplTimeline.Component} />
+
             <Route path="/ets/:view*" component={eplETS.ETS} />
+
             <Route path="/about" component={about.components.About} />
+
             {routes}
           </div>
           <Footer />

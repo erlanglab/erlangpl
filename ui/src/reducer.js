@@ -8,6 +8,7 @@ import core from './core';
 import eplDashboard from './plugins/epl-dashboard';
 import eplSupTree from './plugins/epl-sup-tree';
 import eplVizceral from './plugins/epl-vizceral';
+import eplTimeline from './plugins/epl-timeline';
 import eplETS from './plugins/epl-ets';
 
 import plugins from './plugins';
@@ -29,6 +30,7 @@ export default combineReducers({
   eplETS: eplETS.reducer,
   eplDashboard: eplDashboard.reducer,
   eplSupTree: eplSupTree.reducer,
+  eplTimeline: eplTimeline.reducer,
   ...reducers,
   routing: routerReducer
 });
