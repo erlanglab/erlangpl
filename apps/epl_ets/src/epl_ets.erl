@@ -13,7 +13,8 @@
          subscribe/0,
          subscribe/1,
          unsubscribe/0,
-         unsubscribe/1]).
+         unsubscribe/1,
+         switch_ets_analysis_mode/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -30,7 +31,8 @@
 %% gen_server state
 -record(state, {subscribers = [],
                 vizceral = #{},
-                nodes = #{}}).
+                nodes = #{},
+                ets_analysis_mode = mem_frag}).
 
 %%====================================================================
 %% API functions
@@ -63,6 +65,11 @@ unsubscribe() ->
 unsubscribe(Pid) ->
     gen_server:cast(?MODULE, {unsubscribe, Pid}).
 
+%% @doc Switch ets analysis mode. Different modes alnalyse different ETS related
+%% issues.
+switch_ets_analysis_mode(mem_frag) ->
+    gen_server:cast(?MODULE, {ets_analysis_mode, mem_frag}).
+
 %%====================================================================
 %% gen_server callbacks
 %%====================================================================
@@ -85,15 +92,19 @@ handle_cast({subscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
     NewSubs = lists:delete(Pid, Subs),
     NewState = State#state{subscribers = NewSubs},
+    {noreply, NewState};
+handle_cast({ets_analysis_mode, Mode}, State) ->
+    NewState = State#state{ets_analysis_mode = Mode},
     {noreply, NewState}.
 
 handle_info({data, {Node, _Timestamp}, _Proplist},
             State = #state{subscribers = Subs, vizceral = VizEntity,
-                          nodes = SubsNodes}) ->
+                          nodes = SubsNodes, ets_analysis_mode = Mode}) ->
     NewSubsNodes = register_node_activity(Node, SubsNodes),
     NewViz = epl_ets_viz_map:update_cluster(Node, VizEntity),
-    distribute_viz(NewViz, Subs),
-    NewState = State#state{vizceral = NewViz, nodes = NewSubsNodes},
+    NewViz2 = epl_ets_viz_map:update_node(Node, NewViz, Mode),
+    distribute_viz(NewViz2, Subs),
+    NewState = State#state{vizceral = NewViz2, nodes = NewSubsNodes},
     {noreply, NewState};
 handle_info(check_nodes_state, State = #state{vizceral = VizEntity,
                                                 nodes = SubsNodes}) ->

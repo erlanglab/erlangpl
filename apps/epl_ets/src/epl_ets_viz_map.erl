@@ -9,6 +9,7 @@
 
 %% API
 -export([update_cluster/2,
+         update_node/3,
          remove_outdated/2]).
 
 %%====================================================================
@@ -22,6 +23,12 @@ update_cluster(Node, Viz = #{nodes := VizNodes}) ->
     VizRegion = push_unique_region(Node, Viz, lists:member(Node, Nodes)),
     ETSBasicInfo = get_ets_basic_info(Node),
     epl_viz_map:push_additional_node_info(ETSBasicInfo, Node, VizRegion).
+
+%% @doc Updates  the Vizceral map's node section.
+-spec update_node(Node :: atom(), Viz :: map(), Mode :: atom()) -> map().
+update_node(Node, Viz, Mode) ->
+    VizCleaned = clean_ets_from_viz(Node, Viz),
+    push_ets_tables(Node, VizCleaned, Mode).
 
 %% @doc Removes outdated nodes from Vizceral map's cluster section.
 -spec remove_outdated(Nodes :: [#{atom() => integer()}], Viz :: map()) -> map().
@@ -84,3 +91,18 @@ extract_nodes_from_viz(Nodes) ->
                       Name = maps:get(displayName, N),
                       erlang:binary_to_atom(Name, latin1)
               end, Nodes).
+
+clean_ets_from_viz(Node, Viz) ->
+    {VizNode, NewViz = #{nodes := VizNodes}} = epl_viz_map:pull_region(Node, 
+                                                                       Viz),
+    VizNodeCleaned = maps:merge(VizNode, #{nodes => []}),
+    VizNodeCleaned2 = maps:merge(VizNodeCleaned, #{connections => []}),
+    maps:merge(NewViz, #{nodes => [VizNodeCleaned2 | VizNodes]}).
+
+push_ets_tables(Node, Viz, _Mode) ->
+    {ok, ETS} = epl:command(Node, fun ets:all/0, []),
+    lists:foldl(fun(N, V) -> push_ets_and_conn(N, Node, V) end, Viz, ETS).
+
+push_ets_and_conn(ETS, Node, Viz) ->
+    NewViz = epl_viz_map:push_focused(ETS, Node, Viz),
+    epl_viz_map:push_focused_connection(ETS, ETS, Node, {0, 0, 0}, NewViz).
