@@ -91,7 +91,7 @@ init(Node) ->
                  F(F, Ref, undefined);
             (F, Ref, Trace) ->
                  receive
-                     {trace_ts, Pid, 'receive', Msg, _TS} ->
+                     {trace_ts, Pid, 'receive', Msg, _TS} when Pid /= self() ->
                          %% we count received messages and their sizes
                          Size = erts_debug:flat_size(Msg),
                          case ets:lookup(epl_timeline_pids, Pid) of
@@ -117,7 +117,7 @@ init(Node) ->
                          end,
                          F(F, Ref, Trace);
                      {trace_ts, Pid1, send, _Msg, Pid2, _TS}
-                       when Pid1 < Pid2 ->
+                       when Pid1 < Pid2, Pid1 /= self(), Pid2 /= self() ->
                          %% we have one key for each Pid pair
                          %% the smaller Pid is first element of the key
                          case ets:lookup(epl_send, {Pid1, Pid2}) of
@@ -127,7 +127,7 @@ init(Node) ->
                          end,
                          F(F, Ref, Trace);
                      {trace_ts, Pid1, send, _Msg, Pid2, _TS}
-                       when Pid1 > Pid2 ->
+                       when Pid1 > Pid2, Pid1 /= self(), Pid2 /= self() ->
                          %% we have one key for each Pid pair
                          %% the smaller Pid is first element of the key
                          case ets:lookup(epl_send, {Pid2, Pid1}) of
