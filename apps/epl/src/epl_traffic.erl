@@ -130,12 +130,17 @@ get_cluster_traffic_counters(Nodes) ->
     %%          {type,normal},
     %%          {in,32},
     %%          {out,22}]}]}
-    lists:flatten(
+    DataFlowInfo = lists:flatten(
       lists:map(fun({NodeA, NeighboursInfo}) ->
                         [{{NodeA, NodeB}, NodeIn, NodeOut} ||
                             {NodeB, [_, _, _, _,{in,NodeIn}, {out,NodeOut}]}
                                 <- NeighboursInfo]
-                end, NodesInfo)).
+                end, NodesInfo)),
+    Self = node(),
+    lists:filter(fun({{NodeA, NodeB}, _, _})
+		       when NodeA =/= Self andalso NodeB =/= Self -> true;
+		    (_) -> false
+		 end, DataFlowInfo).
 
 terminate(_Reason, _State) ->
     ok.
