@@ -32,7 +32,6 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 subscribe() ->
-    io:fwrite("Subscribed timeline"),
     gen_server:cast(?MODULE, {subscribe, self()}).
 
 unsubscribe() ->
