@@ -19,6 +19,7 @@
          command/2,
          command/3,
          process_info/1,
+         make_fun_for_remote/2,
          trace_pid/1,
          to_bin/1,
          log/3,
@@ -97,6 +98,14 @@ command(default_node, Fun, Args) ->
     command(Node, Fun, Args);
 command(Node, Fun, Args) ->
     epl_tracer:command(Node, Fun, Args).
+
+%% @doc Compiles provided `FunStr' on remote `Node'.
+-spec make_fun_for_remote(Node :: atom(), FunStr :: binary()) -> {ok, fun()}.
+make_fun_for_remote(Node, FunStr) ->
+    {ok, Tokens, _} = erl_scan:string(FunStr),
+    {ok, [Form]} = erl_parse:parse_exprs(Tokens),
+    {value, RemoteFun, _} = rpc:call(Node, erl_eval, expr, [Form, []]),
+    {ok, RemoteFun}.
 
 %% @doc Gets information about process identified by provided `Pid'.
 -spec process_info(Pid :: pid()) -> tuple().

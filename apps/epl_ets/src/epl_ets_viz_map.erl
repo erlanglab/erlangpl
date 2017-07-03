@@ -12,6 +12,9 @@
          update_node/3,
          remove_outdated/2]).
 
+%% Consts
+-define(ETS_MEM_WARNING, 5).
+-define(ETS_MEM_DANGER, 5).
 %%====================================================================
 %% API functions
 %%====================================================================
@@ -21,14 +24,17 @@
 update_cluster(Node, Viz = #{nodes := VizNodes}) ->
     Nodes = extract_nodes_from_viz(VizNodes),
     VizRegion = push_unique_region(Node, Viz, lists:member(Node, Nodes)),
-    ETSBasicInfo = get_ets_basic_info(Node),
+    ETSBasicInfo = get_node_ets_basic_info(Node),
     epl_viz_map:push_additional_node_info(ETSBasicInfo, Node, VizRegion).
 
 %% @doc Updates  the Vizceral map's node section.
 -spec update_node(Node :: atom(), Viz :: map(), Mode :: atom()) -> map().
 update_node(Node, Viz, Mode) ->
     VizCleaned = clean_ets_from_viz(Node, Viz),
-    push_ets_tables(Node, VizCleaned, Mode).
+    ETSTabs = epl_ets_metric:get_node_ets_tabs(Node),
+    ETSTabsEndPoint = epl_ets_metric:get_ets_tabs_owner(Node, ETSTabs),
+    ETSTabsMetric = get_ets_metric(Node, ETSTabs, Mode),
+    push_ets_tables(Node, ETSTabs, ETSTabsEndPoint, ETSTabsMetric, VizCleaned).
 
 %% @doc Removes outdated nodes from Vizceral map's cluster section.
 -spec remove_outdated(Nodes :: [#{atom() => integer()}], Viz :: map()) -> map().
@@ -43,29 +49,19 @@ remove_outdated(Nodes, Viz) ->
 %% Internals
 %%====================================================================
 
-get_ets_basic_info(Node) ->
-    ETSCount = get_all_ets_count(Node),
-    ETSMemUsage = get_ets_mem_usage(Node),
-    ETSPieChart = get_ets_pie_chart(ETSMemUsage, 0, 0),
-    #{etsMetrics => 
-          #{all => ETSCount, memUsage => ETSMemUsage, pieChart => ETSPieChart}}.
+%% ETS cluster view --------------------------------------------------
+get_node_ets_basic_info(Node) ->
+    ETSCount = epl_ets_metric:get_node_ets_num(Node),
+    ETSMemUsage = epl_ets_metric:get_node_ets_mem(Node),
+    ETSPieChart = create_node_ets_pie_chart(ETSMemUsage, 0, 0),
+    create_node_ets_viz_metric_map(ETSCount, ETSMemUsage, ETSPieChart).
 
-get_all_ets_count(Node) ->
-    {ok, AllETS} = epl:command(Node, fun ets:all/0, []),
-    erlang:length(AllETS).
-
-get_ets_mem_usage(Node) ->
-    {ok, MemoryData} = epl:command(Node, fun erlang:memory/0, []),
-    MemoryPercent = proplists:get_value(ets, MemoryData) / 
-        proplists:get_value(total, MemoryData),
-    trunc_float(MemoryPercent, 4).
-
-get_ets_pie_chart(N, D, W) ->
+create_node_ets_pie_chart(N, D, W) ->
     #{normal => N, danger => D, warning => W}.
 
-trunc_float(Float, Pos) ->
-    List = erlang:float_to_list(Float, [{decimals, Pos}]),
-    erlang:list_to_float(List).
+create_node_ets_viz_metric_map(ETSCount, ETSMemUsage, ETSPieChart) ->
+    #{etsMetrics => 
+          #{all => ETSCount, memUsage => ETSMemUsage, pieChart => ETSPieChart}}.
 
 push_unique_region(Node, Viz, false) ->
     VizRegion = epl_viz_map:push_region(Node, Viz),
@@ -92,6 +88,7 @@ extract_nodes_from_viz(Nodes) ->
                       erlang:binary_to_atom(Name, latin1)
               end, Nodes).
 
+%% ETS node view ------------------------------------------------------
 clean_ets_from_viz(Node, Viz) ->
     {VizNode, NewViz = #{nodes := VizNodes}} = epl_viz_map:pull_region(Node, 
                                                                        Viz),
@@ -99,10 +96,44 @@ clean_ets_from_viz(Node, Viz) ->
     VizNodeCleaned2 = maps:merge(VizNodeCleaned, #{connections => []}),
     maps:merge(NewViz, #{nodes => [VizNodeCleaned2 | VizNodes]}).
 
-push_ets_tables(Node, Viz, _Mode) ->
-    {ok, ETS} = epl:command(Node, fun ets:all/0, []),
-    lists:foldl(fun(N, V) -> push_ets_and_conn(N, Node, V) end, Viz, ETS).
+get_ets_metric(Node, ETSTabs, memory) ->
+    Tabs = epl_ets_metric:get_ets_tabs_mem_sorted(Node, ETSTabs),
+    {Tabs2, Rest} = lists:split(?ETS_MEM_DANGER, Tabs),
+    {Tabs1, Tab0} = lists:split(?ETS_MEM_WARNING, Rest),
+    lists:merge([lists:map(fun(T) -> create_ets_mem_viz_metric(T, S) end, Tab)
+                   || {S, Tab} <- [{2, Tabs2}, {1, Tabs1}, {0, Tab0}]]).
 
-push_ets_and_conn(ETS, Node, Viz) ->
-    NewViz = epl_viz_map:push_focused(ETS, Node, Viz),
-    epl_viz_map:push_focused_connection(ETS, ETS, Node, {0, 0, 0}, NewViz).
+push_ets_tables(Node, Tabs, TabsEP, TabsMetric, Viz) ->
+    lists:foldl(fun(Tab, VizUpdated) -> push_ets_and_conn(Node, Tab, TabsEP,
+                                                    TabsMetric, VizUpdated) end,
+                Viz, Tabs).
+
+push_ets_and_conn(Node, Tab, TabsEP, TabsMetric, Viz) ->
+    TabEP = proplists:get_value(Tab, TabsEP),
+    NewViz = epl_viz_map:push_focused(TabEP, Node, Viz),
+    {TabClass, TabNotices} = proplists:get_value(Tab, TabsMetric),
+    TabMetricVizMap = create_ets_viz_metric_map(TabClass, [TabNotices]),
+    NewViz2 = epl_viz_map:push_focused(Tab, Node, TabMetricVizMap, NewViz),
+    epl_viz_map:push_focused_connection(Tab, TabEP, Node, {0, 0, 0},
+                                        NewViz2).
+
+create_ets_mem_viz_metric({Tab, Mem}, 2) ->
+    {Tab, {<<"danger">>, create_ets_mem_viz_notice(Mem, 2)}};
+create_ets_mem_viz_metric({Tab, Mem}, 1) ->
+    {Tab, {<<"warning">>, create_ets_mem_viz_notice(Mem, 1)}};
+create_ets_mem_viz_metric({Tab, Mem}, 0) ->
+    {Tab, {<<"normal">>, create_ets_mem_viz_notice(Mem, 0)}}.
+
+create_ets_mem_viz_notice(Mem, Severity) ->
+    MemBytes = erlang:system_info(wordsize) * Mem,
+    #{title => concat_binary(<<"Used memory in bytes: ">>, 
+                             erlang:integer_to_binary(MemBytes)),
+      severity => Severity}.
+
+%% Common functions ---------------------------------------------------
+concat_binary(A, B) ->
+    <<A/binary, B/binary>>.
+
+create_ets_viz_metric_map(Class, Notices) ->
+    #{class => Class, notices => Notices}.
+

@@ -32,7 +32,7 @@
 -record(state, {subscribers = [],
                 vizceral = #{},
                 nodes = #{},
-                ets_analysis_mode = mem_frag}).
+                ets_analysis_mode = memory}).
 
 %%====================================================================
 %% API functions

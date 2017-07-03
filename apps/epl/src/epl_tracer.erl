@@ -173,10 +173,7 @@ init(Node) ->
                  end
          end.",
 
-    {ok, Tokens, _} = erl_scan:string(RemoteFunStr),
-    {ok, [Form]} = erl_parse:parse_exprs(Tokens),
-    {value, RemoteFun, _} = rpc:call(Node, erl_eval, expr, [Form, []]),
-
+    {ok, RemoteFun} = epl:make_fun_for_remote(Node, RemoteFunStr),
     Ref = make_ref(),
     RemotePid = spawn_link(Node, erlang, apply, [RemoteFun,
                                                  [RemoteFun, Ref, init]]),
