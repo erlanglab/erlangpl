@@ -12,7 +12,8 @@
          get_node_ets_mem/1,
          get_node_ets_tabs/1,
          get_ets_tabs_owner/2,
-         get_ets_tabs_mem_sorted/2]).
+         get_ets_tabs_mem_sorted/2,
+         get_ets_tabs_size_sorted/2]).
 
 %%====================================================================
 %% API functions
@@ -39,6 +40,10 @@ get_ets_tabs_mem_sorted(Node, Tabs) ->
     Tabs2 = lists:map(fun(T) -> get_ets_mem(Node, T) end, Tabs),
     lists:sort(fun({_T1, M1}, {_T2, M2}) -> M1 > M2 end, Tabs2).
 
+get_ets_tabs_size_sorted(Node, Tabs) ->
+    Tabs2 = lists:map(fun(T) -> get_ets_size(Node, T) end, Tabs),
+    lists:sort(fun({_T1, S1}, {_T2, S2}) -> S1 > S2 end, Tabs2).
+
 %%====================================================================
 %% Internals
 %%====================================================================
@@ -46,6 +51,10 @@ get_ets_tabs_mem_sorted(Node, Tabs) ->
 get_ets_mem(Node, Tab) ->
     {ok, Mem}  = epl:command(Node, fun ets:info/2, [Tab, memory]),
     {Tab, Mem}.
+
+get_ets_size(Node, Tab) ->
+    {ok, Size}  = epl:command(Node, fun ets:info/2, [Tab, size]),
+    {Tab, Size}.
 
 get_ets_owner(Node, Tab) ->
     {ok, Owner}  = epl:command(Node, fun ets:info/2, [Tab, owner]),

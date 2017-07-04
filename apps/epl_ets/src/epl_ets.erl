@@ -32,7 +32,7 @@
 -record(state, {subscribers = [],
                 vizceral = #{},
                 nodes = #{},
-                ets_analysis_mode = memory}).
+                ets_analysis_mode = size}).%available modes: memory, size
 
 %%====================================================================
 %% API functions

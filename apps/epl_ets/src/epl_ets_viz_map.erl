@@ -13,8 +13,11 @@
          remove_outdated/2]).
 
 %% Consts
--define(ETS_MEM_WARNING, 5).
--define(ETS_MEM_DANGER, 5).
+-define(ETS_MEM_WARN, 5).
+-define(ETS_MEM_DANGER, ?ETS_MEM_WARN).
+-define(ETS_SIZE_WARN, ?ETS_MEM_WARN).
+-define(ETS_SIZE_DANGER, ?ETS_MEM_WARN).
+
 %%====================================================================
 %% API functions
 %%====================================================================
@@ -98,10 +101,18 @@ clean_ets_from_viz(Node, Viz) ->
 
 get_ets_metric(Node, ETSTabs, memory) ->
     Tabs = epl_ets_metric:get_ets_tabs_mem_sorted(Node, ETSTabs),
-    {Tabs2, Rest} = lists:split(?ETS_MEM_DANGER, Tabs),
-    {Tabs1, Tab0} = lists:split(?ETS_MEM_WARNING, Rest),
-    lists:merge([lists:map(fun(T) -> create_ets_mem_viz_metric(T, S) end, Tab)
-                   || {S, Tab} <- [{2, Tabs2}, {1, Tabs1}, {0, Tab0}]]).
+    TabsSplited = split_list_viz_severity(Tabs, ?ETS_MEM_DANGER, ?ETS_MEM_WARN),
+    NoticeFun = fun(Metric, Severity) -> create_ets_mem_viz_notice(Metric, 
+                                                                   Severity) end,
+    add_notice_and_merge(TabsSplited, NoticeFun);
+get_ets_metric(Node, ETSTabs, size) ->
+    Tabs = epl_ets_metric:get_ets_tabs_size_sorted(Node, ETSTabs),
+    TabsSplited = split_list_viz_severity(Tabs, ?ETS_SIZE_DANGER, 
+                                          ?ETS_SIZE_WARN),
+    NoticeFun = fun(Metric, Severity) -> create_ets_size_viz_notice(Metric,
+                                                                    Severity) end,
+    add_notice_and_merge(TabsSplited, NoticeFun).
+
 
 push_ets_tables(Node, Tabs, TabsEP, TabsMetric, Viz) ->
     lists:foldl(fun(Tab, VizUpdated) -> push_ets_and_conn(Node, Tab, TabsEP,
@@ -117,18 +128,32 @@ push_ets_and_conn(Node, Tab, TabsEP, TabsMetric, Viz) ->
     epl_viz_map:push_focused_connection(Tab, TabEP, Node, {0, 0, 0},
                                         NewViz2).
 
-create_ets_mem_viz_metric({Tab, Mem}, 2) ->
-    {Tab, {<<"danger">>, create_ets_mem_viz_notice(Mem, 2)}};
-create_ets_mem_viz_metric({Tab, Mem}, 1) ->
-    {Tab, {<<"warning">>, create_ets_mem_viz_notice(Mem, 1)}};
-create_ets_mem_viz_metric({Tab, Mem}, 0) ->
-    {Tab, {<<"normal">>, create_ets_mem_viz_notice(Mem, 0)}}.
+add_notice_and_merge(TabsSplited, NF) ->
+    lists:merge([lists:map(fun(T) -> create_ets_viz_metric(T, S, NF) end, Tab)
+                 || {S, Tab} <- TabsSplited]).
+
+create_ets_viz_metric({Tab, M}, 2, NF) ->
+    {Tab, {<<"danger">>, NF(M, 2)}};
+create_ets_viz_metric({Tab, M}, 1, NF) ->
+    {Tab, {<<"warning">>, NF(M, 1)}};
+create_ets_viz_metric({Tab, M}, 0, NF) ->
+    {Tab, {<<"normal">>, NF(M, 0)}}.
 
 create_ets_mem_viz_notice(Mem, Severity) ->
     MemBytes = erlang:system_info(wordsize) * Mem,
     #{title => concat_binary(<<"Used memory in bytes: ">>, 
                              erlang:integer_to_binary(MemBytes)),
       severity => Severity}.
+
+create_ets_size_viz_notice(Size, Severity) ->
+    #{title => concat_binary(<<"Number of elements is: ">>, 
+                             erlang:integer_to_binary(Size)),
+      severity => Severity}.
+
+split_list_viz_severity(List, S1Item, S2Item) ->
+    {List2, Rest} = lists:split(S1Item, List),
+    {List1, List0} = lists:split(S2Item, Rest),
+    [{2, List2}, {1, List1}, {0, List0}].
 
 %% Common functions ---------------------------------------------------
 concat_binary(A, B) ->
