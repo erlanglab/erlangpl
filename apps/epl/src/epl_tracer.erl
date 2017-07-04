@@ -65,7 +65,8 @@ trace_pid(Pid) ->
     gen_server:call(Node, {trace_pid, Pid}).
 
 track_timeline(Pid) ->
-    gen_server:cast(?MODULE, {track_timeline, Pid}).
+    Node = erlang:node(Pid),
+    gen_server:cast(Node, {track_timeline, Pid}).
 
 %%%===================================================================
 %%% gen_server callbacks
