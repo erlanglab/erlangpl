@@ -15,7 +15,9 @@
          subscribe/2,
          unsubscribe/2,
          command/3,
-         trace_pid/1]).
+         trace_pid/1,
+         enable_ets_call_tracing/1,
+         disable_ets_call_tracing/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -63,6 +65,12 @@ trace_pid(Pid) ->
     Node = erlang:node(Pid),
     gen_server:call(Node, {trace_pid, Pid}).
 
+enable_ets_call_tracing(Node) ->
+    gen_server:call(Node, enable_ets_call_tracing).
+
+disable_ets_call_tracing(Node) ->
+    gen_server:call(Node, disable_ets_call_tracing).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -77,6 +85,8 @@ init(Node) ->
                  epl_spawn     = ets:new(epl_spawn,     EtsOptions),
                  epl_exit      = ets:new(epl_exit,      EtsOptions),
                  epl_trace     = ets:new(epl_trace, [named_table,bag,private]),
+                 epl_ets_func  = ets:new(epl_ets_func,  [named_table, bag, 
+                                                         private]),
 
                  %% turn on tracer for all processes
                  TraceFlags = [send, 'receive', procs, timestamp],
@@ -126,6 +136,12 @@ init(Node) ->
                      {trace_ts, Pid, exit, Reason, TS} ->
                          ets:insert(epl_exit, {Pid, Reason, TS}),
                          F(F, Ref, Trace);
+                     {trace_ts, Pid, call, {ets, Type, [Tab | _]}, TS} ->
+                         ets:insert(epl_ets_func, {Pid, {Type, Tab}, TS}),
+                         F(F, Ref, Trace);
+                     {trace_ts, Pid, return_to, _, TS} ->
+                         ets:insert(epl_ets_func, {Pid, return_to, TS}),
+                         F(F, Ref, Trace);
                      %% ignore trace messages that we don't use
                      {trace_ts, Trace, send_to_non_existing_process,_,_,_}
                        = T ->
@@ -159,6 +175,14 @@ init(Node) ->
                          F(F, Ref, Trace);
                      {Ref, Pid, {trace_pid, NewTrace}} when is_pid(NewTrace) ->
                          F(F, Ref, NewTrace);
+                     {Ref, _Pid, enable_ets_call_tracing} ->
+                         erlang:trace(all, true, [call, return_to]),
+                         erlang:trace_pattern({ets, insert, 2}, true, [local]),
+                         F(F, Ref, Trace);
+                     {Ref, _Pid, disable_ets_call_tracing} ->
+                         erlang:trace(all, false, [call, return_to]),
+                         erlang:trace_pattern({ets, insert, 2}, false, [local]),
+                         F(F, Ref, Trace);
                      {Ref, Pid, List} when is_list(List) ->
                          %% received list of commands to execute
                          Proplist = [{Key, catch apply(Fun, Args)}
@@ -200,6 +224,14 @@ handle_call({command, Fun, Args}, _, State = #state{ref=Ref, remote_pid=RPid}) -
             NewState = State#state{timeout = State#state.timeout + 1},
             {reply, {error, timeout}, NewState, ?POLL}
     end;
+handle_call(enable_ets_call_tracing, _, State = #state{ref=Ref,
+                                                       remote_pid=RPid}) ->
+    RPid ! {Ref, self(), enable_ets_call_tracing},
+    {reply, ok, State, ?POLL};
+handle_call(disable_ets_call_tracing, _, State = #state{ref=Ref,
+                                                       remote_pid=RPid}) ->
+    RPid ! {Ref, self(), disable_ets_call_tracing},
+    {reply, ok, State, ?POLL};
 handle_call(Request, _From, _State) ->
     exit({not_implemented, Request}).
 
@@ -222,7 +254,9 @@ handle_info(timeout,
          {'receive',     fun ets:tab2list/1, [epl_receive]},
          {receive_,      fun ets:delete_all_objects/1, [epl_receive]},
          {trace,         fun ets:tab2list/1, [epl_trace]},
-         {trace_,        fun ets:delete_all_objects/1, [epl_trace]}
+         {trace_,        fun ets:delete_all_objects/1, [epl_trace]},
+         {ets_func,      fun ets:tab2list/1, [epl_ets_func]},
+         {ets_func_,     fun ets:delete_all_objects/1, [epl_ets_func]}
         ],
 
     RPid ! {Ref, self(), GetCountersList},
@@ -230,7 +264,8 @@ handle_info(timeout,
     receive
         {Ref, Proplist} when is_list(Proplist) ->
             %% assert all ets tables were cleared
-            EtsTables = [spawn_, exit_, send_, send_self_, receive_, trace_],
+            EtsTables = [spawn_, exit_, send_, send_self_, receive_, trace_,
+                         ets_func_],
             [{Key, true} = lists:keyfind(Key, 1, Proplist)
              || Key <- EtsTables],
 
