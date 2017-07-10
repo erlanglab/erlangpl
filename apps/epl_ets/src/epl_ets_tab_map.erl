@@ -33,13 +33,13 @@ get_ets_metric(Node, Proplist) ->
     [merge_metrics(Tab, [TabsInfo, TabsAccessTime]) || Tab <- Tabs].
 
 merge_metrics(Tab, Metrics) ->
-    TabMetric = lists:foldl(fun(Metric, Map) -> 
-                                    maps:merge(Map, get_metric_val(Tab, Metric))
-                            end, #{}, Metrics),
-    #{namify(Tab) => TabMetric}.
+    lists:foldl(fun(Metric, Map) ->
+                        maps:merge(Map, get_metric_val(Tab, Metric))
+                end, #{}, Metrics).
 
 get_metric_val(Tab, {Type, Metric}) ->
-    #{namify(Type) => proplists:get_value(Tab, Metric)}.
+    #{<<"name">> => namify(Tab),
+      namify(Type) => proplists:get_value(Tab, Metric)}.
 
 create_ets_tab_map(Node, ETSTabsMetric, Viz) ->
     NewNodeTabs = #{name => epl_viz_map:namify(Node), tabs => ETSTabsMetric},
