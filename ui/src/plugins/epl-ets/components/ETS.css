@@ -1,4 +1,5 @@
 :root, .vizceral {
+  overflow: hidden;
   --colorText: rgb(214, 214, 214);
   --colorTextDisabled: rgb(129, 129, 129);
   --colorNormal: rgb(186, 213, 237);
@@ -92,4 +93,3 @@
 .disabled {
   color: var(--colorTextDisabled);
 }
-
