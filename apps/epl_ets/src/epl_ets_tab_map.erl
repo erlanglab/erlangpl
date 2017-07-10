@@ -27,14 +27,15 @@ update_node_ets_tab(Node, Proplist, Viz) ->
 
 get_ets_metric(Node, Proplist) ->
     Tabs = epl_ets_metric:get_node_ets_tabs(Node),
-    TabsMem = epl_ets_metric:get_ets_tabs_mem(Node, Tabs),
-    TabsSize = epl_ets_metric:get_ets_tabs_size(Node, Tabs),
+    TabsInfo = epl_ets_metric:get_ets_tabs_info(Node, Tabs),
     ETSCallTrace = proplists:get_value(ets_func, Proplist),
     TabsAccessTime = epl_ets_metric:get_ets_access_time(ETSCallTrace),
-    [merge_metrics(Tab, [TabsMem, TabsSize, TabsAccessTime]) || Tab <- Tabs].
+    [merge_metrics(Tab, [TabsInfo, TabsAccessTime]) || Tab <- Tabs].
 
 merge_metrics(Tab, Metrics) ->
-    TabMetric = [get_metric_val(Tab, M) || M <- Metrics],
+    TabMetric = lists:foldl(fun(Metric, Map) -> 
+                                    maps:merge(Map, get_metric_val(Tab, Metric))
+                            end, #{}, Metrics),
     #{namify(Tab) => TabMetric}.
 
 get_metric_val(Tab, {Type, Metric}) ->

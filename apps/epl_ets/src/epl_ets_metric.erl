@@ -11,9 +11,7 @@
 -export([get_node_ets_num/1,
          get_node_ets_mem/1,
          get_node_ets_tabs/1,
-         get_ets_tabs_owner/2,
-         get_ets_tabs_mem/2,
-         get_ets_tabs_size/2,
+         get_ets_tabs_info/2,
          get_ets_access_time/1]).
 
 %%====================================================================
@@ -34,17 +32,9 @@ get_node_ets_tabs(Node) ->
     {ok, Tabs} = epl:command(Node, fun ets:all/0, []),
     Tabs.
 
-get_ets_tabs_owner(Node, Tabs) ->
-    TabsOwner = lists:map(fun(T) -> get_ets_owner(Node, T) end, Tabs),
-    {owner, TabsOwner}.
-
-get_ets_tabs_mem(Node, Tabs) ->
-    TabsMem = lists:map(fun(T) -> get_ets_mem(Node, T) end, Tabs),
-    {memory, TabsMem}.
-
-get_ets_tabs_size(Node, Tabs) ->
-    TabsSize = lists:map(fun(T) -> get_ets_size(Node, T) end, Tabs),
-    {size, TabsSize}.
+get_ets_tabs_info(Node, Tabs) ->
+    TabsInfo = lists:map(fun(T) -> get_ets_info(Node, T) end, Tabs),
+    {info, TabsInfo}.
 
 get_ets_access_time([]) ->
     {access_time, []};
@@ -57,17 +47,10 @@ get_ets_access_time(Traces) ->
 %% Internals
 %%====================================================================
 
-get_ets_mem(Node, Tab) ->
-    {ok, Mem}  = epl:command(Node, fun ets:info/2, [Tab, memory]),
-    {Tab, Mem}.
-
-get_ets_size(Node, Tab) ->
-    {ok, Size}  = epl:command(Node, fun ets:info/2, [Tab, size]),
-    {Tab, Size}.
-
-get_ets_owner(Node, Tab) ->
-    {ok, Owner}  = epl:command(Node, fun ets:info/2, [Tab, owner]),
-    {Tab, Owner}.
+get_ets_info(Node, Tab) ->
+    {ok, Info}  = epl:command(Node, fun ets:info/1, [Tab]),
+    InfoMap = proplist_to_map(Info),
+    {Tab, InfoMap}.
 
 transform_traces_by_pid(Traces) ->
     TracesByPid = split_traces_by_pid(Traces),
