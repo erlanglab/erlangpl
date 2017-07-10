@@ -136,11 +136,11 @@ init(Node) ->
                      {trace_ts, Pid, exit, Reason, TS} ->
                          ets:insert(epl_exit, {Pid, Reason, TS}),
                          F(F, Ref, Trace);
-                     {trace_ts, Pid, call, {ets, Type, [Tab | _]}, TS} ->
-                         ets:insert(epl_ets_func, {Pid, {Type, Tab}, TS}),
+                     {trace_ts, Pid, call, {ets, Func, [Tab | _]}, TS} ->
+                         ets:insert(epl_ets_func, {Pid, Tab, Func, TS}),
                          F(F, Ref, Trace);
                      {trace_ts, Pid, return_to, _, TS} ->
-                         ets:insert(epl_ets_func, {Pid, return_to, TS}),
+                         ets:insert(epl_ets_func, {Pid, null, return_to, TS}),
                          F(F, Ref, Trace);
                      %% ignore trace messages that we don't use
                      {trace_ts, Trace, send_to_non_existing_process,_,_,_}
@@ -178,10 +178,12 @@ init(Node) ->
                      {Ref, _Pid, enable_ets_call_tracing} ->
                          erlang:trace(all, true, [call, return_to]),
                          erlang:trace_pattern({ets, insert, 2}, true, [local]),
+                         erlang:trace_pattern({ets, lookup, 2}, true, [local]),
                          F(F, Ref, Trace);
                      {Ref, _Pid, disable_ets_call_tracing} ->
                          erlang:trace(all, false, [call, return_to]),
                          erlang:trace_pattern({ets, insert, 2}, false, [local]),
+                         erlang:trace_pattern({ets, lookup, 2}, false, [local]),
                          F(F, Ref, Trace);
                      {Ref, Pid, List} when is_list(List) ->
                          %% received list of commands to execute

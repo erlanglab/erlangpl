@@ -90,7 +90,6 @@ handle_cast({unsubscribe, Pid}, State = #state{subscribers = Subs}) ->
 handle_info({data, {Node, _Timestamp}, Proplist},
             State = #state{subscribers = Subs, vizceral = VizEntity,
                           nodes = SubsNodes}) ->
-    io:format("~p~n", [proplists:get_value(ets_func, Proplist)]),
     NewSubsNodes = register_node_activity(Node, SubsNodes),
     NewViz = epl_ets_viz_map:update_cluster(Node, VizEntity),
     NewViz2 = epl_ets_tab_map:update_node_ets_tab(Node, Proplist, NewViz),
