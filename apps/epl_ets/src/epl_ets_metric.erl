@@ -149,6 +149,12 @@ trunc_float(Float, Pos) ->
     List = erlang:float_to_list(Float, [{decimals, Pos}]),
     erlang:list_to_float(List).
 
+
+namify_val(Val) when is_integer(Val) or is_float(Val) ->
+    Val;
+namify_val(Val) ->
+    namify(Val).
+
 namify(Name) ->
     epl_viz_map:namify(Name).
 
@@ -159,5 +165,5 @@ stats_to_map(Stats) ->
     maps:put(namify(percentile), PercentileMap, StatsMap).
 
 proplist_to_map(Proplist) ->
-    lists:foldl(fun({Prop, Val}, Map) -> maps:put(namify(Prop), Val, Map) end, 
-                #{}, Proplist).
+    lists:foldl(fun({Prop, Val}, Map) -> maps:put(namify(Prop), namify_val(Val), 
+                                                  Map) end, #{}, Proplist).
