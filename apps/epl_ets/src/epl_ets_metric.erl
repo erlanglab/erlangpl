@@ -12,7 +12,7 @@
          get_node_ets_mem/1,
          get_node_ets_tabs/1,
          get_ets_tabs_info/2,
-         get_ets_access_time/1]).
+         get_ets_call_stats/1]).
 
 %%====================================================================
 %% API functions
@@ -36,12 +36,12 @@ get_ets_tabs_info(Node, Tabs) ->
     TabsInfo = lists:map(fun(T) -> get_ets_info(Node, T) end, Tabs),
     {info, TabsInfo}.
 
-get_ets_access_time([]) ->
-    {access_time, []};
-get_ets_access_time(Traces) ->
+get_ets_call_stats([]) ->
+    {call_stats, []};
+get_ets_call_stats(Traces) ->
     Traces2 = transform_traces_by_pid(Traces),
     Traces3 = transform_traces_by_tab(Traces2),
-    {access_time, calculate_tabs_statistics(Traces3)}.
+    {call_stats, calculate_tabs_statistics(Traces3)}.
 
 %%====================================================================
 %% Internals
@@ -72,7 +72,8 @@ calculate_tab_statistics({Tab, FuncStats}) ->
 calculate_tab_func_statistics({Func, TimeProbes}) ->
     StatsKey = [min, max, median, {percentile, [75, 90, 95, 99, 999]}],
     Stats = bear:get_statistics_subset(TimeProbes, StatsKey),
-    #{<<"func">> => namify(Func), <<"stats">> => stats_to_map(Stats)}.
+    #{<<"func">> => namify(Func), <<"time">> => stats_to_map(Stats), 
+      <<"count">> => erlang:length(TimeProbes)}.
 
 split_traces_by_tab(Traces) ->
     TracesUniqueTabs = lists:ukeysort(2, Traces),

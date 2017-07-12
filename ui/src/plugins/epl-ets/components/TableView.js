@@ -8,8 +8,8 @@ import 'react-virtualized/styles.css';
 const TableView = ({ table }) => {
   if (table.length < 1) return null;
   //const list = table[0].tabs.map(({ info, ...a }) => ({ ...a, ...info }));
-  const list = table[0].tabs.map(function({ info, access_time, ...a }) {
-    var access_time_lookup = {
+  const list = table[0].tabs.map(function({ info, call_stats, ...a }) {
+    var call_stats_lookup = {
       lookup_max: 0,
       lookup_min: 0,
       lookup_median: 0,
@@ -17,9 +17,10 @@ const TableView = ({ table }) => {
       lookup_percentile_90: 0,
       lookup_percentile_95: 0,
       lookup_percentile_99: 0,
-      lookup_percentile_999: 0
+      lookup_percentile_999: 0,
+      lookup_count: 0
     };
-    var access_time_insert = {
+    var call_stats_insert = {
       insert_max: 0,
       insert_min: 0,
       insert_median: 0,
@@ -27,54 +28,47 @@ const TableView = ({ table }) => {
       insert_percentile_90: 0,
       insert_percentile_95: 0,
       insert_percentile_99: 0,
-      insert_percentile_999: 0
+      insert_percentile_999: 0,
+      insert_count: 0
     };
-    if (access_time !== 'undefined') {
-      var Lookup = access_time.filter(function(obj) {
+    if (call_stats !== 'undefined') {
+      var Lookup = call_stats.filter(function(obj) {
         return obj.func === 'lookup';
       });
-      var Insert = access_time.filter(function(obj) {
+      var Insert = call_stats.filter(function(obj) {
         return obj.func === 'insert';
       });
-      console.log(Insert.length);
       if (Lookup.length !== 0) {
-        access_time_lookup.lookup_max = Lookup[0].stats.max;
-        access_time_lookup.lookup_min = Lookup[0].stats.min;
-        access_time_lookup.lookup_median = Lookup[0].stats.median;
-        access_time_lookup.lookup_percentile_75 =
-          Lookup[0].stats.percentile[75];
-        access_time_lookup.lookup_percentile_90 =
-          Lookup[0].stats.percentile[90];
-        access_time_lookup.lookup_percentile_95 =
-          Lookup[0].stats.percentile[95];
-        access_time_lookup.lookup_percentile_99 =
-          Lookup[0].stats.percentile[99];
-        access_time_lookup.lookup_percentile_999 =
-          Lookup[0].stats.percentile[999];
+        call_stats_lookup.lookup_max = Lookup[0].time.max;
+        call_stats_lookup.lookup_min = Lookup[0].time.min;
+        call_stats_lookup.lookup_median = Lookup[0].time.median;
+        call_stats_lookup.lookup_percentile_75 = Lookup[0].time.percentile[75];
+        call_stats_lookup.lookup_percentile_90 = Lookup[0].time.percentile[90];
+        call_stats_lookup.lookup_percentile_95 = Lookup[0].time.percentile[95];
+        call_stats_lookup.lookup_percentile_99 = Lookup[0].time.percentile[99];
+        call_stats_lookup.lookup_percentile_999 =
+          Lookup[0].time.percentile[999];
+        call_stats_lookup.lookup_count = Lookup[0].count;
       }
       if (Insert.length !== 0) {
-        access_time_insert.insert_max = Insert[0].stats.max;
-        access_time_insert.insert_min = Insert[0].stats.min;
-        access_time_insert.insert_median = Insert[0].stats.median;
-        access_time_insert.insert_percentile_75 =
-          Insert[0].stats.percentile[75];
-        access_time_insert.insert_percentile_90 =
-          Insert[0].stats.percentile[90];
-        access_time_insert.insert_percentile_95 =
-          Insert[0].stats.percentile[95];
-        access_time_insert.insert_percentile_99 =
-          Insert[0].stats.percentile[99];
-        access_time_insert.insert_percentile_999 =
-          Insert[0].stats.percentile[999];
+        call_stats_insert.insert_max = Insert[0].time.max;
+        call_stats_insert.insert_min = Insert[0].time.min;
+        call_stats_insert.insert_median = Insert[0].time.median;
+        call_stats_insert.insert_percentile_75 = Insert[0].time.percentile[75];
+        call_stats_insert.insert_percentile_90 = Insert[0].time.percentile[90];
+        call_stats_insert.insert_percentile_95 = Insert[0].time.percentile[95];
+        call_stats_insert.insert_percentile_99 = Insert[0].time.percentile[99];
+        call_stats_insert.insert_percentile_999 =
+          Insert[0].time.percentile[999];
+        call_stats_insert.insert_count = Insert[0].count;
       }
     }
-    var access_time_obj = {
-      ...access_time_insert,
-      ...access_time_lookup
+    var call_stats_obj = {
+      ...call_stats_insert,
+      ...call_stats_lookup
     };
-    return { ...a, ...info, ...access_time_obj };
+    return { ...a, ...info, ...call_stats_obj };
   });
-  console.log(list);
   const rowGetter = ({ index }) => list[index];
   return (
     <AutoSizer>
@@ -200,6 +194,12 @@ const TableView = ({ table }) => {
           />
           <Column
             width={100}
+            label="lookup count"
+            dataKey="lookup_count"
+            cellRenderer={({ cellData }) => cellData}
+          />
+          <Column
+            width={100}
             label="insert max time"
             dataKey="insert_max"
             cellRenderer={({ cellData }) => cellData}
@@ -244,6 +244,12 @@ const TableView = ({ table }) => {
             width={100}
             label="insert 999 percentile time"
             dataKey="insert_percentile_999"
+            cellRenderer={({ cellData }) => cellData}
+          />
+          <Column
+            width={100}
+            label="insert count"
+            dataKey="insert_count"
             cellRenderer={({ cellData }) => cellData}
           />
         </Table>

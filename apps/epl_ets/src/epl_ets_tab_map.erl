@@ -29,8 +29,8 @@ get_ets_metric(Node, Proplist) ->
     Tabs = epl_ets_metric:get_node_ets_tabs(Node),
     TabsInfo = epl_ets_metric:get_ets_tabs_info(Node, Tabs),
     ETSCallTrace = proplists:get_value(ets_func, Proplist),
-    TabsAccessTime = epl_ets_metric:get_ets_access_time(ETSCallTrace),
-    [merge_metrics(Tab, [TabsInfo, TabsAccessTime]) || Tab <- Tabs].
+    TabsCallStats = epl_ets_metric:get_ets_call_stats(ETSCallTrace),
+    [merge_metrics(Tab, [TabsInfo, TabsCallStats]) || Tab <- Tabs].
 
 merge_metrics(Tab, Metrics) ->
     lists:foldl(fun(Metric, Map) ->
