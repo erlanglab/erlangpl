@@ -10,24 +10,24 @@ const TableView = ({ table }) => {
   //const list = table[0].tabs.map(({ info, ...a }) => ({ ...a, ...info }));
   const list = table[0].tabs.map(function({ info, access_time, ...a }) {
     var access_time_lookup = {
-      lookup_max: 'undefined',
-      lookup_min: 'undefined',
-      lookup_median: 'undefined',
-      lookup_percentile_75: 'undefined',
-      lookup_percentile_90: 'undefined',
-      lookup_percentile_95: 'undefined',
-      lookup_percentile_99: 'undefined',
-      lookup_percentile_999: 'undefined'
+      lookup_max: 0,
+      lookup_min: 0,
+      lookup_median: 0,
+      lookup_percentile_75: 0,
+      lookup_percentile_90: 0,
+      lookup_percentile_95: 0,
+      lookup_percentile_99: 0,
+      lookup_percentile_999: 0
     };
     var access_time_insert = {
-      insert_max: 'undefined',
-      insert_min: 'undefined',
-      insert_median: 'undefined',
-      insert_percentile_75: 'undefined',
-      insert_percentile_90: 'undefined',
-      insert_percentile_95: 'undefined',
-      insert_percentile_99: 'undefined',
-      insert_percentile_999: 'undefined'
+      insert_max: 0,
+      insert_min: 0,
+      insert_median: 0,
+      insert_percentile_75: 0,
+      insert_percentile_90: 0,
+      insert_percentile_95: 0,
+      insert_percentile_99: 0,
+      insert_percentile_999: 0
     };
     if (access_time !== 'undefined') {
       var Lookup = access_time.filter(function(obj) {
