@@ -150,10 +150,10 @@ trunc_float(Float, Pos) ->
     erlang:list_to_float(List).
 
 
-namify_val(Val) when is_integer(Val) or is_float(Val) ->
-    Val;
+namify_val(Val) when is_atom(Val) ->
+    namify(Val);
 namify_val(Val) ->
-    namify(Val).
+    Val.
 
 namify(Name) ->
     epl_viz_map:namify(Name).
