@@ -31,7 +31,7 @@ const TableView = ({ table }) => {
       insert_percentile_999: 0,
       insert_count: 0
     };
-    if (call_stats !== 'undefined') {
+    if (call_stats !== 'undefined' && typeof call_stats !== 'undefined') {
       var Lookup = call_stats.filter(function(obj) {
         return obj.func === 'lookup';
       });
