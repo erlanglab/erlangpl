@@ -217,7 +217,7 @@ class TableView extends React.Component {
                     cellRenderer={({ cellData }) => cellData}
                   />
                 : null}
-              {this.is_selected('type ')
+              {this.is_selected('type')
                 ? <Column
                     width={100}
                     label="Type"
