@@ -17,7 +17,7 @@ class TableView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sortBy: 'index',
+      sortBy: '',
       sortDirection: SortDirection.ASC,
       selectLabel: 'Select columns to show',
       selectOptions: [
@@ -72,6 +72,26 @@ class TableView extends React.Component {
       return true;
     }
     return false;
+  }
+
+  propComparatorASC(prop) {
+    return function(a, b) {
+      return a[prop] - b[prop];
+    };
+  }
+
+  propComparatorDESC(prop) {
+    return function(a, b) {
+      return b[prop] - a[prop];
+    };
+  }
+
+  sort(listOfObjects) {
+    if (this.state.sortDirection === SortDirection.ASC) {
+      return listOfObjects.sort(this.propComparatorASC(this.state.sortBy));
+    } else {
+      return listOfObjects.sort(this.propComparatorDESC(this.state.sortBy));
+    }
   }
 
   render() {
@@ -149,7 +169,9 @@ class TableView extends React.Component {
       };
       return { ...a, ...info, ...call_stats_obj };
     });
-    const rowGetter = ({ index }) => list[index];
+
+    const listSorted = this.state.sortBy ? this.sort(list) : list;
+    const rowGetter = ({ index }) => listSorted[index];
     return (
       <AutoSizer>
         {({ width, height }) => (
@@ -174,7 +196,7 @@ class TableView extends React.Component {
               disableHeader={false}
               width={width}
               headerHeight={60}
-              height={height}
+              height={height - 215}
               rowHeight={30}
               rowGetter={rowGetter}
               rowCount={list.length}
@@ -197,7 +219,7 @@ class TableView extends React.Component {
                     label="Name"
                     cellRenderer={({ cellData }) => cellData}
                     dataKey="name"
-                    disableSort={false}
+                    disableSort={true}
                   />
                 : null}
               {this.is_selected('memory')
