@@ -52,7 +52,8 @@ create_node_ets_viz_metric_map(ETSCount, ETSMemUsage, ETSPieChart) ->
 
 push_unique_region(Node, Viz, false) ->
     VizRegion = epl_viz_map:push_region(Node, Viz),
-    push_fake_conn(Node, VizRegion);
+    VizRegion2 = push_fake_conn(Node, VizRegion),
+    epl_viz_map:push_focused(fake, Node, VizRegion2);
 push_unique_region(_Node, Viz, true) ->
     Viz.
 

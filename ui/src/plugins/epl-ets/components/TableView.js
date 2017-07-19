@@ -75,12 +75,12 @@ class TableView extends React.Component {
   }
 
   render() {
-    if (this.props.table.length < 1) return null;
-    const list = this.props.table[0].tabs.map(function({
-      info,
-      call_stats,
-      ...a
-    }) {
+    var TabData = this.props.table.tabs.filter(function(node) {
+      var NewName = this.split('.').join('_').replace('@', '_at_');
+      return node.name === NewName;
+    }, this.props.table.node);
+    if (TabData[0].length < 1) return null;
+    const list = TabData[0].tabs.map(function({ info, call_stats, ...a }) {
       var call_stats_lookup = {
         lookup_max: 0,
         lookup_min: 0,

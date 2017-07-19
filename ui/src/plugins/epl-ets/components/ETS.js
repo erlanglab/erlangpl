@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
 import { push } from 'react-router-redux';
+import { send } from '../../../sockets';
 
 import 'vizceral-react/dist/vizceral.css';
 import './ETS.css';
@@ -18,7 +19,10 @@ class ETS extends Component {
     end: number,
     height: number,
     width: number,
-    graph: boolean
+    graph: boolean,
+    showTab: boolean,
+    clickedNode: any,
+    vizStyle: object
   };
 
   vizceral: any;
@@ -30,7 +34,10 @@ class ETS extends Component {
       width: 0,
       start: 0,
       end: 0,
-      graph: false
+      graph: false,
+      showTab: false,
+      clickedNode: false,
+      vizStyle: {}
     };
   }
 
@@ -68,6 +75,24 @@ class ETS extends Component {
       anim = { end: 0, start: 1 };
     }
 
+    if (view.length === 1) {
+      send('epl_ets_EPL', view[0]);
+      this.setState({
+        clickedNode: view[0],
+        showTab: true,
+        vizStyle: { display: 'none' }
+      });
+    } else {
+      if (this.state.clickedNode) {
+        send('epl_ets_EPL', this.state.clickedNode);
+      }
+      this.setState({
+        clickedNode: false,
+        showTab: false,
+        vizStyle: {}
+      });
+    }
+
     this.setState({
       end: anim.end,
       start: anim.start,
@@ -85,49 +110,65 @@ class ETS extends Component {
         <PluginWrapper
           // NOTE: to hide side panel simply pass null/undefined or false
           // instead of component as sidePanel property
-          sidePanel={<TableView table={this.props.data.ets_node_tabs} />}
+          sidePanel={false}
           loading={false}
           className="Traffic-container"
           loaderText="Gathering ETS cluster data"
         >
-          <Vizceral
-            ref={node => (this.vizceral = node)}
-            traffic={this.props.data}
-            view={this.props.view}
-            viewChanged={this.handleViewChange}
-            showLabels={true}
-            match={this.props.search}
-            allowDraggingOfNodes={true}
-            targetFramerate={25}
-            definitions={{
-              detailedNode: {
-                volume: {
-                  default: {
-                    top: {
-                      header: 'ETS Count',
-                      data: 'etsMetrics.all',
-                      format: '0'
+          {this.state.showTab
+            ? <TableView
+                table={{
+                  tabs: this.props.data.ets_node_tabs,
+                  node: this.state.clickedNode
+                }}
+              />
+            : null}
+          <div
+            className="viz-wrapper"
+            style={{
+              ...{ height: '100%' },
+              ...this.state.vizStyle
+            }}
+          >
+            <Vizceral
+              ref={node => (this.vizceral = node)}
+              traffic={this.props.data}
+              view={this.props.view}
+              viewChanged={this.handleViewChange}
+              showLabels={true}
+              match={this.props.search}
+              allowDraggingOfNodes={true}
+              targetFramerate={25}
+              definitions={{
+                detailedNode: {
+                  volume: {
+                    default: {
+                      top: {
+                        header: 'ETS Count',
+                        data: 'etsMetrics.all',
+                        format: '0'
+                      },
+                      bottom: {
+                        header: 'ETS memory usage',
+                        data: 'etsMetrics.memUsage',
+                        format: '0.00%'
+                      },
+                      donut: {
+                        data: 'etsMetrics.pieChart'
+                      }
                     },
-                    bottom: {
-                      header: 'ETS memory usage',
-                      data: 'etsMetrics.memUsage',
-                      format: '0.00%'
-                    },
-                    donut: {
-                      data: 'etsMetrics.pieChart'
-                    }
-                  },
-                  entry: {
-                    top: {
-                      header: 'ETS Count',
-                      data: 'etsMetrics.all',
-                      format: '0'
+                    entry: {
+                      top: {
+                        header: 'ETS Count',
+                        data: 'etsMetrics.all',
+                        format: '0'
+                      }
                     }
                   }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </div>
         </PluginWrapper>
       </div>
     );

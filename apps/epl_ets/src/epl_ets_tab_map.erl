@@ -48,7 +48,7 @@ create_ets_tab_map(Node, ETSTabsMetric, Viz) ->
 
 pull_tab(Name, Entity, true) ->
     #{ets_node_tabs := NodeTabs} = Entity,
-    {[NodeTab], Rest} = lists:partition(
+    {NodeTab, Rest} = lists:partition(
                        fun(A) ->
                                maps:get(name, A) == namify(Name)
                        end, NodeTabs),
