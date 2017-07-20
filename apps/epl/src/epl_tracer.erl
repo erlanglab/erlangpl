@@ -65,9 +65,13 @@ trace_pid(Pid) ->
     Node = erlang:node(Pid),
     gen_server:call(Node, {trace_pid, Pid}).
 
+%% @doc Enables tracing for ets insert/lookup functions calls on the `Node'.
+-spec enable_ets_call_tracing(Node :: atom()) -> ok.
 enable_ets_call_tracing(Node) ->
     gen_server:call(Node, enable_ets_call_tracing).
 
+%% @doc Disables tracing for ets insert/lookup functions calls on the `Node'.
+-spec enable_ets_call_tracing(Node :: atom()) -> ok.
 disable_ets_call_tracing(Node) ->
     gen_server:call(Node, disable_ets_call_tracing).
 
@@ -85,8 +89,8 @@ init(Node) ->
                  epl_spawn     = ets:new(epl_spawn,     EtsOptions),
                  epl_exit      = ets:new(epl_exit,      EtsOptions),
                  epl_trace     = ets:new(epl_trace, [named_table,bag,private]),
-                 epl_ets_func  = ets:new(epl_ets_func,  [named_table, bag, 
-                                                         private]),
+                 epl_ets_func  = ets:new(epl_ets_func,  
+                                         [named_table, duplicate_bag, private]),
 
                  %% turn on tracer for all processes
                  TraceFlags = [send, 'receive', procs, timestamp],

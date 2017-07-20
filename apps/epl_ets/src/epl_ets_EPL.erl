@@ -34,7 +34,9 @@ websocket_handle({text, NodeBin}, Req,
     Node = erlang:binary_to_atom(NodeBin, latin1),
     NewTNodes = handleETSCallTracing(Node, TNodes, lists:member(Node, TNodes)),
     NewState = State#state{ets_call_traced_nodes = NewTNodes},
-    {ok, Req, NewState}.
+    {ok, Req, NewState};
+websocket_handle(Data, _Req, _State) ->
+    exit({not_implemented, Data}).
 
 websocket_info({data, Data}, Req, State) ->
     {reply, {text, Data}, Req, State};

@@ -92,7 +92,7 @@ handle_info({data, {Node, _Timestamp}, Proplist},
                           nodes = SubsNodes}) ->
     NewSubsNodes = register_node_activity(Node, SubsNodes),
     NewViz = epl_ets_viz_map:update_cluster(Node, VizEntity),
-    NewViz2 = epl_ets_tab_map:update_node_ets_tab(Node, Proplist, NewViz),
+    NewViz2 = epl_ets_tab_map:update_node(Node, Proplist, NewViz),
     distribute_viz(NewViz2, Subs),
     NewState = State#state{vizceral = NewViz2, nodes = NewSubsNodes},
     {noreply, NewState};

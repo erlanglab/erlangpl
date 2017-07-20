@@ -18,24 +18,36 @@
 %% API functions
 %%====================================================================
 
+%% @doc Calculates number of the ETS tables present on the `Node'.
+-spec get_node_ets_num(Node :: atom()) -> integer().
 get_node_ets_num(Node) ->
     {ok, AllETS} = epl:command(Node, fun ets:all/0, []),
     erlang:length(AllETS).
 
+%% @doc Calculates allocated memory usage for the ETS tables present on the 
+%% `Node'.
+-spec get_node_ets_mem(Node :: atom()) -> float().
 get_node_ets_mem(Node) ->
     {ok, MemoryData} = epl:command(Node, fun erlang:memory/0, []),
     MemoryPercent = proplists:get_value(ets, MemoryData) / 
         proplists:get_value(total, MemoryData),
     trunc_float(MemoryPercent, 4).
 
+%% @doc Gets names of the ETS tables present on the `Node'.
+-spec get_node_ets_tabs(Node :: atom()) -> [atom()].
 get_node_ets_tabs(Node) ->
     {ok, Tabs} = epl:command(Node, fun ets:all/0, []),
     Tabs.
 
+%% @doc Gets information about `Tabs' present on the `Node'.
+-spec get_ets_tabs_info(Node :: atom(), Tabs :: [atom()]) -> 
+    {info, [{atom(), map()}]}.
 get_ets_tabs_info(Node, Tabs) ->
     TabsInfo = lists:map(fun(T) -> get_ets_info(Node, T) end, Tabs),
     {info, TabsInfo}.
 
+%% @doc Calculates duration time statistics of ets insert/lookup functions calls. 
+-spec get_ets_call_stats([] | list()) -> {call_stats, [] | [{atom(), list()}]}.
 get_ets_call_stats([]) ->
     {call_stats, []};
 get_ets_call_stats(Traces) ->
@@ -149,7 +161,6 @@ merge_traces_pair([{Pid, T, F, TS1}, {_, _, _, TS2}]) ->
 trunc_float(Float, Pos) ->
     List = erlang:float_to_list(Float, [{decimals, Pos}]),
     erlang:list_to_float(List).
-
 
 namify_val(Val) when is_atom(Val) ->
     namify(Val);
