@@ -19,8 +19,7 @@ prop_splitted_by_pid() ->
 
 prop_splitted_same_len() ->
     ?FORALL(T, list_traces(),
-            length(lists:flatten(epl_ets_metric:split_traces_by_pid(T))) ==
-                length(T)).
+            length_deep(epl_ets_metric:split_traces_by_pid(T)) == length(T)).
 
 %%====================================================================
 %% Generators
@@ -36,6 +35,10 @@ trace_tuple(I, A1, A2, I2) ->
 %%====================================================================
 %% Helpers
 %%====================================================================
+
+length_deep(ListOfLists) ->
+    FlatList = lists:flatten(ListOfLists),
+    length(FlatList).
 
 first_to_pid({P, A1, A2, I}) ->
     {list_to_pid("<0." ++ integer_to_list(P) ++ ".0>"), A1, A2, I}.
