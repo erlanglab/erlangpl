@@ -71,7 +71,7 @@ enable_ets_call_tracing(Node) ->
     gen_server:call(Node, enable_ets_call_tracing).
 
 %% @doc Disables tracing for ets insert/lookup functions calls on the `Node'.
--spec enable_ets_call_tracing(Node :: atom()) -> ok.
+-spec disable_ets_call_tracing(Node :: atom()) -> ok.
 disable_ets_call_tracing(Node) ->
     gen_server:call(Node, disable_ets_call_tracing).
 
