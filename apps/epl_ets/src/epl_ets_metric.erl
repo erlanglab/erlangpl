@@ -15,7 +15,9 @@
          get_ets_call_stats/1]).
 
 %% Test
--export([split_traces_by_pid/1]).
+-export([split_traces_by_pid/1,
+         split_traces_by_tab/1,
+         split_traces_by_func/1]).
 
 %%====================================================================
 %% API functions
@@ -85,30 +87,23 @@ calculate_tab_statistics({Tab, FuncStats}) ->
     {Tab, [calculate_tab_func_statistics(FuncStat) || FuncStat <- FuncStats]}.
     
 calculate_tab_func_statistics({Func, TimeProbes}) ->
-    StatsKey = [min, max, median, {percentile, [75, 90, 95, 99, 999]}],
-    Stats = bear:get_statistics_subset(TimeProbes, StatsKey),
-    #{<<"func">> => namify(Func), <<"time">> => stats_to_map(Stats), 
+    #{<<"func">> => namify(Func), <<"max_time">> => max(TimeProbes), 
       <<"count">> => erlang:length(TimeProbes)}.
 
-split_traces_by_tab(Traces) ->
-    TracesUniqueTabs = lists:ukeysort(2, Traces),
-    Tabs = lists:map(fun({_, T, _, _}) -> T end, TracesUniqueTabs),
-    Splitted = [lists:partition(fun({_, T, _, _}) -> T =:= PT end, Traces) ||
-                   PT <- Tabs],
-    lists:map(fun({S, _NS}) -> S end, Splitted).
-
 split_traces_by_pid(Traces) ->
-    TracesUniquePids = lists:ukeysort(1, Traces),
-    Pids = lists:map(fun({Pid, _, _, _}) -> Pid end, TracesUniquePids),
-    Splitted = [lists:partition(fun({Pid, _, _, _}) -> Pid =:= PPid end, Traces) ||
-        PPid <- Pids],
-    lists:map(fun({S, _NS}) -> S end, Splitted).
+    split_traces_by(Traces, 1).
+
+split_traces_by_tab(Traces) ->
+    split_traces_by(Traces, 2).
 
 split_traces_by_func(Traces) ->
-    TracesUniqueFuncs = lists:ukeysort(3, Traces),
-    Funcs = lists:map(fun({_, _, Func, _}) -> Func end, TracesUniqueFuncs),
-    Splitted = [lists:partition(fun({_, _, Func, _}) -> Func =:= PFunc end, 
-                                Traces) || PFunc <- Funcs],
+    split_traces_by(Traces, 3).
+
+split_traces_by(Traces, ElemNum) ->
+    TracesUnique = lists:ukeysort(ElemNum, Traces),
+    KeysUnique = lists:map(fun(T) -> element(ElemNum, T) end, TracesUnique),
+    Splitted = [lists:partition(fun(T) -> element(ElemNum, T) =:= KU end, 
+                                Traces) || KU <- KeysUnique],
     lists:map(fun({S, _NS}) -> S end, Splitted).
 
 format_traces_TFT(TraceLists) ->
@@ -165,6 +160,11 @@ trunc_float(Float, Pos) ->
     List = erlang:float_to_list(Float, [{decimals, Pos}]),
     erlang:list_to_float(List).
 
+max([]) ->
+    0;
+max(List) ->
+    lists:max(List).
+
 namify_val(Val) when is_atom(Val) ->
     namify(Val);
 namify_val(Val) ->
@@ -172,12 +172,6 @@ namify_val(Val) ->
 
 namify(Name) ->
     epl_viz_map:namify(Name).
-
-stats_to_map(Stats) ->
-    StatsMap = proplist_to_map(Stats),
-    Percentile = proplists:get_value(percentile, Stats),
-    PercentileMap = proplist_to_map(Percentile),
-    maps:put(namify(percentile), PercentileMap, StatsMap).
 
 proplist_to_map(Proplist) ->
     lists:foldl(fun({Prop, Val}, Map) -> maps:put(namify(Prop), namify_val(Val), 
