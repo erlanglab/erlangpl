@@ -33,21 +33,7 @@ class TableView extends React.Component {
         { value: 'insert_count', label: 'insert count' },
         { value: 'owner', label: 'Owner' },
         { value: 'heir', label: 'Heir' },
-        { value: 'protection', label: 'Protection' },
-        { value: 'lookup_min', label: 'lookup min time' },
-        { value: 'lookup_median', label: 'lookup 50th time' },
-        { value: 'lookup_percentile_75', label: 'lookup 75th time' },
-        { value: 'lookup_percentile_90', label: 'lookup 90th time' },
-        { value: 'lookup_percentile_95', label: 'lookup 95th time' },
-        { value: 'lookup_percentile_99', label: 'lookup 99th time' },
-        { value: 'lookup_percentile_999', label: 'lookup 999th time' },
-        { value: 'insert_min', label: 'insert min time' },
-        { value: 'insert_median', label: 'insert 50th time' },
-        { value: 'insert_percentile_75', label: 'insert 75th time' },
-        { value: 'insert_percentile_90', label: 'insert 90th time' },
-        { value: 'insert_percentile_95', label: 'insert 95th time' },
-        { value: 'insert_percentile_99', label: 'insert 99th time' },
-        { value: 'insert_percentile_999', label: 'insert 999th time' }
+        { value: 'protection', label: 'Protection' }
       ],
       selectedOptions: [
         { value: 'name', label: 'Name' },
@@ -103,24 +89,10 @@ class TableView extends React.Component {
     const list = TabData[0].tabs.map(function({ info, call_stats, ...a }) {
       var call_stats_lookup = {
         lookup_max: 0,
-        lookup_min: 0,
-        lookup_median: 0,
-        lookup_percentile_75: 0,
-        lookup_percentile_90: 0,
-        lookup_percentile_95: 0,
-        lookup_percentile_99: 0,
-        lookup_percentile_999: 0,
         lookup_count: 0
       };
       var call_stats_insert = {
         insert_max: 0,
-        insert_min: 0,
-        insert_median: 0,
-        insert_percentile_75: 0,
-        insert_percentile_90: 0,
-        insert_percentile_95: 0,
-        insert_percentile_99: 0,
-        insert_percentile_999: 0,
         insert_count: 0
       };
       if (call_stats !== 'undefined' && typeof call_stats !== 'undefined') {
@@ -131,35 +103,11 @@ class TableView extends React.Component {
           return obj.func === 'insert';
         });
         if (Lookup.length !== 0) {
-          call_stats_lookup.lookup_max = Lookup[0].time.max;
-          call_stats_lookup.lookup_min = Lookup[0].time.min;
-          call_stats_lookup.lookup_median = Lookup[0].time.median;
-          call_stats_lookup.lookup_percentile_75 =
-            Lookup[0].time.percentile[75];
-          call_stats_lookup.lookup_percentile_90 =
-            Lookup[0].time.percentile[90];
-          call_stats_lookup.lookup_percentile_95 =
-            Lookup[0].time.percentile[95];
-          call_stats_lookup.lookup_percentile_99 =
-            Lookup[0].time.percentile[99];
-          call_stats_lookup.lookup_percentile_999 =
-            Lookup[0].time.percentile[999];
+          call_stats_lookup.lookup_max = Lookup[0].max_time;
           call_stats_lookup.lookup_count = Lookup[0].count;
         }
         if (Insert.length !== 0) {
-          call_stats_insert.insert_max = Insert[0].time.max;
-          call_stats_insert.insert_min = Insert[0].time.min;
-          call_stats_insert.insert_median = Insert[0].time.median;
-          call_stats_insert.insert_percentile_75 =
-            Insert[0].time.percentile[75];
-          call_stats_insert.insert_percentile_90 =
-            Insert[0].time.percentile[90];
-          call_stats_insert.insert_percentile_95 =
-            Insert[0].time.percentile[95];
-          call_stats_insert.insert_percentile_99 =
-            Insert[0].time.percentile[99];
-          call_stats_insert.insert_percentile_999 =
-            Insert[0].time.percentile[999];
+          call_stats_insert.insert_max = Insert[0].max_time;
           call_stats_insert.insert_count = Insert[0].count;
         }
       }
@@ -196,7 +144,7 @@ class TableView extends React.Component {
               disableHeader={false}
               width={width}
               headerHeight={60}
-              height={height - 215}
+              height={height - 160}
               rowHeight={30}
               rowGetter={rowGetter}
               rowCount={list.length}
@@ -322,118 +270,6 @@ class TableView extends React.Component {
                     label="Protection"
                     disableSort
                     dataKey="protection"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_min')
-                ? <Column
-                    width={100}
-                    label="lookup min time"
-                    dataKey="lookup_min"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_median')
-                ? <Column
-                    width={100}
-                    label="lookup median time"
-                    dataKey="lookup_median"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_percentile_75')
-                ? <Column
-                    width={100}
-                    label="lookup 75th percentile time"
-                    dataKey="lookup_percentile_75"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_percentile_90')
-                ? <Column
-                    width={100}
-                    label="lookup 90 percentile time"
-                    dataKey="lookup_percentile_90"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_percentile_95')
-                ? <Column
-                    width={100}
-                    label="lookup 95 percentile time"
-                    dataKey="lookup_percentile_95"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_percentile_99')
-                ? <Column
-                    width={100}
-                    label="lookup 99 percentile time"
-                    dataKey="lookup_percentile_99"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_percentile_999')
-                ? <Column
-                    width={100}
-                    label="lookup 999 percentile time"
-                    dataKey="lookup_percentile_999"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_min')
-                ? <Column
-                    width={100}
-                    label="insert min time"
-                    dataKey="insert_min"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_median')
-                ? <Column
-                    width={100}
-                    label="insert median time"
-                    dataKey="insert_median"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_percentile_75')
-                ? <Column
-                    width={100}
-                    label="insert 75th percentile time"
-                    dataKey="insert_percentile_75"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_percentile_90')
-                ? <Column
-                    width={100}
-                    label="insert 90 percentile time"
-                    dataKey="insert_percentile_90"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_percentile_95')
-                ? <Column
-                    width={100}
-                    label="insert 95 percentile time"
-                    dataKey="insert_percentile_95"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_percentile_99')
-                ? <Column
-                    width={100}
-                    label="insert 99 percentile time"
-                    dataKey="insert_percentile_99"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_percentile_999')
-                ? <Column
-                    width={100}
-                    label="insert 999 percentile time"
-                    dataKey="insert_percentile_999"
                     cellRenderer={({ cellData }) => cellData}
                   />
                 : null}
