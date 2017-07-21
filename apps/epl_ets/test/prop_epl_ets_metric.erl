@@ -9,6 +9,10 @@
 
 -include_lib("proper/include/proper.hrl").
 
+%%====================================================================
+%% Property tests
+%%====================================================================
+
 prop_splitted_by_pid() ->
     ?FORALL(T, list_traces(), 
             splitted_by_pid(epl_ets_metric:split_traces_by_pid(T))).
@@ -18,16 +22,23 @@ prop_splitted_same_len() ->
             length(lists:flatten(epl_ets_metric:split_traces_by_pid(T))) ==
                 length(T)).
 
-list_traces() ->
-    ?LET(T, list(tuple([integer(10000,99999),
-                        atom(),
-                        atom(),
-                        integer()])), first_to_pid(T)).
+%%====================================================================
+%% Generators
+%%====================================================================
 
-first_to_pid(L) ->
-    lists:map(fun({P, X, Y, Z}) -> 
-                      {erlang:list_to_pid("<0." ++ erlang:integer_to_list(P) ++ 
-                                              ".0>"), X, Y, Z} end, L).
+list_traces() ->
+    ?LET(T, list(trace_tuple(integer(10000,99999), atom(), atom(), integer())),
+         T).
+
+trace_tuple(I, A1, A2, I2) ->
+    ?LET(T, tuple([I, A1, A2, I2]), first_to_pid(T)).
+
+%%====================================================================
+%% Helpers
+%%====================================================================
+
+first_to_pid({P, A1, A2, I}) ->
+    {list_to_pid("<0." ++ integer_to_list(P) ++ ".0>"), A1, A2, I}.
 
 splitted_by_pid(ListOfLists) ->
     Result = [is_pid_same(List) || List <- ListOfLists],
