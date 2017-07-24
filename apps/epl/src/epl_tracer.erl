@@ -180,14 +180,14 @@ init(Node) ->
                      {Ref, Pid, {trace_pid, NewTrace}} when is_pid(NewTrace) ->
                          F(F, Ref, NewTrace);
                      {Ref, _Pid, enable_ets_call_tracing} ->
-                         erlang:trace(all, true, [call, return_to]),
+                         erlang:trace(all, true, [call, return_to, timestamp]),
                          erlang:trace_pattern({ets, insert, 2}, true, [local]),
                          erlang:trace_pattern({ets, lookup, 2}, true, [local]),
                          F(F, Ref, Trace);
                      {Ref, _Pid, disable_ets_call_tracing} ->
-                         erlang:trace(all, false, [call, return_to]),
                          erlang:trace_pattern({ets, insert, 2}, false, [local]),
                          erlang:trace_pattern({ets, lookup, 2}, false, [local]),
+                         erlang:trace(all, false, [call, return_to]),
                          F(F, Ref, Trace);
                      {Ref, Pid, List} when is_list(List) ->
                          %% received list of commands to execute
