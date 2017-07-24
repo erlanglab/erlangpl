@@ -36,6 +36,11 @@ prop_cleared_unpaired() ->
     ?FORALL(Traces, list(list_traces_maybe_unpaired()),
             cleared_unpaired(epl_ets_metric:clean_traces_unpaired(Traces))).
 
+prop_merged_pair() ->
+    ?FORALL(Traces, list_traces_ready_to_merge(),
+            length(epl_ets_metric:calculate_call_time(Traces)) =:=
+                length(Traces) div 2).
+
 %%====================================================================
 %% Generators
 %%====================================================================
@@ -48,8 +53,16 @@ list_traces_maybe_unpaired() ->
          {list_traces(), trace_tuple(), trace_tuple(), trace_tuple(),
           integer(0,3)}, maybe_add_traces_unpaired(Traces, T1, T2, T3, Variant)).
 
+list_traces_ready_to_merge() ->
+    ?LET(Traces, list(trace_tuple_ms()), ensure_traces_even(Traces,
+                                                         length(Traces) rem 2)).
+
 trace_tuple() ->
     ?LET(T, tuple([integer(10000, 99999), atom(), atom(), timestamp()]),
+         first_to_pid(T)).
+
+trace_tuple_ms() ->
+    ?LET(T, tuple([integer(10000, 99999), atom(), atom(), float(0, inf)]),
          first_to_pid(T)).
 
 timestamp() ->
@@ -115,3 +128,8 @@ are_traces_paired([{_, Func, Call, _} | Rest]) ->
             true;
        true -> false
     end.
+
+ensure_traces_even(Traces, 0) ->
+    Traces;
+ensure_traces_even([First | Rest], _) ->
+    Rest.

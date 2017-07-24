@@ -17,7 +17,8 @@
 %% Test
 -export([split_traces_by/2,
          sort_traces_by_ms/1,
-         clean_traces_unpaired/1]).
+         clean_traces_unpaired/1,
+         calculate_call_time/1]).
 
 %%====================================================================
 %% API functions
