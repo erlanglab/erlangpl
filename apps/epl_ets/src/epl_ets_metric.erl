@@ -15,9 +15,7 @@
          get_ets_call_stats/1]).
 
 %% Test
--export([split_traces_by_pid/1,
-         split_traces_by_tab/1,
-         split_traces_by_func/1]).
+-export([split_traces_by/2]).
 
 %%====================================================================
 %% API functions

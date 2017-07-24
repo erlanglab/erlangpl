@@ -13,29 +13,15 @@
 %% Property tests
 %%====================================================================
 
-prop_splitted_by_pid() ->
-    ?FORALL(T, list_traces(), 
-            splitted_by_pid(epl_ets_metric:split_traces_by_pid(T))).
+prop_splitted_by() ->
+    ?FORALL({Traces, ElemIndex}, {list_traces(), integer(1,3)},
+            splitted_by(epl_ets_metric:split_traces_by(Traces, ElemIndex),
+                        ElemIndex)).
 
-prop_splitted_by_tab() ->
-    ?FORALL(T, list_traces(),
-            splitted_by_tab(epl_ets_metric:split_traces_by_tab(T))).
-
-prop_splitted_by_func() ->
-    ?FORALL(T, list_traces(),
-            splitted_by_func(epl_ets_metric:split_traces_by_func(T))).
-
-prop_splitted_by_pid_same_len() ->
-    ?FORALL(T, list_traces(),
-            length_deep(epl_ets_metric:split_traces_by_pid(T)) == length(T)).
-
-prop_splitted_by_tab_same_len() ->
-    ?FORALL(T, list_traces(),
-            length_deep(epl_ets_metric:split_traces_by_tab(T)) == length(T)).
-
-prop_splitted_by_func_same_len() ->
-    ?FORALL(T, list_traces(),
-            length_deep(epl_ets_metric:split_traces_by_func(T)) == length(T)).
+prop_splitted_by_same_len() ->
+    ?FORALL({Traces, ElemIndex}, {list_traces(), integer(1,3)},
+            length_deep(epl_ets_metric:split_traces_by(Traces, ElemIndex)) ==
+                length(Traces)).
 
 %%====================================================================
 %% Generators
@@ -59,23 +45,10 @@ length_deep(ListOfLists) ->
 first_to_pid({P, A1, A2, I}) ->
     {list_to_pid("<0." ++ integer_to_list(P) ++ ".0>"), A1, A2, I}.
 
-splitted_by_pid(ListOfLists) ->
-    Result = [is_pid_same(List) || List <- ListOfLists],
+splitted_by(ListOfLists, ElemIndex) ->
+    Result = [is_elem_same(List, ElemIndex) || List <- ListOfLists],
     lists:all(fun(E) -> E end, Result).
 
-is_pid_same(List = [{Pid, _, _, _} | _]) ->
-    lists:all(fun({P, _, _, _}) -> P =:= Pid end, List).
-
-splitted_by_tab(ListOfLists) ->
-    Result = [is_tab_same(List) || List <- ListOfLists],
-    lists:all(fun(E) -> E end, Result).
-
-is_tab_same(List = [{_, Tab, _, _} | _]) ->
-    lists:all(fun({_, T, _, _}) -> T =:= Tab end, List).
-
-splitted_by_func(ListOfLists) ->
-    Result = [is_func_same(List) || List <- ListOfLists],
-    lists:all(fun(E) -> E end, Result).
-
-is_func_same(List = [{_, _, Func, _} | _]) ->
-    lists:all(fun({_, _, F, _}) -> F =:= Func end, List).
+is_elem_same(List = [First | _Rest], ElemIndex) ->
+    BaseElem = element(ElemIndex, First),
+    lists:all(fun(E) -> element(ElemIndex, E) =:= BaseElem end, List).
