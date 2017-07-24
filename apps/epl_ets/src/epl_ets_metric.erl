@@ -15,7 +15,9 @@
          get_ets_call_stats/1]).
 
 %% Test
--export([split_traces_by/2]).
+-export([split_traces_by/2,
+         sort_traces_by_ms/1,
+         clean_traces_unpaired/1]).
 
 %%====================================================================
 %% API functions
@@ -116,7 +118,7 @@ format_trace_TFT_by_func(Traces = [{_Pid, _Tab, Func, _T} | _]) ->
 
 clean_traces_unpaired(TraceLists) ->
     TL = [clean_first_trace(T) || T <- TraceLists],
-    TLCleared = [clean_last_trace(T2, lists:last(T2)) || T2 <- TL],
+    TLCleared = [clean_last_trace(T2, get_last_elem(T2)) || T2 <- TL],
     [lists:filter(fun(E) -> E =/= [] end, T3) || T3 <- TLCleared].
 
 clean_first_trace([{_Pid, null, return_to, _TS} | Traces]) ->
@@ -124,6 +126,8 @@ clean_first_trace([{_Pid, null, return_to, _TS} | Traces]) ->
 clean_first_trace(Traces) ->
     Traces.
 
+clean_last_trace(Traces, null) ->
+    Traces;
 clean_last_trace(Traces, {_Pid, null, return_to, _TS}) ->
     Traces;
 clean_last_trace(Traces, _LT) ->
@@ -162,6 +166,11 @@ max([]) ->
     0;
 max(List) ->
     lists:max(List).
+
+get_last_elem([]) ->
+    null;
+get_last_elem(L) ->
+    lists:last(L).
 
 namify_val(Val) when is_atom(Val) ->
     namify(Val);
