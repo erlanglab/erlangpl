@@ -118,7 +118,7 @@ class ETS extends Component {
           {this.state.showTab
             ? <TableView
                 table={{
-                  tabs: this.props.data.ets_node_tabs,
+                  tabs: this.props.data.etsNodeTabs,
                   node: this.state.clickedNode
                 }}
               />

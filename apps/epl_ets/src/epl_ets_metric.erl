@@ -55,11 +55,11 @@ get_ets_tabs_info(Node, Tabs) ->
 %% @doc Calculates duration time statistics of ets insert/lookup functions calls. 
 -spec get_ets_call_stats([] | list()) -> {call_stats, [] | [{atom(), list()}]}.
 get_ets_call_stats([]) ->
-    {call_stats, []};
+    {callStats, []};
 get_ets_call_stats(Traces) ->
     Traces2 = transform_traces_by_pid(Traces),
     Traces3 = transform_traces_by_tab(Traces2),
-    {call_stats, calculate_tabs_statistics(Traces3)}.
+    {callStats, calculate_tabs_statistics(Traces3)}.
 
 %%====================================================================
 %% Internals

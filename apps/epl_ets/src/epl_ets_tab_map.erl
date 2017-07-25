@@ -43,11 +43,11 @@ get_metric_val(Tab, {Type, Metric}) ->
 
 create_ets_tab_map(Node, ETSTabsMetric, Viz) ->
     NewNodeTabs = #{name => epl_viz_map:namify(Node), tabs => ETSTabsMetric},
-    {_, RestTabs} = pull_tab(Node, Viz, maps:is_key(ets_node_tabs, Viz)),
-    maps:merge(Viz, #{ets_node_tabs => [NewNodeTabs | RestTabs]}).
+    {_, RestTabs} = pull_tab(Node, Viz, maps:is_key(etsNodeTabs, Viz)),
+    maps:merge(Viz, #{etsNodeTabs => [NewNodeTabs | RestTabs]}).
 
 pull_tab(Name, Entity, true) ->
-    #{ets_node_tabs := NodeTabs} = Entity,
+    #{etsNodeTabs := NodeTabs} = Entity,
     {NodeTab, Rest} = lists:partition(
                        fun(A) ->
                                maps:get(name, A) == namify(Name)

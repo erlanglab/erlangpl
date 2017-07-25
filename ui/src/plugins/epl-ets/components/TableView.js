@@ -81,41 +81,41 @@ class TableView extends React.Component {
   }
 
   render() {
-    var TabData = this.props.table.tabs.filter(function(node) {
-      var NewName = this.split('.').join('_').replace('@', '_at_');
-      return node.name === NewName;
+    var tabData = this.props.table.tabs.filter(function(node) {
+      var newName = this.split('.').join('_').replace('@', '_at_');
+      return node.name === newName;
     }, this.props.table.node);
-    if (TabData[0].length < 1) return null;
-    const list = TabData[0].tabs.map(function({ info, call_stats, ...a }) {
-      var call_stats_lookup = {
-        lookup_max: 0,
-        lookup_count: 0
+    if (tabData[0].length < 1) return null;
+    const list = tabData[0].tabs.map(function({ info, callStats, ...a }) {
+      var callStatsLookup = {
+        lookupMax: 0,
+        lookupCount: 0
       };
-      var call_stats_insert = {
-        insert_max: 0,
-        insert_count: 0
+      var callStatsInsert = {
+        insertMax: 0,
+        insertCount: 0
       };
-      if (call_stats !== 'undefined' && typeof call_stats !== 'undefined') {
-        var Lookup = call_stats.filter(function(obj) {
+      if (callStats !== 'undefined' && typeof callStats !== 'undefined') {
+        var lookup = callStats.filter(function(obj) {
           return obj.func === 'lookup';
         });
-        var Insert = call_stats.filter(function(obj) {
+        var insert = callStats.filter(function(obj) {
           return obj.func === 'insert';
         });
-        if (Lookup.length !== 0) {
-          call_stats_lookup.lookup_max = Lookup[0].max_time;
-          call_stats_lookup.lookup_count = Lookup[0].count;
+        if (lookup.length !== 0) {
+          callStatsLookup.lookupMax = lookup[0].max_time;
+          callStatsLookup.lookupCount = lookup[0].count;
         }
-        if (Insert.length !== 0) {
-          call_stats_insert.insert_max = Insert[0].max_time;
-          call_stats_insert.insert_count = Insert[0].count;
+        if (insert.length !== 0) {
+          callStatsInsert.insertMax = insert[0].max_time;
+          callStatsInsert.insertCount = insert[0].count;
         }
       }
-      var call_stats_obj = {
-        ...call_stats_insert,
-        ...call_stats_lookup
+      var callStatsObj = {
+        ...callStatsInsert,
+        ...callStatsLookup
       };
-      return { ...a, ...info, ...call_stats_obj };
+      return { ...a, ...info, ...callStatsObj };
     });
 
     const listSorted = this.state.sortBy ? this.sort(list) : list;
@@ -218,7 +218,7 @@ class TableView extends React.Component {
                 ? <Column
                     width={100}
                     label="lookup max time"
-                    dataKey="lookup_max"
+                    dataKey="lookupMax"
                     cellRenderer={({ cellData }) => cellData}
                   />
                 : null}
@@ -226,7 +226,7 @@ class TableView extends React.Component {
                 ? <Column
                     width={100}
                     label="lookup count"
-                    dataKey="lookup_count"
+                    dataKey="lookupCount"
                     cellRenderer={({ cellData }) => cellData}
                   />
                 : null}
@@ -234,7 +234,7 @@ class TableView extends React.Component {
                 ? <Column
                     width={100}
                     label="insert max time"
-                    dataKey="insert_max"
+                    dataKey="insertMax"
                     cellRenderer={({ cellData }) => cellData}
                   />
                 : null}
@@ -242,7 +242,7 @@ class TableView extends React.Component {
                 ? <Column
                     width={100}
                     label="insert count"
-                    dataKey="insert_count"
+                    dataKey="insertCount"
                     cellRenderer={({ cellData }) => cellData}
                   />
                 : null}
