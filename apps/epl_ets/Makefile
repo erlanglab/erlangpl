@@ -1,4 +1,4 @@
-.PHONY: proper clean
+.PHONY: prop propclean
 
 prop:
 	rebar3 as test proper

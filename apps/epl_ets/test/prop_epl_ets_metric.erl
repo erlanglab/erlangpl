@@ -102,8 +102,8 @@ maybe_add_traces_unpaired(Traces, T1, T2, {Pid, _, _, TS}, Variant) ->
         1 -> add_unpaired_trace_as_first(T1, TracesProperLast);
         2 -> add_unpaired_trace_as_last(T2, TracesProperLast);
         3 ->
-            add_unpaired_trace_as_first(T1, TracesProperLast),
-            add_unpaired_trace_as_last(T2, TracesProperLast)
+            Traces2 = add_unpaired_trace_as_first(T1, TracesProperLast),
+            add_unpaired_trace_as_last(T2, Traces2)
     end.
 
 add_unpaired_trace_as_first({Pid, _, _, TS}, Traces) ->

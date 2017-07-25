@@ -79,7 +79,7 @@ transform_traces_by_pid(Traces) ->
 
 transform_traces_by_tab(Traces) ->
     TracesByTab = split_traces_by_tab(Traces),
-    format_traces_TFT(TracesByTab).
+    format_traces(TracesByTab).
 
 calculate_tabs_statistics(Stats) ->
     [calculate_tab_statistics(Stat) || Stat <- Stats].
@@ -100,21 +100,21 @@ split_traces_by_tab(Traces) ->
 split_traces_by_func(Traces) ->
     split_traces_by(Traces, 3).
 
-split_traces_by(Traces, ElemNum) ->
-    TracesUnique = lists:ukeysort(ElemNum, Traces),
-    KeysUnique = lists:map(fun(T) -> element(ElemNum, T) end, TracesUnique),
-    Splitted = [lists:partition(fun(T) -> element(ElemNum, T) =:= KU end, 
+split_traces_by(Traces, ElemIndex) ->
+    TracesUnique = lists:ukeysort(ElemIndex, Traces),
+    KeysUnique = lists:map(fun(T) -> element(ElemIndex, T) end, TracesUnique),
+    Splitted = [lists:partition(fun(T) -> element(ElemIndex, T) =:= KU end,
                                 Traces) || KU <- KeysUnique],
     lists:map(fun({S, _NS}) -> S end, Splitted).
 
-format_traces_TFT(TraceLists) ->
-    [format_trace_TFT(T) || T <- TraceLists].
+format_traces(TraceLists) ->
+    [format_trace(T) || T <- TraceLists].
 
-format_trace_TFT(Traces = [{_Pid, Tab, _Func, _T} | _]) ->
+format_trace(Traces = [{_Pid, Tab, _Func, _T} | _]) ->
     TracesByFunc = split_traces_by_func(Traces),
-    {Tab, [format_trace_TFT_by_func(T) || T <- TracesByFunc]}.
+    {Tab, [format_trace_by_func(T) || T <- TracesByFunc]}.
 
-format_trace_TFT_by_func(Traces = [{_Pid, _Tab, Func, _T} | _]) ->
+format_trace_by_func(Traces = [{_Pid, _Tab, Func, _T} | _]) ->
     {Func, lists:map(fun({_, _, _, MS}) -> trunc_float(MS, 4) end, Traces)}.
 
 clean_traces_unpaired(TraceLists) ->
@@ -170,8 +170,8 @@ max(List) ->
 
 get_last_elem([]) ->
     null;
-get_last_elem(L) ->
-    lists:last(L).
+get_last_elem(List) ->
+    lists:last(List).
 
 namify_val(Val) when is_atom(Val) ->
     namify(Val);

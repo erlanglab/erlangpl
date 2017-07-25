@@ -36,7 +36,6 @@ remove_outdated(Nodes, Viz) ->
 %% Internals
 %%====================================================================
 
-%% ETS cluster view --------------------------------------------------
 get_node_ets_basic_info(Node) ->
     ETSCount = epl_ets_metric:get_node_ets_num(Node),
     ETSMemUsage = epl_ets_metric:get_node_ets_mem(Node),
