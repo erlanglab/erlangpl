@@ -1,9 +1,14 @@
 // @flow
 
-import * as t from './actionTypes';
+import * as type from './actionTypes';
 
-export const connectionOpen = () => ({ type: t.CONNECTION_OPEN });
+export const connectionOpen = () => ({ type: type.CONNECTION_OPEN });
 
-export const connectionClose = () => ({ type: t.CONNECTION_CLOSE });
+export const connectionClose = () => ({ type: type.CONNECTION_CLOSE });
 
-export const setNode = (node: string) => ({ type: t.SET_NODE, node });
+export const setNode = (node: string) => ({ type: type.SET_NODE, node });
+
+export const setTimestamp = (timestamp: number) => ({
+  type: type.SET_TIMESTAMP,
+  timestamp
+});

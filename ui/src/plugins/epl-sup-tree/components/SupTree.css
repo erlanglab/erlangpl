@@ -20,12 +20,20 @@
 }
 
 .SupTree .head {
+  position: relative;
   border-bottom: 1px solid #21252b;
   height: 40px;
   padding: 10px 0;
 }
 
-.SupTree .head i {
+.SupTree .head i.timeline {
+  cursor: pointer;
+  position: absolute;
+  left: 15px;
+  top: 12px;
+}
+
+.SupTree .head i.collapse {
   position: absolute;
   right: 15px;
   top: 12px;

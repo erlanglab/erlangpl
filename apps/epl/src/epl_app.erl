@@ -54,6 +54,10 @@ start(_StartType, _StartArgs) ->
 
     ets:insert(epl_priv, {node_settings, NodeSettings}),
 
+    %% Store timestamp on when epl instance was started
+    %% Used for front-end caching
+    ets:insert(epl_priv, {started_at, get_timestamp()}),
+
     %% Load priv files to ets
     ok = run4(),
 
@@ -65,6 +69,9 @@ start(_StartType, _StartArgs) ->
 
     %% Start EPL Dashboard
     {ok, _} = epl_sup:start_child(epl_traffic, [], worker),
+
+    %% Start EPL Timeline
+    {ok, _} = epl_sup:start_child(epl_timeline, [], worker),
 
     %% load plugins
     PluginApps = plugins(Args),
@@ -454,3 +461,10 @@ maybe_start_elixir(Args) ->
         _ ->
             ?DEBUG("Couldn't start Elixir~n", [])
     end.
+
+
+%% Retuns current timestamp in milliseconds
+-spec get_timestamp() -> integer().
+get_timestamp() ->
+  {Mega, Sec, Micro} = os:timestamp(),
+  (Mega*1000000 + Sec)*1000 + round(Micro/1000).

@@ -5,6 +5,7 @@ import Viva from 'vivagraphjs';
 import difference from 'lodash/difference';
 import { Motion, spring } from 'react-motion';
 import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { push } from 'react-router-redux';
 
 import { send } from '../../../sockets';
 import './SupTree.css';
@@ -42,8 +43,8 @@ class SupTree extends Component {
       renderer: null,
       events: null,
 
-      collapse: false,
-      height: [50, 50],
+      collapse: true,
+      height: [0, 50],
       selected: { id: 'Applications', color: 0, type: '' },
       appsNodes: [],
       apps: [],
@@ -59,9 +60,10 @@ class SupTree extends Component {
     graphics
       .node(node => {
         const size = node.data && node.data.type === 'worker' ? 10 : 15;
-        const color = node.data && COLORS.hasOwnProperty(node.data.type)
-          ? COLORS[node.data.type]
-          : '#000';
+        const color =
+          node.data && COLORS.hasOwnProperty(node.data.type)
+            ? COLORS[node.data.type]
+            : '#000';
 
         return Viva.Graph.View.webglSquare(size, color);
       })
@@ -112,6 +114,7 @@ class SupTree extends Component {
     }
 
     send('epl_st_EPL', id);
+
     this.setState({ selected: { id, color, type: node.node.data.type } });
   }
 
@@ -239,10 +242,15 @@ class SupTree extends Component {
     }));
   };
 
+  addToTimeline = (pid: string) => {
+    send('epl_timeline_EPL', JSON.stringify(['add', pid]));
+    this.props.pushTimelinePid(pid);
+    this.props.push(`/timeline/${pid}`);
+  };
+
   render() {
     return (
       <div className="SupTree">
-
         {this.state.first &&
           <div className="loader">
             <div className="text-center">
@@ -257,9 +265,14 @@ class SupTree extends Component {
 
         <div className="graph" ref={node => (this.div = node)} />
         <div className="side-panel">
-
-          <div className="head" onClick={this.toggleCollapse}>
+          <div className="head">
+            {this.state.selected.id !== 'Applications' &&
+              <i
+                onClick={() => this.addToTimeline(this.state.selected.id)}
+                className="timeline fa fa-repeat"
+              />}
             <h4
+              onClick={this.toggleCollapse}
               className="text-center"
               style={{
                 color: COLORS[this.state.selected.type] || 'inherit'
@@ -268,34 +281,31 @@ class SupTree extends Component {
               {this.state.selected.id}
             </h4>
             <i
-              className={`fa fa-angle-${this.state.collapse ? 'down' : 'up'}`}
+              onClick={this.toggleCollapse}
+              className={`collapse fa fa-angle-${this.state.collapse
+                ? 'down'
+                : 'up'}`}
             />
           </div>
 
           <Motion
             defaultStyle={{ height: this.state.height[0] }}
             style={{ height: spring(this.state.height[1]) }}
-            children={({ height }) => (
+            children={({ height }) =>
               <div className="side-content" style={{}}>
-
                 {!this.state.first &&
                   <div
                     className="applications"
                     style={{ height: `calc(${height}%)` }}
                   >
-
                     <ListGroup style={{ margin: '10px 0px' }}>
                       <ListGroupItem className="application-link">
-                        <button onClick={this.selectAll}>
-                          Select all
-                        </button>
-                        <button onClick={this.clearAll}>
-                          Clear all
-                        </button>
+                        <button onClick={this.selectAll}>Select all</button>
+                        <button onClick={this.clearAll}>Clear all</button>
                       </ListGroupItem>
                       {Object.keys(this.props.tree).map(
                         (app, key) =>
-                          (Object.keys(this.props.tree[app]).length
+                          Object.keys(this.props.tree[app]).length
                             ? <ListGroupItem
                                 key={key}
                                 className="application-link"
@@ -327,7 +337,7 @@ class SupTree extends Component {
                                 <span style={{ marginLeft: '17px' }}>
                                   {app}
                                 </span>
-                              </ListGroupItem>)
+                              </ListGroupItem>
                       )}
                     </ListGroup>
                   </div>}
@@ -343,8 +353,7 @@ class SupTree extends Component {
                     </code>
                   </pre>
                 </div>
-              </div>
-            )}
+              </div>}
           />
         </div>
       </div>
@@ -352,10 +361,12 @@ class SupTree extends Component {
   }
 }
 
+import * as actions from '../actions';
+
 export default connect(
   state => ({
     tree: state.eplSupTree.tree,
     nodeInfo: state.eplSupTree.nodeInfo
   }),
-  {}
+  { push, pushTimelinePid: actions.pushTimelinePid }
 )(SupTree);

@@ -1,5 +1,7 @@
 // @flow
 
+import { clearState } from './localStorage';
+
 type Socket = {
   builtIn: {
     onclose?: Array<() => void>,
@@ -28,12 +30,12 @@ export const on = (
 };
 
 export const onWithStore = (handler: any): ((store: any) => Socket) => {
-  return (store: any) => handler(store, on);
+  return (store: mixed) => handler(store, on);
 };
 
 export const combineSockets = (
   sockets: Array<Socket | ((store: any) => Socket)>,
-  store: any
+  store: mixed
 ) => {
   // apply
   return sockets
@@ -85,7 +87,7 @@ export const combineSockets = (
 
 let socketsArray = [];
 
-export const createSockets = (sockets: any) => {
+export const createSockets = (sockets: Object) => {
   socketsArray = Object.keys(sockets).map(route => {
     let { hostname, port } = window.location;
 
@@ -117,6 +119,9 @@ export const createSockets = (sockets: any) => {
       sockets[route].__builtIn.onclose.forEach(c => {
         if (typeof c === 'function') c();
       });
+      // NOTE: we're clearning cached state here to prevent displaying stale
+      // state when user reconnects
+      clearState();
     };
 
     ws.onmessage = (msg: any) => {

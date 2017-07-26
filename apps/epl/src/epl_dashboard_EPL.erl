@@ -21,8 +21,10 @@
 init({tcp, http}, _Req, _Opts) ->
     [{node, Node}] = epl:lookup(node),
     [{node_settings, NodeSettings}] = epl:lookup(node_settings),
+    [{started_at, Timestamp}] = epl:lookup(started_at),
     FormattedSettings = lists:foldl(fun format_node_settings/2,
-                                    #{node_name => Node}, NodeSettings),
+                                    #{node_name => Node,
+                                      started_at => Timestamp}, NodeSettings),
     JSON = epl_json:encode(FormattedSettings, <<"system-init">>),
     self() ! {data, JSON},
     epl_dashboard:subscribe(),

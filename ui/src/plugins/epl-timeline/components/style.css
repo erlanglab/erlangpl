@@ -1,0 +1,144 @@
+.Timeline {
+  width: 100%;
+  height: 100%;
+}
+
+.Timeline .pane {
+  height: calc(100% - 45px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reflex-layout.vertical > .reflex-splitter {
+  border: 1px solid #181a1f !important;
+  background-color: #181a1f;
+}
+
+.Timeline .pid {
+  text-align: center;
+  cursor: pointer;
+  padding: 10px 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid black;
+}
+
+.Timeline .pid.active {
+  background-color: #8fbf47;
+  color: black;
+}
+
+.Timeline .state {
+  overflow: hidden;
+  height: calc(100%);
+}
+
+.Timeline .state h3 {
+  text-align: center;
+  border-bottom: 1px solid black;
+  padding: 10px;
+  margin: 0px;
+}
+
+.Timeline .messages {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: calc(100%);
+  text-overflow: ellipsis;
+}
+
+.Timeline .message {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  color: #c4c9d2;
+  box-sizing: border-box;
+  border-bottom: 1px solid black;
+  width: calc(100%);
+}
+
+.Timeline .message:hover {
+  background-color: #21252b;
+}
+
+.Timeline .message.active {
+  background-color: #8fbf47;
+  color: black;
+}
+
+.Timeline pre {
+  padding: 5px;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+
+::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  color: rgba(157, 165, 180, 0.6);
+}
+::-moz-placeholder {
+  /* Firefox 19+ */
+  color: rgba(157, 165, 180, 0.6);
+}
+:-ms-input-placeholder {
+  /* IE 10+ */
+  color: rgba(157, 165, 180, 0.6);
+}
+:-moz-placeholder {
+  /* Firefox 18- */
+  color: rgba(157, 165, 180, 0.6);
+}
+
+.Timeline input {
+  color: #9da5b4;
+  height: 30px;
+  margin: 6px 0px;
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #21252b;
+  border-radius: 4px;
+  border: 1px solid #9da5b4;
+}
+
+.Timeline input:focus {
+  outline: none;
+  border: 1px solid #8fbf47;
+}
+
+.Timeline .nav-tabs > li {
+  float: none;
+  display: inline-block;
+}
+
+.Timeline .nav-item i {
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 16px;
+}
+
+.Timeline .nav-item i:hover {
+  color: #C13035;
+}
+
+.Timeline .nav-item .badge {
+  background-color: #8fbf47;
+  margin-right: 5px;
+}
+
+.Timeline .message .content {
+  width: calc(100% - 7ch);
+  padding-left: 1ch;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.Timeline .message .index {
+  width: 5ch;
+  padding-right: 1ch;
+  text-align: right;
+  display: block;
+  float: right;
+}
