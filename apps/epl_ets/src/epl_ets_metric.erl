@@ -20,6 +20,11 @@
          clean_traces_unpaired/1,
          calculate_call_time/1]).
 
+%% Consts
+-define(TRACE_PAIR_START_POINT, 1).
+-define(TRACE_PAIR_END_POINT_FORMULA_FACTOR, 1).
+-define(TRACE_PAIR_LENGTH, 2).
+
 %%====================================================================
 %% API functions
 %%====================================================================
@@ -35,9 +40,7 @@ get_node_ets_num(Node) ->
 -spec get_node_ets_mem(Node :: atom()) -> float().
 get_node_ets_mem(Node) ->
     {ok, MemoryData} = epl:command(Node, fun erlang:memory/0, []),
-    MemoryPercent = proplists:get_value(ets, MemoryData) / 
-        proplists:get_value(total, MemoryData),
-    trunc_float(MemoryPercent, 4).
+    calculate_memory_percent(MemoryData).
 
 %% @doc Gets names of the ETS tables present on the `Node'.
 -spec get_node_ets_tabs(Node :: atom()) -> [atom()].
@@ -55,15 +58,20 @@ get_ets_tabs_info(Node, Tabs) ->
 %% @doc Calculates duration time statistics of ets insert/lookup functions calls. 
 -spec get_ets_call_stats([] | list()) -> {call_stats, [] | [{atom(), list()}]}.
 get_ets_call_stats([]) ->
-    {callStats, []};
+    {call_stats, []};
 get_ets_call_stats(Traces) ->
     Traces2 = transform_traces_by_pid(Traces),
     Traces3 = transform_traces_by_tab(Traces2),
-    {callStats, calculate_tabs_statistics(Traces3)}.
+    {call_stats, calculate_tabs_statistics(Traces3)}.
 
 %%====================================================================
 %% Internals
 %%====================================================================
+
+calculate_memory_percent(MemoryData) ->
+    MemoryPercent = proplists:get_value(ets, MemoryData) /
+        proplists:get_value(total, MemoryData),
+    trunc_float(MemoryPercent, 4).
 
 get_ets_info(Node, Tab) ->
     {ok, Info}  = epl:command(Node, fun ets:info/1, [Tab]),
@@ -151,10 +159,15 @@ calculate_calls_time(TraceLists) ->
     [calculate_call_time(T) || T <- TraceLists].
 
 calculate_call_time(Traces) ->
-    PairStartPoint = lists:seq(1, erlang:length(Traces) - 1, 2),
+    PairStartPoint = lists:seq(?TRACE_PAIR_START_POINT,
+                               get_trace_pair_endpoint(Traces),
+                               ?TRACE_PAIR_LENGTH),
     TPLists = [lists:sublist(Traces, S, 2) || S <- PairStartPoint],
     TPMergedLists = [merge_traces_pair(TP) || TP <- TPLists],
     lists:merge(TPMergedLists).
+
+get_trace_pair_endpoint(Traces) ->
+    erlang:length(Traces) - ?TRACE_PAIR_END_POINT_FORMULA_FACTOR.
 
 merge_traces_pair([{Pid, T, F, TS1}, {_, _, _, TS2}]) ->
     [{Pid, T, F, TS2 - TS1}].

@@ -86,7 +86,7 @@ class TableView extends React.Component {
       return node.name === newName;
     }, this.props.table.node);
     if (tabData[0].length < 1) return null;
-    const list = tabData[0].tabs.map(function({ info, callStats, ...a }) {
+    const list = tabData[0].tabs.map(function({ info, call_stats, ...a }) {
       var callStatsLookup = {
         lookupMax: 0,
         lookupCount: 0
@@ -95,11 +95,11 @@ class TableView extends React.Component {
         insertMax: 0,
         insertCount: 0
       };
-      if (callStats !== 'undefined' && typeof callStats !== 'undefined') {
-        var lookup = callStats.filter(function(obj) {
+      if (call_stats !== 'undefined' && typeof call_stats !== 'undefined') {
+        var lookup = call_stats.filter(function(obj) {
           return obj.func === 'lookup';
         });
-        var insert = callStats.filter(function(obj) {
+        var insert = call_stats.filter(function(obj) {
           return obj.func === 'insert';
         });
         if (lookup.length !== 0) {
@@ -122,10 +122,12 @@ class TableView extends React.Component {
     const rowGetter = ({ index }) => listSorted[index];
     return (
       <AutoSizer>
-        {({ width, height }) => (
+        {({ width, height }) =>
           <div>
             <div>
-              <h4 className="selection">{this.state.selectLabel}</h4>
+              <h4 className="selection">
+                {this.state.selectLabel}
+              </h4>
               <Select
                 name="size-select"
                 multi={true}
@@ -274,8 +276,7 @@ class TableView extends React.Component {
                   />
                 : null}
             </Table>
-          </div>
-        )}
+          </div>}
       </AutoSizer>
     );
   }

@@ -1,7 +1,7 @@
-.PHONY: prop propclean
+.PHONY: prop clean
 
 prop:
 	rebar3 as test proper
 
-propclean:
+clean:
 	rm -rf _build

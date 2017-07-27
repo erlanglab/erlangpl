@@ -23,9 +23,12 @@
          namify/1]).
 
 %% Types
--export_type([name/0]).
+-export_type([name/0,
+              viz_conn_metrics/0]).
 
 -type name() :: list() | atom() | pid() | port() | integer() | binary().
+
+-type viz_conn_metrics() :: {integer(), integer(), integer()}.
 
 %%====================================================================
 %% API functions
@@ -91,9 +94,7 @@ push_additional_node_info(Info, Name, Vizceral) ->
 
 %% ------------------- Connections --------------------
 %% @doc Pushes connection section to `To'.
--spec push_connection(Source :: name(), Target :: name(), {N :: integer(),
-                                                           W :: integer(),
-                                                           D :: integer()},
+-spec push_connection(Source :: name(), Target :: name(), viz_conn_metrics(),
                       Additional :: map(), To :: map()) -> map().
 push_connection(Source, Target, {N, W, D}, Additional, To) ->
     #{connections := Connections} = To,
@@ -128,7 +129,7 @@ push_focused(Name, RegionName, Additional, Vizceral) ->
 
 %% @doc Pushes connection into a particular `Region' in `Vizceral' map.
 -spec push_focused_connection(S :: name(), T :: name(), RN :: name(),
-                              NWD :: {integer(), integer(), integer()}, 
+                              NWD :: viz_conn_metrics(),
                               Vizceral :: map()) -> map().
 push_focused_connection(S, T, RN, NWD, Vizceral) ->
     push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
@@ -136,9 +137,7 @@ push_focused_connection(S, T, RN, NWD, Vizceral) ->
 %% @doc Pushes connection with `Additional' information into a particular
 %% `RegionName' in `Vizceral' map.
 -spec push_focused_connection(Source :: name(), Target :: name(),
-                              RegionName :: name(), {N :: integer(), 
-                                                     W :: integer(),
-                                                     D :: integer()}, 
+                              RegionName :: name(), viz_conn_metrics(),
                               A :: map(), Vizceral :: map()) -> map().
 push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
     {Region, NewV} = pull_region(RegionName, Vizceral),
