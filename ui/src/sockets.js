@@ -1,6 +1,6 @@
 // @flow
 
-import { clearState } from './localStorage';
+// import { clearState } from './localStorage';
 
 type Socket = {
   builtIn: {
@@ -121,7 +121,7 @@ export const createSockets = (sockets: Object) => {
       });
       // NOTE: we're clearning cached state here to prevent displaying stale
       // state when user reconnects
-      clearState();
+      // clearState();
     };
 
     ws.onmessage = (msg: any) => {
