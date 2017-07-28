@@ -1,0 +1,35 @@
+.ets-table-row:nth-child(odd){
+    background-color: #1a1e23;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+.ets-table-header{
+    height: 50px;
+    white-space: normal;
+    color: #1F79B7;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 14px;
+    text-transform: none;
+    background-color: black;
+}
+.ReactVirtualized__Table__headerTruncatedText{
+    white-space: normal;
+}
+.selection{
+    width: 200px;
+}
+.ets-table-select{
+    width: 1000px; 
+}
+.Select-control{
+    background-color: black !important;
+    border-color: black !important;
+    border-bottom-color: #808080 !important;
+}
+
+.ets-table-select-opts{
+    background-color: black !important;
+    border-color: black !important;
+}

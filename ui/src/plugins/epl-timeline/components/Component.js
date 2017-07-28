@@ -66,11 +66,12 @@ class Component_ extends Component {
     return (
       <div className="Timeline">
         <ul className="Dashboard-navigation nav nav-tabs">
-
-          {this.props.timelines.map(({ pid, timeline }) => (
+          {this.props.timelines.map(({ pid, timeline }) =>
             <li
               key={pid}
-              className={`nav-item ${pid === this.props.pid ? 'Dashboard-active' : ''}`}
+              className={`nav-item ${pid === this.props.pid
+                ? 'Dashboard-active'
+                : ''}`}
               onClick={this.handlePidClick.bind(this, pid)}
             >
               <Link to={`/timeline/${pid}`}>
@@ -84,7 +85,7 @@ class Component_ extends Component {
                 />
               </Link>
             </li>
-          ))}
+          )}
           <li className="nav-item" style={{ paddingLeft: '5px' }}>
             {`<${this.props.pidPrefix}.`}
           </li>
@@ -112,7 +113,6 @@ class Component_ extends Component {
         {currentState
           ? <div className="pane">
               <ReflexContainer orientation="vertical">
-
                 <ReflexElement flex={0.25}>
                   <ArrowKeyStepper
                     className="messages"
@@ -122,9 +122,9 @@ class Component_ extends Component {
                     scrollToRow={this.props.msg}
                     onScrollToChange={this._selectCell}
                     rowCount={currentTimeline.length}
-                    children={({ onSectionRendered, scrollToRow }) => (
+                    children={({ onSectionRendered, scrollToRow }) =>
                       <AutoSizer>
-                        {({ height, width }) => (
+                        {({ height, width }) =>
                           <List
                             onSectionRendered={onSectionRendered}
                             scrollToIndex={scrollToRow}
@@ -134,7 +134,9 @@ class Component_ extends Component {
                             rowHeight={35}
                             rowRenderer={({ index, key, style }) => {
                               const { message } = currentTimeline[index];
-                              const className = `message ${index === scrollToRow ? 'active' : ''}`;
+                              const className = `message ${index === scrollToRow
+                                ? 'active'
+                                : ''}`;
 
                               return (
                                 <div
@@ -153,10 +155,8 @@ class Component_ extends Component {
                                 </div>
                               );
                             }}
-                          />
-                        )}
-                      </AutoSizer>
-                    )}
+                          />}
+                      </AutoSizer>}
                   />
                 </ReflexElement>
 
@@ -170,7 +170,9 @@ class Component_ extends Component {
                     <Highlight
                       className="erlang"
                       style={{
-                        height: `calc(100% - ${this.header ? this.header.clientHeight : '0'}px)`
+                        height: `calc(100% - ${this.header
+                          ? this.header.clientHeight
+                          : '0'}px)`
                       }}
                     >
                       {currentState.state}

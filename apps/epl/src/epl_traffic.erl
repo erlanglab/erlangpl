@@ -110,7 +110,7 @@ get_message_passing_counters(Node, Proplist, Vizceral, OldMsgPass) ->
 
 update_message_passing_graph(Node, Send, Vizceral, _OldMsgPass) ->
     %% the INTERNET node represents the source of ingress traffic
-    Vizceral1 = push_focused(<<"INTERNET">>, Node, Vizceral),
+    Vizceral1 = epl_viz_map:push_focused(<<"INTERNET">>, Node, Vizceral),
 
     lists:foldl(
       fun({{ID1, ID2}, Count1, Count2}, V) ->
@@ -132,21 +132,21 @@ update_messge_passing_graph(Node, P1, P2, Count1, Count2, V) ->
     update_msg_pass_ports(Node, P1, P2, Count1, Count2, V1).
 
 update_msg_pass_processes(Node, P1, P2, C1, C2, V) ->
-    V1 = push_focused(P1, Node, V),
-    V2 = push_focused(P2, Node, V1),
-    V3 = push_focused_connection(P1, P2, Node, {C1,0,0}, V2),
-    push_focused_connection(P2, P1, Node, {C2,0,0}, V3).
+    V1 = epl_viz_map:push_focused(P1, Node, V),
+    V2 = epl_viz_map:push_focused(P2, Node, V1),
+    V3 = epl_viz_map:push_focused_connection(P1, P2, Node, {C1,0,0}, V2),
+    epl_viz_map:push_focused_connection(P2, P1, Node, {C2,0,0}, V3).
 
 update_msg_pass_ports(Node, P1, P2, C1, C2, V) ->
     V1 = if is_port(P1) ->
-                 push_focused_connection(<<"INTERNET">>, P1,
+                 epl_viz_map:push_focused_connection(<<"INTERNET">>, P1,
                                          Node, {C1,0,0}, V);
             true ->
                  V
          end,
 
     if is_port(P2) ->
-            push_focused_connection(<<"INTERNET">>, P2,
+            epl_viz_map:push_focused_connection(<<"INTERNET">>, P2,
                                     Node, {C2,0,0}, V1);
        true ->
             V1
@@ -215,25 +215,3 @@ push_region_connection(Source, Target, {N, W, D}, Additional, Vizceral) ->
     Viz = epl_viz_map:push_connection(Source, Target, {N, 0, D}, Additional, Vizceral),
     %% Incoming  traffic
     epl_viz_map:push_connection(Target, Source, {W, 0, D}, Additional, Viz).
-
-push_focused_connection(S, T, RN, NWD, Vizceral) ->
-    push_focused_connection(S, T, RN, NWD, #{}, Vizceral).
-
-push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
-    {Region, NewV} = epl_viz_map:pull_region(RegionName, Vizceral),
-    NewR = epl_viz_map:push_connection(Source, Target, {N,W,D}, A, Region),
-    epl_viz_map:push_region(RegionName, NewR, NewV).
-
-%% ---------------------- Focused ---------------------
-push_focused(Name, Region, Vizceral) ->
-    push_focused(Name, Region, #{} ,Vizceral).
-
-push_focused(Name, RegionName, Additional, Vizceral) ->
-    #{nodes := Nodes} = Vizceral,
-    {[Region], Rest} = lists:partition(
-                         fun(A) ->
-                                 maps:get(name, A) 
-                                     == epl_viz_map:namify(RegionName)
-                         end, Nodes),
-    NewRegion = epl_viz_map:push_node(focusedChild, Name, Additional, Region),
-    maps:merge(Vizceral, #{nodes => [NewRegion | Rest]}).

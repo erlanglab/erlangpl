@@ -58,7 +58,6 @@ const App = ({ store, history }: { store: mixed, history: mixed }) => {
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <div className="App">
-
           <Navigation tabs={tabs} />
 
           <div className="App-container">

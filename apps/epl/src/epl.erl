@@ -19,6 +19,7 @@
          command/2,
          command/3,
          process_info/1,
+         make_fun_for_remote/2,
          trace_pid/1,
          to_bin/1,
          log/3,
@@ -31,7 +32,7 @@
 
 %% @doc Gets default node passes as an argument to the script when starting
 %% erlangpl.
--spec get_default_node() -> atom().
+-spec get_default_node() -> node().
 get_default_node() ->
     proplists:get_value(node, lookup(node)).
 
@@ -51,7 +52,7 @@ subscribe() ->
     [subscribe(N) || N <- Nodes].
 
 %% @doc Adds calling process to `Node' tracer's subscribers list.
--spec subscribe(Node :: atom() | default_node) -> ok.
+-spec subscribe(Node :: node() | default_node) -> ok.
 subscribe(default_node) ->
     Node = get_default_node(),
     subscribe(Node);
@@ -59,7 +60,7 @@ subscribe(Node) ->
     subscribe(Node, self()).
 
 %% @doc Adds provided `Pid' to `Node' tracer's subscribers list.
--spec subscribe(Node :: atom(), Pid :: pid()) -> ok.
+-spec subscribe(Node :: node(), Pid :: pid()) -> ok.
 subscribe(Node, Pid) ->
     epl_tracer:subscribe(Node, Pid).
 
@@ -71,7 +72,7 @@ unsubscribe() ->
     [unsubscribe(N) || N <- Nodes].
 
 %% @doc Removes calling process from `Node' tracer's subscribers list.
--spec unsubscribe(Node :: atom() | default_node) -> ok.
+-spec unsubscribe(Node :: node() | default_node) -> ok.
 unsubscribe(default_node) ->
     Node = get_default_node(),
     unsubscribe(Node);
@@ -79,7 +80,7 @@ unsubscribe(Node) ->
     unsubscribe(Node, self()).
 
 %% @doc Removes provided `Pid' from `Node' tracer's subscribers list.
--spec unsubscribe(Node :: atom(), Pid :: pid()) -> ok.
+-spec unsubscribe(Node :: node(), Pid :: pid()) -> ok.
 unsubscribe(Node, Pid) ->
     epl_tracer:unsubscribe(Node, Pid).
 
@@ -90,13 +91,21 @@ command(Fun, Args) ->
     [command(N, Fun, Args) || N <- Nodes].
 
 %% @doc Runs provided `Fun' with `Args' on default/provided node.
--spec command(Node :: atom() | default_node, Fun :: fun(), Args :: list()) -> 
+-spec command(Node :: node() | default_node, Fun :: fun(), Args :: list()) -> 
           tuple().
 command(default_node, Fun, Args) ->
     Node = get_default_node(),
     command(Node, Fun, Args);
 command(Node, Fun, Args) ->
     epl_tracer:command(Node, Fun, Args).
+
+%% @doc Compiles provided `FunStr' on remote `Node'.
+-spec make_fun_for_remote(Node :: node(), FunStr :: binary()) -> {ok, term()}.
+make_fun_for_remote(Node, FunStr) ->
+    {ok, Tokens, _} = erl_scan:string(FunStr),
+    {ok, [Form]} = erl_parse:parse_exprs(Tokens),
+    {value, RemoteFun, _} = rpc:call(Node, erl_eval, expr, [Form, []]),
+    {ok, RemoteFun}.
 
 %% @doc Gets information about process identified by provided `Pid'.
 -spec process_info(Pid :: pid()) -> tuple().

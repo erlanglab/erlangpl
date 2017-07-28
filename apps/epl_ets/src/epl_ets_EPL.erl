@@ -16,6 +16,8 @@
          websocket_info/3,
          websocket_terminate/3]).
 
+-record(state, {ets_call_traced_nodes = []}).
+
 %%====================================================================
 %% cowboy_websocket_handler callbacks
 %%====================================================================
@@ -25,8 +27,15 @@ init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
 websocket_init(_TransportName, Req, _Opts) ->
-    {ok, Req, undefined_state}.
+    {ok, Req, #state{}}.
 
+websocket_handle({text, NodeBin}, Req, 
+                 State = #state{ets_call_traced_nodes = TNodes}) ->
+    Node = erlang:binary_to_existing_atom(NodeBin, latin1),
+    NewTNodes = handle_ets_call_tracing(Node, TNodes,
+                                        lists:member(Node, TNodes)),
+    NewState = State#state{ets_call_traced_nodes = NewTNodes},
+    {ok, Req, NewState};
 websocket_handle(Data, _Req, _State) ->
     exit({not_implemented, Data}).
 
@@ -35,6 +44,18 @@ websocket_info({data, Data}, Req, State) ->
 websocket_info(Info, _Req, _State) ->
     exit({not_implemented, Info}).
 
-websocket_terminate(_Reason, _Req, _State) ->
+websocket_terminate(_Reason, _Req, #state{ets_call_traced_nodes = TNodes}) ->
     epl_ets:unsubscribe(),
+    [epl_tracer:disable_ets_call_tracing(N) || N <- TNodes],
     ok.
+
+%%====================================================================
+%% Internals
+%%====================================================================
+
+handle_ets_call_tracing(Node, Nodes, true) ->
+    ok = epl_tracer:disable_ets_call_tracing(Node),
+    lists:delete(Node, Nodes);
+handle_ets_call_tracing(Node, Nodes, false) ->
+    ok = epl_tracer:enable_ets_call_tracing(Node),
+    [Node | Nodes].

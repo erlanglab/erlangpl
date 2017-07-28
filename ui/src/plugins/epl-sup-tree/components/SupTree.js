@@ -60,9 +60,10 @@ class SupTree extends Component {
     graphics
       .node(node => {
         const size = node.data && node.data.type === 'worker' ? 10 : 15;
-        const color = node.data && COLORS.hasOwnProperty(node.data.type)
-          ? COLORS[node.data.type]
-          : '#000';
+        const color =
+          node.data && COLORS.hasOwnProperty(node.data.type)
+            ? COLORS[node.data.type]
+            : '#000';
 
         return Viva.Graph.View.webglSquare(size, color);
       })
@@ -250,7 +251,6 @@ class SupTree extends Component {
   render() {
     return (
       <div className="SupTree">
-
         {this.state.first &&
           <div className="loader">
             <div className="text-center">
@@ -265,7 +265,6 @@ class SupTree extends Component {
 
         <div className="graph" ref={node => (this.div = node)} />
         <div className="side-panel">
-
           <div className="head">
             {this.state.selected.id !== 'Applications' &&
               <i
@@ -283,34 +282,30 @@ class SupTree extends Component {
             </h4>
             <i
               onClick={this.toggleCollapse}
-              className={`collapse fa fa-angle-${this.state.collapse ? 'down' : 'up'}`}
+              className={`collapse fa fa-angle-${this.state.collapse
+                ? 'down'
+                : 'up'}`}
             />
           </div>
 
           <Motion
             defaultStyle={{ height: this.state.height[0] }}
             style={{ height: spring(this.state.height[1]) }}
-            children={({ height }) => (
+            children={({ height }) =>
               <div className="side-content" style={{}}>
-
                 {!this.state.first &&
                   <div
                     className="applications"
                     style={{ height: `calc(${height}%)` }}
                   >
-
                     <ListGroup style={{ margin: '10px 0px' }}>
                       <ListGroupItem className="application-link">
-                        <button onClick={this.selectAll}>
-                          Select all
-                        </button>
-                        <button onClick={this.clearAll}>
-                          Clear all
-                        </button>
+                        <button onClick={this.selectAll}>Select all</button>
+                        <button onClick={this.clearAll}>Clear all</button>
                       </ListGroupItem>
                       {Object.keys(this.props.tree).map(
                         (app, key) =>
-                          (Object.keys(this.props.tree[app]).length
+                          Object.keys(this.props.tree[app]).length
                             ? <ListGroupItem
                                 key={key}
                                 className="application-link"
@@ -342,7 +337,7 @@ class SupTree extends Component {
                                 <span style={{ marginLeft: '17px' }}>
                                   {app}
                                 </span>
-                              </ListGroupItem>)
+                              </ListGroupItem>
                       )}
                     </ListGroup>
                   </div>}
@@ -358,8 +353,7 @@ class SupTree extends Component {
                     </code>
                   </pre>
                 </div>
-              </div>
-            )}
+              </div>}
           />
         </div>
       </div>

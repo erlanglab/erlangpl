@@ -2,16 +2,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Vizceral from 'vizceral-react';
-import { Motion, spring } from 'react-motion';
 import { push } from 'react-router-redux';
+import { send } from '../../../sockets';
 
 import 'vizceral-react/dist/vizceral.css';
 import './ETS.css';
 
+import PluginWrapper from '../../../core/components/PluginWrapper';
 import ETSTools from './ETSTools';
+import TableView from './TableView';
 import * as actions from '../actions';
-
-// import sampleData from '../sample_data.json';
 
 class ETS extends Component {
   state: {
@@ -19,7 +19,10 @@ class ETS extends Component {
     end: number,
     height: number,
     width: number,
-    graph: boolean
+    graph: boolean,
+    showTab: boolean,
+    clickedNode: any,
+    vizStyle: object
   };
 
   vizceral: any;
@@ -31,13 +34,18 @@ class ETS extends Component {
       width: 0,
       start: 0,
       end: 0,
-      graph: false
+      graph: false,
+      showTab: false,
+      clickedNode: false,
+      vizStyle: {}
     };
   }
 
   resize = () => {
-    const { clientWidth, clientHeight } = this.vizceral.refs.vizCanvas;
-    this.setState({ width: clientWidth, height: clientHeight });
+    if (this.vizceral) {
+      const { clientWidth, clientHeight } = this.vizceral.refs.vizCanvas;
+      this.setState({ width: clientWidth, height: clientHeight });
+    }
   };
 
   componentDidMount() {
@@ -67,6 +75,24 @@ class ETS extends Component {
       anim = { end: 0, start: 1 };
     }
 
+    if (view.length === 1) {
+      send('epl_ets_EPL', view[0]);
+      this.setState({
+        clickedNode: view[0],
+        showTab: true,
+        vizStyle: { display: 'none' }
+      });
+    } else {
+      if (this.state.clickedNode) {
+        send('epl_ets_EPL', this.state.clickedNode);
+      }
+      this.setState({
+        clickedNode: false,
+        showTab: false,
+        vizStyle: {}
+      });
+    }
+
     this.setState({
       end: anim.end,
       start: anim.start,
@@ -78,97 +104,72 @@ class ETS extends Component {
   };
 
   render() {
-    const sidePanelWidth = 30;
     return (
       <div className="Traffic">
         <ETSTools className="Traffic-tools" />
-        <Motion
-          defaultStyle={{ x: this.state.start, y: 1 }}
-          style={{
-            x: spring(this.state.end),
-            y: this.state.graph ? spring(0) : 1
-          }}
-          children={({ x, y }) => (
-            <div className="Traffic-container">
-              <div
-                className="Traffic-panel"
-                style={{ width: `${100 - sidePanelWidth * x}%`, float: 'left' }}
-              >
-
-                <Vizceral
-                  ref={node => (this.vizceral = node)}
-                  traffic={this.props.data}
-                  view={this.props.view}
-                  viewChanged={this.handleViewChange}
-                  showLabels={true}
-                  match={this.props.search}
-                  allowDraggingOfNodes={true}
-                  targetFramerate={25}
-                  definitions={{
-                    detailedNode: {
-                      volume: {
-                        default: {
-                          top: {
-                            header: 'ETS Count',
-                            data: 'etsMetrics.all',
-                            format: '0'
-                          },
-                          bottom: {
-                            header: 'ETS memory usage',
-                            data: 'etsMetrics.memUsage',
-                            format: '0.00%'
-                          },
-                          donut: {
-                            data: 'etsMetrics.pieChart'
-                          }
-                        },
-                        entry: {
-                          top: {
-                            header: 'ETS Count',
-                            data: 'etsMetrics.all',
-                            format: '0'
-                          }
-                        }
+        <PluginWrapper
+          // NOTE: to hide side panel simply pass null/undefined or false
+          // instead of component as sidePanel property
+          sidePanel={false}
+          loading={false}
+          className="Traffic-container"
+          loaderText="Gathering ETS cluster data"
+        >
+          {this.state.showTab
+            ? <TableView
+                table={{
+                  tabs: this.props.data.etsNodeTabs,
+                  node: this.state.clickedNode
+                }}
+              />
+            : null}
+          <div
+            className="viz-wrapper"
+            style={{
+              ...{ height: '100%' },
+              ...this.state.vizStyle
+            }}
+          >
+            <Vizceral
+              ref={node => (this.vizceral = node)}
+              traffic={this.props.data}
+              view={this.props.view}
+              viewChanged={this.handleViewChange}
+              showLabels={true}
+              match={this.props.search}
+              allowDraggingOfNodes={true}
+              targetFramerate={25}
+              definitions={{
+                detailedNode: {
+                  volume: {
+                    default: {
+                      top: {
+                        header: 'ETS Count',
+                        data: 'etsMetrics.all',
+                        format: '0'
+                      },
+                      bottom: {
+                        header: 'ETS memory usage',
+                        data: 'etsMetrics.memUsage',
+                        format: '0.00%'
+                      },
+                      donut: {
+                        data: 'etsMetrics.pieChart'
+                      }
+                    },
+                    entry: {
+                      top: {
+                        header: 'ETS Count',
+                        data: 'etsMetrics.all',
+                        format: '0'
                       }
                     }
-                  }}
-                />
-                <div
-                  className="loader"
-                  style={{
-                    visibility: y ? 'visible' : 'hidden',
-                    opacity: y
-                  }}
-                >
-                  <div className="text-center">
-                    <div className="spinner">
-                      <div className="bounce1" />
-                      <div className="bounce2" />
-                      <div className="bounce3" />
-                    </div>
-                    <span>Gathering ETS cluster data</span>
-                  </div>
-                </div>
-              </div>
-              <div
-                className="Traffic-panel"
-                style={{
-                  width: `${sidePanelWidth * x}%`,
-                  opacity: x,
-                  float: 'right'
-                }}
-              >
-                <pre style={{ height: '100%' }}>
-                  <code>
-                    {this.props.nodeInfo
-                      ? JSON.stringify(this.props.nodeInfo, null, 2)
-                      : 'No info available'}
-                  </code>
-                </pre>
-              </div>
-            </div>
-          )}
-        />
+                  }
+                }
+              }}
+            />
+          </div>
+        </PluginWrapper>
       </div>
     );
   }
