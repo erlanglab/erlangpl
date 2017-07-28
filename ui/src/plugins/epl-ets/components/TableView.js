@@ -22,8 +22,8 @@ class TableView extends React.Component {
       selectLabel: 'Select columns to show',
       selectOptions: [
         { value: 'name', label: 'name' },
-        { value: 'size', label: 'Size' },
         { value: 'memory', label: 'Memory' },
+        { value: 'size', label: 'Size' },
         { value: 'type', label: 'Type' },
         { value: 'write_concurrency', label: 'Write concurrency' },
         { value: 'read_concurrency', label: 'Read concurrency' },
@@ -37,8 +37,8 @@ class TableView extends React.Component {
       ],
       selectedOptions: [
         { value: 'name', label: 'Name' },
-        { value: 'size', label: 'Size' },
         { value: 'memory', label: 'Memory' },
+        { value: 'size', label: 'Size' },
         { value: 'type', label: 'Type' },
         { value: 'write_concurrency', label: 'Write concurrency' },
         { value: 'read_concurrency', label: 'Read concurrency' },
@@ -50,8 +50,8 @@ class TableView extends React.Component {
     };
   }
 
-  is_selected(val) {
-    var listOfObjects = this.state.selectedOptions.filter(({ value, ...r }) => {
+  isSelected(val) {
+    let listOfObjects = this.state.selectedOptions.filter(({ value }) => {
       return value === val;
     });
     if (listOfObjects.length > 0) {
@@ -61,15 +61,11 @@ class TableView extends React.Component {
   }
 
   propComparatorASC(prop) {
-    return function(a, b) {
-      return a[prop] - b[prop];
-    };
+    return (a, b) => a[prop] - b[prop];
   }
 
   propComparatorDESC(prop) {
-    return function(a, b) {
-      return b[prop] - a[prop];
-    };
+    return (a, b) => b[prop] - a[prop];
   }
 
   sort(listOfObjects) {
@@ -81,25 +77,25 @@ class TableView extends React.Component {
   }
 
   render() {
-    var tabData = this.props.table.tabs.filter(function(node) {
-      var newName = this.split('.').join('_').replace('@', '_at_');
+    let tabData = this.props.table.tabs.filter(function(node) {
+      let newName = this.split('.').join('_').replace('@', '_at_');
       return node.name === newName;
     }, this.props.table.node);
     if (tabData[0].length < 1) return null;
     const list = tabData[0].tabs.map(function({ info, call_stats, ...a }) {
-      var callStatsLookup = {
+      let callStatsLookup = {
         lookupMax: 0,
         lookupCount: 0
       };
-      var callStatsInsert = {
+      let callStatsInsert = {
         insertMax: 0,
         insertCount: 0
       };
       if (call_stats !== 'undefined' && typeof call_stats !== 'undefined') {
-        var lookup = call_stats.filter(function(obj) {
+        let lookup = call_stats.filter(function(obj) {
           return obj.func === 'lookup';
         });
-        var insert = call_stats.filter(function(obj) {
+        let insert = call_stats.filter(function(obj) {
           return obj.func === 'insert';
         });
         if (lookup.length !== 0) {
@@ -111,7 +107,7 @@ class TableView extends React.Component {
           callStatsInsert.insertCount = insert[0].count;
         }
       }
-      var callStatsObj = {
+      let callStatsObj = {
         ...callStatsInsert,
         ...callStatsLookup
       };
@@ -163,118 +159,105 @@ class TableView extends React.Component {
                 this.setState({ sortBy, sortDirection });
               }}
             >
-              {this.is_selected('name')
-                ? <Column
-                    width={150}
-                    label="Name"
-                    cellRenderer={({ cellData }) => cellData}
-                    dataKey="name"
-                    disableSort={true}
-                  />
-                : null}
-              {this.is_selected('memory')
-                ? <Column
-                    width={100}
-                    label="Memory"
-                    dataKey="memory"
-                    cellRenderer={({ cellData }) => cellData}
-                    disableSort={false}
-                  />
-                : null}
-              {this.is_selected('size')
-                ? <Column
-                    width={100}
-                    label="Size"
-                    dataKey="size"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('type')
-                ? <Column
-                    width={100}
-                    label="Type"
-                    disableSort
-                    dataKey="type"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('write_concurrency')
-                ? <Column
-                    width={100}
-                    label="Write concurrency"
-                    disableSort
-                    dataKey="write_concurrency"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('read_concurrency')
-                ? <Column
-                    width={100}
-                    label="Read concurrency"
-                    disableSort
-                    dataKey="read_concurrency"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_max')
-                ? <Column
-                    width={100}
-                    label="lookup max time"
-                    dataKey="lookupMax"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('lookup_count')
-                ? <Column
-                    width={100}
-                    label="lookup count"
-                    dataKey="lookupCount"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_max')
-                ? <Column
-                    width={100}
-                    label="insert max time"
-                    dataKey="insertMax"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('insert_count')
-                ? <Column
-                    width={100}
-                    label="insert count"
-                    dataKey="insertCount"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('owner')
-                ? <Column
-                    width={100}
-                    label="Owner"
-                    disableSort
-                    dataKey="owner"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('heir')
-                ? <Column
-                    width={100}
-                    label="Heir"
-                    disableSort
-                    dataKey="heir"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
-              {this.is_selected('protection')
-                ? <Column
-                    width={100}
-                    label="Protection"
-                    disableSort
-                    dataKey="protection"
-                    cellRenderer={({ cellData }) => cellData}
-                  />
-                : null}
+              {this.isSelected('name') &&
+                <Column
+                  width={150}
+                  label="Name"
+                  cellRenderer={({ cellData }) => cellData}
+                  dataKey="name"
+                  disableSort={true}
+                />}
+              {this.isSelected('memory') &&
+                <Column
+                  width={100}
+                  label="Memory"
+                  dataKey="memory"
+                  cellRenderer={({ cellData }) => cellData}
+                  disableSort={false}
+                />}
+              {this.isSelected('size') &&
+                <Column
+                  width={100}
+                  label="Size"
+                  dataKey="size"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('type') &&
+                <Column
+                  width={100}
+                  label="Type"
+                  disableSort
+                  dataKey="type"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('write_concurrency') &&
+                <Column
+                  width={100}
+                  label="Write concurrency"
+                  disableSort
+                  dataKey="write_concurrency"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('read_concurrency') &&
+                <Column
+                  width={100}
+                  label="Read concurrency"
+                  disableSort
+                  dataKey="read_concurrency"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('lookup_max') &&
+                <Column
+                  width={100}
+                  label="lookup max time [ms]"
+                  dataKey="lookupMax"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('lookup_count') &&
+                <Column
+                  width={100}
+                  label="lookup count"
+                  dataKey="lookupCount"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('insert_max') &&
+                <Column
+                  width={100}
+                  label="insert max time [ms]"
+                  dataKey="insertMax"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('insert_count') &&
+                <Column
+                  width={100}
+                  label="insert count"
+                  dataKey="insertCount"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('owner') &&
+                <Column
+                  width={100}
+                  label="Owner"
+                  disableSort
+                  dataKey="owner"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('heir') &&
+                <Column
+                  width={100}
+                  label="Heir"
+                  disableSort
+                  dataKey="heir"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
+              {this.isSelected('protection') &&
+                <Column
+                  width={100}
+                  label="Protection"
+                  disableSort
+                  dataKey="protection"
+                  cellRenderer={({ cellData }) => cellData}
+                />}
             </Table>
           </div>}
       </AutoSizer>
