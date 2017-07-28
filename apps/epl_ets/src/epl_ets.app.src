@@ -1,6 +1,6 @@
 {application, epl_ets,
  [{description, "EPL plugin for visualising ETS characteristics"},
-  {vsn, "0.1.0"},
+  {vsn, "0.2.0"},
   {registered, []},
   {mod, {epl_ets_app, []}},
   {applications,
