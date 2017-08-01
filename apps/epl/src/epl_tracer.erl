@@ -18,6 +18,8 @@
          trace_pid/1,
          track_timeline/1,
          enable_ets_call_tracing/1,
+         enable_ets_table_call_tracing/2,
+         disable_ets_table_call_tracing/1,
          disable_ets_call_tracing/1]).
 
 %% gen_server callbacks
@@ -27,6 +29,11 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
+
+%% Types
+-export_type([tab/0]).
+
+-type tab() :: atom() | integer().
 
 -record(state, {subscribers = [],
                 ref,
@@ -40,23 +47,23 @@
 %% ===================================================================
 
 %% @doc Starts epl_tracer gen_server process.
--spec start_link(Node :: atom()) -> {ok, pid()} | ignore | {error, term()}.
+-spec start_link(Node :: node()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(Node) ->
     gen_server:start_link({local, Node}, ?MODULE, Node, []).
 
 
 %% @doc Adds provided `Pid' to `Node' tracer's subscribers list.
--spec subscribe(Node :: atom(), Pid :: pid()) -> ok.
+-spec subscribe(Node :: node(), Pid :: pid()) -> ok.
 subscribe(Node, Pid) ->
     gen_server:call(Node, {subscribe, Pid}).
 
 %% @doc Removes provided `Pid' from `Node' tracer's subscribers list.
--spec unsubscribe(Node :: atom(), Pid :: pid()) -> ok.
+-spec unsubscribe(Node :: node(), Pid :: pid()) -> ok.
 unsubscribe(Node, Pid) ->
     gen_server:call(Node, {unsubscribe, Pid}).
 
 %% @doc Runs provided `Fun' with `Args' on `Node'.
--spec command(Node :: atom(), Fun :: fun(), Args :: list()) -> tuple().
+-spec command(Node :: node(), Fun :: fun(), Args :: list()) -> tuple().
 command(Node, Fun, Args) ->
     gen_server:call(Node, {command, Fun, Args}).
 
@@ -67,14 +74,26 @@ trace_pid(Pid) ->
     gen_server:call(Node, {trace_pid, Pid}).
 
 %% @doc Enables tracing for ets insert/lookup functions calls on the `Node'.
--spec enable_ets_call_tracing(Node :: atom()) -> ok.
+-spec enable_ets_call_tracing(Node :: node()) -> ok.
 enable_ets_call_tracing(Node) ->
     gen_server:call(Node, enable_ets_call_tracing).
 
 %% @doc Disables tracing for ets insert/lookup functions calls on the `Node'.
--spec disable_ets_call_tracing(Node :: atom()) -> ok.
+-spec disable_ets_call_tracing(Node :: node()) -> ok.
 disable_ets_call_tracing(Node) ->
     gen_server:call(Node, disable_ets_call_tracing).
+
+%% @doc Enables tracing for ets insert/lookup functions calls to a particular
+%% ETS `Table' on the `Node'.
+-spec enable_ets_table_call_tracing(Node :: node(), Table :: tab()) -> ok.
+enable_ets_table_call_tracing(Node, Table) ->
+    gen_server:call(Node, {enable_ets_tab_call_tracing, Table}).
+
+%% @doc Disables tracing for ets insert/lookup functions calls to all the ETS
+%% tables on the `Node'.
+-spec disable_ets_table_call_tracing(Node :: node()) -> ok.
+disable_ets_table_call_tracing(Node) ->
+    disable_ets_call_tracing(Node).
 
 track_timeline(Pid) ->
     Node = erlang:node(Pid),
@@ -99,6 +118,10 @@ init(Node) ->
                  epl_trace     = ets:new(epl_trace, [named_table,bag,private]),
                  epl_ets_func  = ets:new(epl_ets_func,
                                          [named_table, duplicate_bag, private]),
+                 epl_ets_traffic = ets:new(epl_ets_traffic, EtsOptions),
+                 %% Table for storing some additional information for tracer 
+                 %% process
+                 epl_additional = ets:new(epl_additional, EtsOptions),
 
                  %% turn on tracer for all processes
                  TraceFlags = [send, 'receive', procs, timestamp],
@@ -165,7 +188,24 @@ init(Node) ->
                          ets:insert(epl_exit, {Pid, Reason, TS}),
                          F(F, Ref, Trace);
                      {trace_ts, Pid, call, {ets, Func, [Tab | _]}, TS} ->
-                         ets:insert(epl_ets_func, {Pid, Tab, Func, TS}),
+                         case ets:lookup(epl_additional, trace_tab) of
+                             [{trace_tab, true}] ->
+                                 case ets:lookup(epl_ets_traffic,
+                                                 {Pid, Tab, Func}) of
+                                     [] ->
+                                         ets:insert(epl_ets_traffic,
+                                                    {{Pid, Tab, Func}, 0}),
+                                         ets:update_counter(epl_ets_traffic,
+                                                            {Pid, Tab, Func},
+                                                            {2, 1});
+                                     _ ->
+                                         ets:update_counter(epl_ets_traffic,
+                                                            {Pid, Tab, Func},
+                                                            {2, 1})
+                                 end;
+                             _Else ->
+                                 ets:insert(epl_ets_func, {Pid, Tab, Func, TS})
+                         end,
                          F(F, Ref, Trace);
                      {trace_ts, Pid, return_to, _, TS} ->
                          ets:insert(epl_ets_func, {Pid, null, return_to, TS}),
@@ -203,15 +243,20 @@ init(Node) ->
                          F(F, Ref, Trace);
                      {Ref, Pid, {trace_pid, NewTrace}} when is_pid(NewTrace) ->
                          F(F, Ref, NewTrace);
-                     {Ref, _Pid, enable_ets_call_tracing} ->
-                         erlang:trace(all, true, [call, return_to, timestamp]),
-                         erlang:trace_pattern({ets, insert, 2}, true, [local]),
-                         erlang:trace_pattern({ets, lookup, 2}, true, [local]),
+                     {Ref, _Pid, {enable_ets_call_tracing, TraceFlags,
+                                  MatchSpec, Additional}} ->
+                         ets:insert(epl_additional, {trace_tab, true}),
+                         erlang:trace(all, true, TraceFlags),
+                         erlang:trace_pattern({ets, insert, 2}, MatchSpec,
+                                              [local]),
+                         erlang:trace_pattern({ets, lookup, 2}, MatchSpec,
+                                              [local]),
                          F(F, Ref, Trace);
                      {Ref, _Pid, disable_ets_call_tracing} ->
                          erlang:trace_pattern({ets, insert, 2}, false, [local]),
                          erlang:trace_pattern({ets, lookup, 2}, false, [local]),
                          erlang:trace(all, false, [call, return_to]),
+                         ets:insert(epl_additional, {trace_tab, false}),
                          F(F, Ref, Trace);
                      {Ref, Pid, List} when is_list(List) ->
                          %% received list of commands to execute
@@ -262,7 +307,19 @@ handle_call({command, Fun, Args}, _, State = #state{ref=Ref, remote_pid=RPid}) -
     end;
 handle_call(enable_ets_call_tracing, _, State = #state{ref=Ref,
                                                        remote_pid=RPid}) ->
-    RPid ! {Ref, self(), enable_ets_call_tracing},
+    TraceFlag = [call, return_to, timestamp],
+    MatchSpec = true,
+    Additional = [],
+    RPid ! {Ref, self(), {enable_ets_call_tracing, TraceFlag, MatchSpec,
+                          Additional}},
+    {reply, ok, State, ?POLL};
+handle_call({enable_ets_tab_call_tracing, Tab}, _, State = #state{ref=Ref,
+                                                       remote_pid=RPid}) ->
+    TraceFlag = [call, timestamp],
+    MatchSpec = [{[Tab, '_'], [], []}],
+    Additional = [{tab, Tab}],
+    RPid ! {Ref, self(), {enable_ets_call_tracing, TraceFlag, MatchSpec,
+                          Additional}},
     {reply, ok, State, ?POLL};
 handle_call(disable_ets_call_tracing, _, State = #state{ref=Ref,
                                                        remote_pid=RPid}) ->
@@ -294,7 +351,9 @@ handle_info(timeout,
          {trace,         fun ets:tab2list/1, [epl_trace]},
          {trace_,        fun ets:delete_all_objects/1, [epl_trace]},
          {ets_func,      fun ets:tab2list/1, [epl_ets_func]},
-         {ets_func_,     fun ets:delete_all_objects/1, [epl_ets_func]}
+         {ets_func_,     fun ets:delete_all_objects/1, [epl_ets_func]},
+         {ets_traffic,   fun ets:tab2list/1, [epl_ets_traffic]},
+         {ets_traffic_,  fun ets:delete_all_objects/1, [epl_ets_traffic]}
         ],
 
     RPid ! {Ref, self(), GetCountersList},
@@ -303,7 +362,7 @@ handle_info(timeout,
         {Ref, Proplist} when is_list(Proplist) ->
             %% assert all ets tables were cleared
             EtsTables = [spawn_, exit_, send_, send_self_, receive_, trace_,
-                         timeline_, ets_func_],
+                         timeline_, ets_func_, ets_traffic_],
             [{Key, true} = lists:keyfind(Key, 1, Proplist)
              || Key <- EtsTables],
 
