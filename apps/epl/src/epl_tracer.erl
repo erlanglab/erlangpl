@@ -245,7 +245,7 @@ init(Node) ->
                          F(F, Ref, NewTrace);
                      {Ref, _Pid, {enable_ets_call_tracing, TraceFlags,
                                   MatchSpec, Additional}} ->
-                         ets:insert(epl_additional, {trace_tab, true}),
+                         [ets:insert(epl_additional, A) || A <- Additional],
                          erlang:trace(all, true, TraceFlags),
                          erlang:trace_pattern({ets, insert, 2}, MatchSpec,
                                               [local]),
@@ -317,7 +317,7 @@ handle_call({enable_ets_tab_call_tracing, Tab}, _, State = #state{ref=Ref,
                                                        remote_pid=RPid}) ->
     TraceFlag = [call, timestamp],
     MatchSpec = [{[Tab, '_'], [], []}],
-    Additional = [{tab, Tab}],
+    Additional = [{trace_tab, true}],
     RPid ! {Ref, self(), {enable_ets_call_tracing, TraceFlag, MatchSpec,
                           Additional}},
     {reply, ok, State, ?POLL};
