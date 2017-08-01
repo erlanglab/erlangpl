@@ -9,6 +9,7 @@
 
 %% API
 -export([update_cluster/2,
+         update_details/3,
          remove_outdated/2]).
 
 %%====================================================================
@@ -23,6 +24,16 @@ update_cluster(Node, Viz = #{nodes := VizNodes}) ->
     ETSBasicInfo = get_node_ets_basic_info(Node),
     epl_viz_map:push_additional_node_info(ETSBasicInfo, Node, VizRegion).
 
+%% @doc Updates Vizceral map's third-level section.
+-spec update_details(Node :: node(), [] | list(), Viz :: map()) -> map().
+update_details(_Node, [], Viz) ->
+    Viz;
+update_details(Node, ETSTrafficCounters, Viz) ->
+    VizCleaned = clean_ets_traffic_from_viz(Node, Viz),
+    {tab_traffic, ETSTraffic} =
+        epl_ets_metric:get_ets_tab_traffic(ETSTrafficCounters),
+    push_tab_traffic(ETSTraffic, Node, VizCleaned).
+
 %% @doc Removes outdated nodes from Vizceral map's cluster section.
 -spec remove_outdated(Nodes :: [#{atom() => integer()}], Viz :: map()) -> map().
 remove_outdated(Nodes, Viz) ->
@@ -35,6 +46,35 @@ remove_outdated(Nodes, Viz) ->
 %%====================================================================
 %% Internals
 %%====================================================================
+
+push_tab_traffic([{Tab, Traffic}], Node, Viz) ->
+    Viz2 = epl_viz_map:push_focused(Tab, Node, Viz),
+    lists:foldl(fun(Proc, VizUpdated) -> push_ets_proc_and_conn(Tab, Proc, Node,
+                                                                VizUpdated) end,
+                Viz2, Traffic).
+
+push_ets_proc_and_conn(Tab, {Pid, Counters}, Node, Viz) ->
+    Viz2 = epl_viz_map:push_focused(Pid, Node, Viz),
+    Lookup = proplists:get_value(lookup, Counters),
+    Insert = proplists:get_value(insert, Counters),
+    Viz3 = epl_viz_map:push_focused_connection(Tab, Pid, Node,
+                                               get_counter_traffic_metrics(Lookup),
+                                               Viz2),
+    epl_viz_map:push_focused_connection(Pid, Tab, Node,
+                                        get_counter_traffic_metrics(Insert),
+                                        Viz3).
+
+get_counter_traffic_metrics(undefined) ->
+    {0, 0, 0};
+get_counter_traffic_metrics(Count) ->
+    {Count, 0, 0}.
+
+clean_ets_traffic_from_viz(Node, Viz) ->
+    {VizNode, NewViz = #{nodes := VizNodes}} = epl_viz_map:pull_region(Node,
+                                                                       Viz),
+    VizNodeCleaned = maps:merge(VizNode, #{nodes => []}),
+    VizNodeCleaned2 = maps:merge(VizNodeCleaned, #{connections => []}),
+    maps:merge(NewViz, #{nodes => [VizNodeCleaned2 | VizNodes]}).
 
 get_node_ets_basic_info(Node) ->
     ETSCount = epl_ets_metric:get_node_ets_num(Node),

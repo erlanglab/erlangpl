@@ -12,10 +12,11 @@
          get_node_ets_mem/1,
          get_node_ets_tabs/1,
          get_ets_tabs_info/2,
-         get_ets_call_stats/1]).
+         get_ets_call_stats/1,
+         get_ets_tab_traffic/1]).
 
 %% Test
--export([split_traces_by/2,
+-export([split_tuple_list_by/2,
          sort_traces_by_ms/1,
          clean_traces_unpaired/1,
          calculate_call_time/1]).
@@ -64,6 +65,19 @@ get_ets_call_stats(Traces) ->
     Traces3 = transform_traces_by_tab(Traces2),
     {call_stats, calculate_tabs_statistics(Traces3)}.
 
+%% @doc Gets traffic information (number of inserts/lookups) about traced ETS
+%% table.
+-spec get_ets_tab_traffic([] | list()) -> {tab_traffic, [] | [{atom(), list()}]}.
+get_ets_tab_traffic([]) ->
+    {tab_traffic, []};
+get_ets_tab_traffic(TrafficCounters) ->
+    Tab = get_traffic_tab(TrafficCounters),
+    TrafficCountersFlat = flat_traffic_counters(TrafficCounters),
+    TrafficCountersByPid = split_traffic_counters_by_pid(TrafficCountersFlat),
+    TrafficCountersFormatted = format_traffic_counters(TrafficCountersByPid),
+    {tab_traffic, [{Tab, TrafficCountersFormatted}]}.
+
+
 %%====================================================================
 %% Internals
 %%====================================================================
@@ -100,19 +114,19 @@ calculate_tab_func_statistics({Func, TimeProbes}) ->
       <<"count">> => erlang:length(TimeProbes)}.
 
 split_traces_by_pid(Traces) ->
-    split_traces_by(Traces, 1).
+    split_tuple_list_by(Traces, 1).
 
 split_traces_by_tab(Traces) ->
-    split_traces_by(Traces, 2).
+    split_tuple_list_by(Traces, 2).
 
 split_traces_by_func(Traces) ->
-    split_traces_by(Traces, 3).
+    split_tuple_list_by(Traces, 3).
 
-split_traces_by(Traces, ElemIndex) ->
-    TracesUnique = lists:ukeysort(ElemIndex, Traces),
-    KeysUnique = lists:map(fun(T) -> element(ElemIndex, T) end, TracesUnique),
+split_tuple_list_by(TupleList, ElemIndex) ->
+    TuplesUnique = lists:ukeysort(ElemIndex, TupleList),
+    KeysUnique = lists:map(fun(T) -> element(ElemIndex, T) end, TuplesUnique),
     Splitted = [lists:partition(fun(T) -> element(ElemIndex, T) =:= KU end,
-                                Traces) || KU <- KeysUnique],
+                                TupleList) || KU <- KeysUnique],
     lists:map(fun({S, _NS}) -> S end, Splitted).
 
 format_traces(TraceLists) ->
@@ -197,3 +211,22 @@ namify(Name) ->
 proplist_to_map(Proplist) ->
     lists:foldl(fun({Prop, Val}, Map) -> maps:put(namify(Prop), namify_val(Val), 
                                                   Map) end, #{}, Proplist).
+
+get_traffic_tab([{{_Pid, Tab, _Func}, _Count} | _]) ->
+    Tab.
+
+flat_traffic_counters(TrafficCounters) ->
+    lists:map(fun({{Pid, Tab, Func}, Count}) -> {Pid, Tab, Func, Count} end,
+              TrafficCounters).
+
+split_traffic_counters_by_pid(TrafficCounters) ->
+    split_tuple_list_by(TrafficCounters, 1).
+
+format_traffic_counters(ListOfTrafficCounters) ->
+    [merge_traffic_counters_pair(TC) || TC <- ListOfTrafficCounters].
+
+merge_traffic_counters_pair(TrafficCounters = [{Pid, _, _, _} | _]) ->
+    {Pid, [get_traffic_counter(C) || C <- TrafficCounters]}.
+
+get_traffic_counter({_Pid, _Tab, Func, Counter}) ->
+    {Func, Counter}.

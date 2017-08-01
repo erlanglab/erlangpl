@@ -15,20 +15,19 @@
 %%====================================================================
 
 %% @doc Updates the node ETS table section in Vizceral map.
--spec update_node(Node :: atom(), Proplist :: list(), Viz :: map()) -> 
+-spec update_node(Node :: atom(), ETSCallTrace :: list(), Viz :: map()) -> 
                                  map().
-update_node(Node, Proplist, Viz) ->
-    ETSTabsMetric = get_ets_metric(Node, Proplist),
+update_node(Node, ETSCallTrace, Viz) ->
+    ETSTabsMetric = get_ets_metric(Node, ETSCallTrace),
     create_ets_tab_map(Node, ETSTabsMetric, Viz).
 
 %%====================================================================
 %% Internals
 %%====================================================================
 
-get_ets_metric(Node, Proplist) ->
+get_ets_metric(Node, ETSCallTrace) ->
     Tabs = epl_ets_metric:get_node_ets_tabs(Node),
     TabsInfo = epl_ets_metric:get_ets_tabs_info(Node, Tabs),
-    ETSCallTrace = proplists:get_value(ets_func, Proplist),
     TabsCallStats = epl_ets_metric:get_ets_call_stats(ETSCallTrace),
     [merge_metrics(Tab, [TabsInfo, TabsCallStats]) || Tab <- Tabs].
 
