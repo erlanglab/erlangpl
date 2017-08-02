@@ -36,7 +36,6 @@ class TableView extends React.Component {
         { value: 'protection', label: 'Protection' }
       ],
       selectedOptions: [
-        { value: 'name', label: 'Name' },
         { value: 'memory', label: 'Memory' },
         { value: 'size', label: 'Size' },
         { value: 'type', label: 'Type' },
@@ -82,7 +81,7 @@ class TableView extends React.Component {
       return node.name === newName;
     }, this.props.table.node);
     if (tabData[0].length < 1) return null;
-    const list = tabData[0].tabs.map(function({ info, call_stats, ...a }) {
+    const list = tabData[0].tabs.map(function({ info, call_stats, tab_id }) {
       let callStatsLookup = {
         lookupMax: 0,
         lookupCount: 0
@@ -111,9 +110,8 @@ class TableView extends React.Component {
         ...callStatsInsert,
         ...callStatsLookup
       };
-      return { ...a, ...info, ...callStatsObj };
+      return { ...{ tab_id: tab_id }, ...info, ...callStatsObj };
     });
-
     const listSorted = this.state.sortBy ? this.sort(list) : list;
     const rowGetter = ({ index }) => listSorted[index];
     return (
@@ -159,6 +157,13 @@ class TableView extends React.Component {
                 this.setState({ sortBy, sortDirection });
               }}
             >
+              <Column
+                width={150}
+                label="ID"
+                cellRenderer={({ cellData }) => cellData}
+                dataKey="tab_id"
+                disableSort={true}
+              />
               {this.isSelected('name') &&
                 <Column
                   width={150}

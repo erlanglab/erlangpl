@@ -37,7 +37,7 @@ merge_metrics(Tab, Metrics) ->
                 end, #{}, Metrics).
 
 get_metric_val(Tab, {Type, Metric}) ->
-    #{<<"name">> => namify(Tab),
+    #{<<"tab_id">> => namify(Tab),
       namify(Type) => proplists:get_value(Tab, Metric)}.
 
 create_ets_tab_map(Node, ETSTabsMetric, Viz) ->
