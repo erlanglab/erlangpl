@@ -130,41 +130,17 @@ class ETS extends Component {
       detailedNode: {
         volume: {
           default: {
-            top: {
-              header: 'RPS',
-              data: 'data.volumePercent',
-              format: '0.0%'
-            },
             bottom: {
-              header: 'ERROR RATE',
-              data: 'data.classPercents.danger',
-              format: '0.00%'
-            },
-            donut: {
-              data: 'data.globalClassPercents',
-              indices: [
-                { key: 'danger' },
-                { key: 'warning' },
-                { key: 'normal', class: 'normalDonut' }
-              ]
-            },
-            arc: {}
+              header: 'Lookup',
+              data: 'lookup',
+              format: '0'
+            }
           },
           focused: {
             top: {
-              header: 'RPS',
-              data: 'data.volume',
-              format: '0,0'
-            },
-            donut: {
-              data: 'data.classPercents'
-            }
-          },
-          entry: {
-            top: {
-              header: 'TOTAL RPS',
-              data: 'data.volume',
-              format: '0,0'
+              header: 'Insert',
+              data: 'insert',
+              format: '0'
             }
           }
         }
