@@ -89,20 +89,12 @@ ensure_traffic_counters_are_num(Insert, Lookup) ->
     {Insert, Lookup}.
 
 push_ets_proc_and_conn(Tab, {Pid, Counters}, Node, Viz) ->
-    Viz2 = epl_viz_map:push_focused(Pid, Node, Viz),
-    Lookup = proplists:get_value(lookup, Counters),
     Insert = proplists:get_value(insert, Counters),
-    Viz3 = epl_viz_map:push_focused_connection(Tab, Pid, Node,
-                                               get_counter_traffic_metrics(Lookup),
-                                               Viz2),
-    epl_viz_map:push_focused_connection(Pid, Tab, Node,
-                                        get_counter_traffic_metrics(Insert),
-                                        Viz3).
-
-get_counter_traffic_metrics(undefined) ->
-    {0, 0, 0};
-get_counter_traffic_metrics(Count) ->
-    {Count, 0, 0}.
+    Lookup = proplists:get_value(lookup, Counters),
+    {I, L} = ensure_traffic_counters_are_num(Insert, Lookup),
+    Viz2 = epl_viz_map:push_focused(Pid, Node, #{insert => I, lookup => L}, Viz),
+    Viz3 = epl_viz_map:push_focused_connection(Pid, Tab, Node, {I, 0, 0}, Viz2),
+    epl_viz_map:push_focused_connection(Tab, Pid, Node, {L, 0, 0}, Viz3).
 
 clean_ets_traffic_from_viz(Node, Viz) ->
     {VizNode, NewViz = #{nodes := VizNodes}} = epl_viz_map:pull_region(Node,
