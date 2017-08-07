@@ -22,6 +22,8 @@ class ETS extends Component {
     graph: boolean,
     showTab: boolean,
     clickedNode: any,
+    view: any,
+    definitions: object,
     vizStyle: object
   };
 
@@ -37,6 +39,8 @@ class ETS extends Component {
       graph: false,
       showTab: false,
       clickedNode: false,
+      view: [],
+      definitions: this.clusterViewDefinitions(),
       vizStyle: {}
     };
   }
@@ -57,6 +61,117 @@ class ETS extends Component {
     window.removeEventListener('resize', this.resize);
   }
 
+  componentWillReceiveProps({ view }) {
+    this.setState({ view: view });
+  }
+
+  handleTabClick = (tab_id: any) => {
+    this.setState({ view: [this.state.clickedNode, tab_id] });
+  };
+
+  enableNodeTracing = node => {
+    if (node) {
+      send('epl_ets_EPL', JSON.stringify({ enable: true, node: node }));
+    }
+  };
+
+  enableTabTracing = (node, tab) => {
+    if (node && tab) {
+      send(
+        'epl_ets_EPL',
+        JSON.stringify({
+          enable: true,
+          node: node,
+          table: tab
+        })
+      );
+    }
+  };
+
+  disableTracing = node => {
+    if (node) {
+      send('epl_ets_EPL', JSON.stringify({ enable: false, node: node }));
+    }
+  };
+
+  clusterViewDefinitions = () => {
+    return {
+      detailedNode: {
+        volume: {
+          default: {
+            top: {
+              header: 'ETS Count',
+              data: 'etsMetrics.all',
+              format: '0'
+            },
+            bottom: {
+              header: 'ETS memory usage',
+              data: 'etsMetrics.memUsage',
+              format: '0.00%'
+            },
+            donut: {
+              data: 'etsMetrics.pieChart'
+            }
+          },
+          entry: {
+            top: {
+              header: 'ETS Count',
+              data: 'etsMetrics.all',
+              format: '0'
+            }
+          }
+        }
+      }
+    };
+  };
+
+  detailsViewDefinitions = () => {
+    return {
+      detailedNode: {
+        volume: {
+          default: {
+            top: {
+              header: 'RPS',
+              data: 'data.volumePercent',
+              format: '0.0%'
+            },
+            bottom: {
+              header: 'ERROR RATE',
+              data: 'data.classPercents.danger',
+              format: '0.00%'
+            },
+            donut: {
+              data: 'data.globalClassPercents',
+              indices: [
+                { key: 'danger' },
+                { key: 'warning' },
+                { key: 'normal', class: 'normalDonut' }
+              ]
+            },
+            arc: {}
+          },
+          focused: {
+            top: {
+              header: 'RPS',
+              data: 'data.volume',
+              format: '0,0'
+            },
+            donut: {
+              data: 'data.classPercents'
+            }
+          },
+          entry: {
+            top: {
+              header: 'TOTAL RPS',
+              data: 'data.volume',
+              format: '0,0'
+            }
+          }
+        }
+      }
+    };
+  };
+
   handleViewChange = (data: any) => {
     const sidePanelLevel = 3;
     let anim;
@@ -74,23 +189,37 @@ class ETS extends Component {
       //close
       anim = { end: 0, start: 1 };
     }
-
-    if (view.length === 1) {
-      send('epl_ets_EPL', view[0]);
-      this.setState({
-        clickedNode: view[0],
-        showTab: true,
-        vizStyle: { display: 'none' }
-      });
-    } else {
-      if (this.state.clickedNode) {
-        send('epl_ets_EPL', this.state.clickedNode);
-      }
-      this.setState({
-        clickedNode: false,
-        showTab: false,
-        vizStyle: {}
-      });
+    switch (view.length) {
+      case 0:
+        this.disableTracing(this.state.clickedNode);
+        this.setState({
+          clickedNode: false,
+          showTab: false,
+          definitions: this.clusterViewDefinitions(),
+          vizStyle: {}
+        });
+        break;
+      case 1:
+        this.disableTracing(view[0]);
+        this.enableNodeTracing(view[0]);
+        this.setState({
+          clickedNode: view[0],
+          showTab: true,
+          vizStyle: { display: 'none' }
+        });
+        break;
+      case 2:
+        this.disableTracing(view[0]);
+        this.enableTabTracing(view[0], view[1]);
+        this.setState({
+          clickedNode: view[0],
+          showTab: false,
+          definitions: this.detailsViewDefinitions(),
+          vizStyle: {}
+        });
+        break;
+      default:
+        break;
     }
 
     this.setState({
@@ -121,6 +250,9 @@ class ETS extends Component {
                   tabs: this.props.data.etsNodeTabs,
                   node: this.state.clickedNode
                 }}
+                tableClicked={tab_id => {
+                  this.handleTabClick(tab_id);
+                }}
               />
             : null}
           <div
@@ -133,40 +265,13 @@ class ETS extends Component {
             <Vizceral
               ref={node => (this.vizceral = node)}
               traffic={this.props.data}
-              view={this.props.view}
+              view={this.state.view}
               viewChanged={this.handleViewChange}
               showLabels={true}
               match={this.props.search}
               allowDraggingOfNodes={true}
               targetFramerate={25}
-              definitions={{
-                detailedNode: {
-                  volume: {
-                    default: {
-                      top: {
-                        header: 'ETS Count',
-                        data: 'etsMetrics.all',
-                        format: '0'
-                      },
-                      bottom: {
-                        header: 'ETS memory usage',
-                        data: 'etsMetrics.memUsage',
-                        format: '0.00%'
-                      },
-                      donut: {
-                        data: 'etsMetrics.pieChart'
-                      }
-                    },
-                    entry: {
-                      top: {
-                        header: 'ETS Count',
-                        data: 'etsMetrics.all',
-                        format: '0'
-                      }
-                    }
-                  }
-                }
-              }}
+              definitions={this.state.definitions}
             />
           </div>
         </PluginWrapper>

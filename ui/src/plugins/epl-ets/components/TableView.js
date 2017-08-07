@@ -146,6 +146,9 @@ class TableView extends React.Component {
               rowCount={list.length}
               sortBy={this.state.sortBy}
               sortDirection={this.state.sortDirection}
+              onRowDoubleClick={({ rowData }) => {
+                this.props.tableClicked(rowData.tab_id);
+              }}
               rowClassName={({ index }) => {
                 if (index !== -1) {
                   return 'ets-table-row';

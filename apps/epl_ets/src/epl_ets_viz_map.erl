@@ -26,8 +26,9 @@ update_cluster(Node, Viz = #{nodes := VizNodes}) ->
 
 %% @doc Updates Vizceral map's third-level section.
 -spec update_details(Node :: node(), [] | list(), Viz :: map()) -> map().
-update_details(_Node, [], Viz) ->
-    Viz;
+update_details(Node, [], Viz) ->
+    VizCleaned = clean_ets_traffic_from_viz(Node, Viz),
+    push_ets_tables(undefined, Node, VizCleaned);
 update_details(Node, ETSTrafficCounters, Viz) ->
     VizCleaned = clean_ets_traffic_from_viz(Node, Viz),
     {tab_traffic, ETSTraffic} =
@@ -48,10 +49,22 @@ remove_outdated(Nodes, Viz) ->
 %%====================================================================
 
 push_tab_traffic([{Tab, Traffic}], Node, Viz) ->
-    Viz2 = epl_viz_map:push_focused(Tab, Node, Viz),
+    Viz2 = push_ets_tables(Tab, Node, Viz),
     lists:foldl(fun(Proc, VizUpdated) -> push_ets_proc_and_conn(Tab, Proc, Node,
                                                                 VizUpdated) end,
                 Viz2, Traffic).
+
+push_ets_tables(Tab, Node, Viz) ->
+    AllTabs = epl_ets_metric:get_node_ets_tabs(Node),
+    TabsToPush = concat_tabs(Tab, AllTabs, lists:member(Tab, AllTabs)),
+    lists:foldl(fun(T, VizUpdated) -> epl_viz_map:push_focused(T, Node,
+                                                               VizUpdated) end,
+                Viz, TabsToPush).
+
+concat_tabs(_Tab, AllTabs, true) ->
+    AllTabs;
+concat_tabs(Tab, AllTabs, false) ->
+    [Tab | AllTabs].
 
 push_ets_proc_and_conn(Tab, {Pid, Counters}, Node, Viz) ->
     Viz2 = epl_viz_map:push_focused(Pid, Node, Viz),

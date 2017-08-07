@@ -15,8 +15,7 @@
 %%====================================================================
 
 %% @doc Updates the node ETS table section in Vizceral map.
--spec update_node(Node :: atom(), ETSCallTrace :: list(), Viz :: map()) -> 
-                                 map().
+-spec update_node(Node :: atom(), ETSCallTrace :: list(), Viz :: map()) -> map().
 update_node(Node, ETSCallTrace, Viz) ->
     ETSTabsMetric = get_ets_metric(Node, ETSCallTrace),
     create_ets_tab_map(Node, ETSTabsMetric, Viz).
