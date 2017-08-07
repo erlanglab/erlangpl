@@ -24,7 +24,8 @@ class ETS extends Component {
     clickedNode: any,
     view: any,
     definitions: object,
-    vizStyle: object
+    vizStyle: object,
+    loader: object
   };
 
   vizceral: any;
@@ -41,7 +42,8 @@ class ETS extends Component {
       clickedNode: false,
       view: [],
       definitions: this.clusterViewDefinitions(),
-      vizStyle: {}
+      vizStyle: {},
+      loader: true
     };
   }
 
@@ -62,7 +64,7 @@ class ETS extends Component {
   }
 
   componentWillReceiveProps({ view }) {
-    this.setState({ view: view });
+    this.setState({ view: view, loader: false });
   }
 
   handleTabClick = (tab_id: any) => {
@@ -216,7 +218,7 @@ class ETS extends Component {
           // NOTE: to hide side panel simply pass null/undefined or false
           // instead of component as sidePanel property
           sidePanel={false}
-          loading={false}
+          loading={this.state.loader}
           className="Traffic-container"
           loaderText="Gathering ETS cluster data"
         >
