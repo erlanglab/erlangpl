@@ -23,6 +23,7 @@ class ETS extends Component {
     showTab: boolean,
     clickedNode: any,
     view: any,
+    tabTraceId: any,
     definitions: object,
     vizStyle: object,
     loader: object
@@ -41,6 +42,7 @@ class ETS extends Component {
       showTab: false,
       clickedNode: false,
       view: [],
+      tabTraceId: false,
       definitions: this.clusterViewDefinitions(),
       vizStyle: {},
       loader: true
@@ -67,8 +69,11 @@ class ETS extends Component {
     this.setState({ view: view, loader: false });
   }
 
-  handleTabClick = (tab_id: any) => {
-    this.setState({ view: [this.state.clickedNode, tab_id] });
+  handleTabClick = ({ tabId, tabTraceId }) => {
+    this.setState({
+      view: [this.state.clickedNode, tabId],
+      tabTraceId: tabTraceId
+    });
   };
 
   enableNodeTracing = node => {
@@ -188,7 +193,7 @@ class ETS extends Component {
         break;
       case 2:
         this.disableTracing(view[0]);
-        this.enableTabTracing(view[0], view[1]);
+        this.enableTabTracing(view[0], this.state.tabTraceId);
         this.setState({
           clickedNode: view[0],
           showTab: false,
@@ -228,8 +233,8 @@ class ETS extends Component {
                   tabs: this.props.data.etsNodeTabs,
                   node: this.state.clickedNode
                 }}
-                tableClicked={tab_id => {
-                  this.handleTabClick(tab_id);
+                tableClicked={tabIds => {
+                  this.handleTabClick(tabIds);
                 }}
               />
             : null}

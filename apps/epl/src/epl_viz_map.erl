@@ -159,7 +159,7 @@ binarify(Name) when is_integer(Name) ->
     integer_to_binary(Name);
 binarify(Name) when is_reference(Name) ->
     [RefBin] = io_lib:format("~p", [Name]),
-    RefBin;
+    binarify(RefBin);
 binarify(Name) when is_binary(Name) ->
     Name.
 
@@ -169,7 +169,8 @@ namify(Name) when is_binary(Name) ->
     Name1 = binary:replace(binarify(Name), <<"@">>, <<"_at_">>),
     Name2 = binary:replace(binarify(Name1), <<"<">>, <<"">>),
     Name3 = binary:replace(binarify(Name2), <<">">>, <<"">>),
-    binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]);
+    Name4 = binary:replace(binarify(Name3), <<"#">>, <<"">>),
+    binary:replace(binarify(Name4), <<".">>, <<"_">>, [global]);
 namify(Name) ->
     namify(binarify(Name)).
 

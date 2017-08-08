@@ -49,9 +49,9 @@ websocket_terminate(_Reason, _Req, _State) ->
 %%====================================================================
 
 dispatch_request(#{<<"enable">> := true, <<"node">> := NodeBin,
-                   <<"table">> := TabBin}) ->
+                   <<"table">> := Tab}) ->
     Node = binary_to_existing_atom(NodeBin, latin1),
-    TabId = binary_to_tab_id(TabBin),
+    TabId = tab_to_tab_id(Tab),
     ok = trace_ets_table(Node, TabId);
 dispatch_request(#{<<"enable">> := true, <<"node">> := NodeBin}) ->
     Node = binary_to_existing_atom(NodeBin, latin1),
@@ -60,17 +60,26 @@ dispatch_request(#{<<"enable">> := false, <<"node">> := NodeBin}) ->
     Node = binary_to_existing_atom(NodeBin, latin1),
     ok = epl_tracer:disable_ets_call_tracing(Node).
 
-binary_to_tab_id(TabBin) ->
+tab_to_tab_id(Tab) ->
     try
-        binary_to_integer(TabBin)
+        binary_to_integer(Tab)
     catch
         error:badarg ->
-            convert_binary_to_tab_name(TabBin)
+            tab_to_reference(Tab)
     end.
 
-convert_binary_to_tab_name(TabBin) ->
+tab_to_reference(Tab) ->
     try
-        binary_to_existing_atom(TabBin, latin1)
+        T = list_to_binary(Tab),
+        binary_to_term(T)
+    catch
+        error:badarg ->
+            convert_binary_to_tab_name(Tab)
+    end.
+
+convert_binary_to_tab_name(Tab) ->
+    try
+        binary_to_existing_atom(Tab, latin1)
     catch
         error:badarg ->
             undefined
