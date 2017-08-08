@@ -159,7 +159,7 @@ binarify(Name) when is_integer(Name) ->
     integer_to_binary(Name);
 binarify(Name) when is_reference(Name) ->
     [RefBin] = io_lib:format("~p", [Name]),
-    RefBin;
+    binarify(RefBin);
 binarify(Name) when is_binary(Name) ->
     Name.
 
