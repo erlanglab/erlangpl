@@ -80,7 +80,7 @@ get_ets_tab_traffic(TrafficCounters) ->
 
 
 %% Truncs float number.
--spec trunc_float(Float :: float(), Pos :: integer) -> float().
+-spec trunc_float(Float :: float(), Pos :: integer()) -> float().
 trunc_float(Float, Pos) ->
     List = erlang:float_to_list(Float, [{decimals, Pos}]),
     erlang:list_to_float(List).

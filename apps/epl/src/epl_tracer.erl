@@ -33,7 +33,7 @@
 %% Types
 -export_type([tab/0]).
 
--type tab() :: atom() | integer().
+-type tab() :: atom() | integer() | reference().
 
 -record(state, {subscribers = [],
                 ref,
@@ -119,7 +119,7 @@ init(Node) ->
                  epl_ets_func  = ets:new(epl_ets_func,
                                          [named_table, duplicate_bag, private]),
                  epl_ets_traffic = ets:new(epl_ets_traffic, EtsOptions),
-                 %% Table for storing some additional information for tracer 
+                 %% Table for storing some additional information for the tracer
                  %% process
                  epl_additional = ets:new(epl_additional, EtsOptions),
 

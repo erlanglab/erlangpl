@@ -121,7 +121,7 @@ update_viz(Node, VizEntity, Proplist) ->
     epl_ets_viz_map:update_details(Node, ETSTrafficCounters, NewViz2).
     
 distribute_viz(Viz, Subs) ->
-    JSON = epl_json:encode(Viz, <<"ets-node-info">>),
+    JSON = epl_json:encode(Viz, <<"ets-info">>),
     [Pid ! {data, JSON} || Pid <- Subs].
 
 register_node_activity(Node, Nodes) ->

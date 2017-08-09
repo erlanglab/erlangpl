@@ -24,7 +24,7 @@ update_cluster(Node, Viz = #{nodes := VizNodes}) ->
     ETSBasicInfo = get_node_ets_basic_info(Node),
     epl_viz_map:push_additional_node_info(ETSBasicInfo, Node, VizRegion).
 
-%% @doc Updates Vizceral map's third-level section.
+%% @doc Updates the Vizceral map's ETS details section.
 -spec update_details(Node :: node(), [] | list(), Viz :: map()) -> map().
 update_details(Node, [], Viz) ->
     VizCleaned = clean_ets_traffic_from_viz(Node, Viz),
@@ -50,23 +50,39 @@ remove_outdated(Nodes, Viz) ->
 
 push_tab_traffic([{Tab, Traffic}], Node, Viz) ->
     Viz2 = push_ets_tables(Tab, Node, Traffic, Viz),
-    lists:foldl(fun(Proc, VizUpdated) -> push_ets_proc_and_conn(Tab, Proc, Node,
-                                                                VizUpdated) end,
-                Viz2, Traffic).
+    push_ets_procs_and_conns(Tab, Node, Traffic, Viz2).
 
 push_ets_tables(Tab, Node, Traffic, Viz) ->
-    RestTabs = lists:delete(Tab, epl_ets_metric:get_node_ets_tabs(Node)),
-    TracedTabAdditional = get_trace_tab_additional_info_map(Traffic),
-    Viz2 = lists:foldl(fun(T, VizUpdated) ->
-                               epl_viz_map:push_focused(T, Node,
-                                                        create_ets_traffic_metrics_map(0, 0),
-                                                        VizUpdated) end,
-                       Viz, RestTabs),
+    NotTracedTabs = lists:delete(Tab, epl_ets_metric:get_node_ets_tabs(Node)),
+    TracedTabAdditional = get_traced_tab_additional_info_map(Traffic),
+    Viz2 = push_not_traced_tabs(NotTracedTabs, Node, Viz),
     epl_viz_map:push_focused(Tab, Node, TracedTabAdditional, Viz2).
 
-get_trace_tab_additional_info_map([]) ->
+push_not_traced_tabs(Tabs, Node, Viz) ->
+    lists:foldl(fun(T, VizUpdated) ->
+                        epl_viz_map:push_focused(T, Node,
+                                                 create_ets_traffic_metrics_map(0, 0),
+                                                 VizUpdated)
+                end, Viz, Tabs).
+
+push_ets_procs_and_conns(Tab, Node, Traffic, Viz) ->
+    lists:foldl(fun(SingleTraffic, VizUpdated) ->
+                        push_ets_proc_and_conn(Tab, SingleTraffic, Node,
+                                               VizUpdated)
+                end, Viz, Traffic).
+
+push_ets_proc_and_conn(Tab, {Pid, Counters}, Node, Viz) ->
+    Insert = proplists:get_value(insert, Counters),
+    Lookup = proplists:get_value(lookup, Counters),
+    {I, L} = ensure_traffic_metrics_are_num(Insert, Lookup),
+    Viz2 = epl_viz_map:push_focused(Pid, Node,
+                                    create_ets_traffic_metrics_map(I, L), Viz),
+    Viz3 = epl_viz_map:push_focused_connection(Pid, Tab, Node, {I, 0, 0}, Viz2),
+    epl_viz_map:push_focused_connection(Tab, Pid, Node, {L, 0, 0}, Viz3).
+
+get_traced_tab_additional_info_map([]) ->
     create_ets_traffic_metrics_map(0, 0);
-get_trace_tab_additional_info_map(Traffic) ->
+get_traced_tab_additional_info_map(Traffic) ->
     {Insert, Lookup}  = sum_tab_traffic(Traffic),
     create_ets_traffic_metrics_map(Insert, Lookup).
 
@@ -81,26 +97,17 @@ sum_tab_traffic(Traffic) ->
 sum_tab_traffic_counters({_Pid, Counters}, {InsertSum, LookupSum}) ->
     Insert = proplists:get_value(insert, Counters),
     Lookup = proplists:get_value(lookup, Counters),
-    {I, L} = ensure_traffic_counters_are_num(Insert, Lookup),
+    {I, L} = ensure_traffic_metrics_are_num(Insert, Lookup),
     {InsertSum + I, LookupSum + L}.
 
-ensure_traffic_counters_are_num(undefined, Lookup) ->
+ensure_traffic_metrics_are_num(undefined, Lookup) ->
     {0, Lookup};
-ensure_traffic_counters_are_num(Insert, undefined) ->
+ensure_traffic_metrics_are_num(Insert, undefined) ->
     {Insert, 0};
-ensure_traffic_counters_are_num(undefined, undefined) ->
+ensure_traffic_metrics_are_num(undefined, undefined) ->
     {0, 0};
-ensure_traffic_counters_are_num(Insert, Lookup) ->
+ensure_traffic_metrics_are_num(Insert, Lookup) ->
     {Insert, Lookup}.
-
-push_ets_proc_and_conn(Tab, {Pid, Counters}, Node, Viz) ->
-    Insert = proplists:get_value(insert, Counters),
-    Lookup = proplists:get_value(lookup, Counters),
-    {I, L} = ensure_traffic_counters_are_num(Insert, Lookup),
-    Viz2 = epl_viz_map:push_focused(Pid, Node,
-                                    create_ets_traffic_metrics_map(I, L), Viz),
-    Viz3 = epl_viz_map:push_focused_connection(Pid, Tab, Node, {I, 0, 0}, Viz2),
-    epl_viz_map:push_focused_connection(Tab, Pid, Node, {L, 0, 0}, Viz3).
 
 clean_ets_traffic_from_viz(Node, Viz) ->
     {VizNode, NewViz = #{nodes := VizNodes}} = epl_viz_map:pull_region(Node,
