@@ -157,6 +157,9 @@ binarify(Name) when is_port(Name) ->
     list_to_binary(erlang:port_to_list(Name));
 binarify(Name) when is_integer(Name) ->
     integer_to_binary(Name);
+binarify(Name) when is_reference(Name) ->
+    [RefBin] = io_lib:format("~p", [Name]),
+    binarify(RefBin);
 binarify(Name) when is_binary(Name) ->
     Name.
 
