@@ -46,7 +46,7 @@ websocket_info(Info, _Req, _State) ->
 
 websocket_terminate(_Reason, _Req, #state{ets_call_traced_nodes = TNodes}) ->
     epl_ets:unsubscribe(),
-    [epl_tracer:disable_ets_call_tracing(N) || N <- TNodes],
+    [disable_ets_call_tracing(N, whereis(N)) || N <- TNodes],
     ok.
 
 %%====================================================================
