@@ -13,7 +13,8 @@
          get_node_ets_tabs/1,
          get_ets_tabs_info/2,
          get_ets_call_stats/1,
-         get_ets_tab_traffic/1]).
+         get_ets_tab_traffic/1,
+         trunc_float/2]).
 
 %% Test
 -export([split_tuple_list_by/2,
@@ -77,6 +78,12 @@ get_ets_tab_traffic(TrafficCounters) ->
     TrafficCountersFormatted = format_traffic_counters(TrafficCountersByPid),
     {tab_traffic, [{Tab, TrafficCountersFormatted}]}.
 
+
+%% Truncs float number.
+-spec trunc_float(Float :: float(), Pos :: integer) -> float().
+trunc_float(Float, Pos) ->
+    List = erlang:float_to_list(Float, [{decimals, Pos}]),
+    erlang:list_to_float(List).
 
 %%====================================================================
 %% Internals
@@ -185,10 +192,6 @@ get_trace_pair_endpoint(Traces) ->
 
 merge_traces_pair([{Pid, T, F, TS1}, {_, _, _, TS2}]) ->
     [{Pid, T, F, TS2 - TS1}].
-
-trunc_float(Float, Pos) ->
-    List = erlang:float_to_list(Float, [{decimals, Pos}]),
-    erlang:list_to_float(List).
 
 max([]) ->
     0;

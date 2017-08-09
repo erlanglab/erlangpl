@@ -43,7 +43,7 @@ class ETS extends Component {
       clickedNode: false,
       view: [],
       tabTraceId: false,
-      definitions: this.clusterViewDefinitions(),
+      definitions: this.vizceralDefinitions(),
       vizStyle: {},
       loader: true
     };
@@ -66,7 +66,11 @@ class ETS extends Component {
   }
 
   componentWillReceiveProps({ view }) {
-    this.setState({ view: view, loader: false });
+    if (view.length === 2 && !this.state.tabTraceId) {
+      this.setState({ view: [view[0]], loader: false });
+    } else {
+      this.setState({ view: view, loader: false });
+    }
   }
 
   handleTabClick = ({ tabId, tabTraceId }) => {
@@ -101,7 +105,7 @@ class ETS extends Component {
     }
   };
 
-  clusterViewDefinitions = () => {
+  vizceralDefinitions = () => {
     return {
       detailedNode: {
         volume: {
@@ -120,33 +124,25 @@ class ETS extends Component {
               data: 'etsMetrics.pieChart'
             }
           },
+          focused: {
+            top: {
+              header: 'Insert',
+              data: 'etsMetrics.insert',
+              format: '0'
+            },
+            bottom: {
+              header: 'Lookup',
+              data: 'etsMetrics.lookup',
+              format: '0'
+            },
+            donut: {
+              data: 'etsMetrics.pieChart'
+            }
+          },
           entry: {
             top: {
               header: 'ETS Count',
               data: 'etsMetrics.all',
-              format: '0'
-            }
-          }
-        }
-      }
-    };
-  };
-
-  detailsViewDefinitions = () => {
-    return {
-      detailedNode: {
-        volume: {
-          default: {
-            bottom: {
-              header: 'Lookup',
-              data: 'lookup',
-              format: '0'
-            }
-          },
-          focused: {
-            top: {
-              header: 'Insert',
-              data: 'insert',
               format: '0'
             }
           }
@@ -178,7 +174,6 @@ class ETS extends Component {
         this.setState({
           clickedNode: false,
           showTab: false,
-          definitions: this.clusterViewDefinitions(),
           vizStyle: {}
         });
         break;
@@ -197,7 +192,6 @@ class ETS extends Component {
         this.setState({
           clickedNode: view[0],
           showTab: false,
-          definitions: this.detailsViewDefinitions(),
           vizStyle: {}
         });
         break;
