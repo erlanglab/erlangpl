@@ -46,7 +46,7 @@ websocket_info(Info, _Req, _State) ->
 
 websocket_terminate(_Reason, _Req, #state{ets_call_traced_nodes = TNodes}) ->
     epl_ets:unsubscribe(),
-    [epl_tracer:disable_ets_call_tracing(N) || N <- TNodes],
+    [disable_ets_call_tracing(N, whereis(N)) || N <- TNodes],
     ok.
 
 %%====================================================================
@@ -54,8 +54,18 @@ websocket_terminate(_Reason, _Req, #state{ets_call_traced_nodes = TNodes}) ->
 %%====================================================================
 
 handle_ets_call_tracing(Node, Nodes, true) ->
-    ok = epl_tracer:disable_ets_call_tracing(Node),
+    ok = disable_ets_call_tracing(Node, whereis(Node)),
     lists:delete(Node, Nodes);
 handle_ets_call_tracing(Node, Nodes, false) ->
-    ok = epl_tracer:enable_ets_call_tracing(Node),
+    ok = enable_ets_call_tracing(Node, whereis(Node)),
     [Node | Nodes].
+
+enable_ets_call_tracing(_Node, undefined) ->
+    ok;
+enable_ets_call_tracing(Node, _) ->
+    epl_tracer:enable_ets_call_tracing(Node).
+
+disable_ets_call_tracing(_Node, undefined) ->
+    ok;
+disable_ets_call_tracing(Node, _) ->
+    epl_tracer:disable_ets_call_tracing(Node).
