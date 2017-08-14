@@ -13,7 +13,7 @@ The Erlang Performance Lab tool (erlangpl for short) can be started using escrip
 ```
 wget https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz
 ```
-2. Untar downloaded archieve using any GUI program or type in the command shell:
+2. Untar downloaded archive using any GUI program or type in the command shell:
 ```
 tar -zxvf erlangpl.tar.gz
 ```
