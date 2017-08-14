@@ -6,6 +6,35 @@
 
 The Erlang Performance Lab tool (erlangpl for short) can be started using escript or as a regular Erlang release.
 
+### Quick start guide
+
+1. Download the prebuilt `erlangpl` script by click on
+[link](https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz) or type in the command shell:
+```
+wget https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz
+```
+2. Untar downloaded archieve using any GUI program or type in the command shell:
+```
+tar -zxvf erlangpl.tar.gz
+```
+
+3. Run the script
+```
+./erlangpl -n NODE_NAME -c COOKIE
+```
+If the node you want to monitor is e.g. `a@127.0.0.1` then you should run the script
+as follows:
+```
+./erlangpl -n a@127.0.0.1 -c COOKIE
+```
+If you have not set the cookie for the `a@127.0.0.1` then run the
+scirpt without `c` flag:
+```
+./erlangpl -n a@127.0.0.1
+```
+
+4. Visit http://localhost:37575
+
 ### Download prebuilt script
 
 The easiest way to get started is to download a prebuilt `erlangpl` script
