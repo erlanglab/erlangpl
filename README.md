@@ -27,8 +27,8 @@ To make `erlangpl` work a few conditions must be met:
 * The node to be monitored must be run in the distributed mode
 (using `-name` or `-sname` flag). Click
 [here](http://erlang.org/doc/reference_manual/distributed.html#id88377) to learn more.
-* Both the node's and the erlangpl's cookie must match. You can set the node's
-cookie by run it with `-setcookie` flag. Keep in mind when you do not set cookie
+* Both the node's and the erlangpl's cookies must match. You can set the node's
+cookie by run it with `-setcookie` flag. Keep in mind when you do not set a cookie
 for the node it will be automatically set using `$HOME/.erlang.cookie`. See the
 [official Erlang documentation](http://erlang.org/doc/reference_manual/distributed.html#id88604)
 to learn more.
