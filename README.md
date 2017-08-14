@@ -28,7 +28,7 @@ as follows:
 ./erlangpl -n a@127.0.0.1 -c COOKIE
 ```
 If you have not set the cookie for the `a@127.0.0.1` then run the
-scirpt without `c` flag:
+script without `c` flag:
 ```
 ./erlangpl -n a@127.0.0.1
 ```
