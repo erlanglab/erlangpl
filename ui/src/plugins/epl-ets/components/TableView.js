@@ -116,7 +116,8 @@ class TableView extends React.Component {
         ...callStatsLookup
       };
       return {
-        ...{ tab_id: tab_id, tab_trace_id: tab_trace_id },
+        tab_id,
+        tab_trace_id,
         ...info,
         ...callStatsObj
       };

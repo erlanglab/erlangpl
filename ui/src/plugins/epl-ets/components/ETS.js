@@ -22,11 +22,11 @@ class ETS extends Component {
     graph: boolean,
     showTab: boolean,
     clickedNode: any,
-    view: any,
-    tabTraceId: any,
+    view: Array<string>,
+    tabTraceId: boolean,
     definitions: object,
     vizStyle: object,
-    loader: object
+    loader: boolean
   };
 
   vizceral: any;
@@ -74,10 +74,10 @@ class ETS extends Component {
   }
 
   handleTabClick = ({ tabId, tabTraceId }) => {
-    this.setState({
-      view: [this.state.clickedNode, tabId],
+    this.setState(state => ({
+      view: [state.clickedNode, tabId],
       tabTraceId: tabTraceId
-    });
+    }));
   };
 
   enableNodeTracing = node => {
@@ -227,9 +227,7 @@ class ETS extends Component {
                   tabs: this.props.data.etsNodeTabs,
                   node: this.state.clickedNode
                 }}
-                tableClicked={tabIds => {
-                  this.handleTabClick(tabIds);
-                }}
+                tableClicked={this.handleTabClick}
               />
             : null}
           <div
