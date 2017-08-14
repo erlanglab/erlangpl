@@ -41,7 +41,7 @@ websocket_info(Info, _Req, _State) ->
 
 websocket_terminate(_Reason, _Req, _State) ->
     epl_ets:unsubscribe(),
-    [epl_tracer:disable_ets_call_tracing(N) || N <- nodes()],
+    [disable_ets_call_tracing(N, whereis(N)) || N <- nodes()],
     ok.
 
 %%====================================================================
@@ -55,10 +55,10 @@ dispatch_request(#{<<"enable">> := true, <<"node">> := NodeBin,
     ok = trace_ets_table(Node, TabId);
 dispatch_request(#{<<"enable">> := true, <<"node">> := NodeBin}) ->
     Node = binary_to_existing_atom(NodeBin, latin1),
-    ok = epl_tracer:enable_ets_call_tracing(Node);
+    ok = enable_ets_call_tracing(Node, whereis(Node));
 dispatch_request(#{<<"enable">> := false, <<"node">> := NodeBin}) ->
     Node = binary_to_existing_atom(NodeBin, latin1),
-    ok = epl_tracer:disable_ets_call_tracing(Node).
+    ok = disable_ets_call_tracing(Node, whereis(Node)).
 
 tab_to_tab_id(Tab) ->
     try
@@ -88,4 +88,19 @@ convert_binary_to_tab_name(Tab) ->
 trace_ets_table(_Node, undefined) ->
     ok;
 trace_ets_table(Node, TabId) ->
-    ok = epl_tracer:enable_ets_table_call_tracing(Node, TabId).
+    ok = enable_ets_table_call_tracing(Node, TabId, whereis(Node)).
+
+enable_ets_table_call_tracing(_Node, _TabId, undefined) ->
+    ok;
+enable_ets_table_call_tracing(Node, TabId, _) ->
+    epl_tracer:enable_ets_table_call_tracing(Node, TabId).
+
+enable_ets_call_tracing(_Node, undefined) ->
+    ok;
+enable_ets_call_tracing(Node, _) ->
+    epl_tracer:enable_ets_call_tracing(Node).
+
+disable_ets_call_tracing(_Node, undefined) ->
+    ok;
+disable_ets_call_tracing(Node, _) ->
+    epl_tracer:disable_ets_call_tracing(Node).
