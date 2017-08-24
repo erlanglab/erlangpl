@@ -15,12 +15,12 @@
 
 prop_splitted_by() ->
     ?FORALL({Traces, ElemIndex}, {list_traces(), integer(1,3)},
-            splitted_by(epl_ets_metric:split_traces_by(Traces, ElemIndex),
+            splitted_by(epl_ets_metric:split_tuple_list_by(Traces, ElemIndex),
                         ElemIndex)).
 
 prop_splitted_by_same_len() ->
     ?FORALL({Traces, ElemIndex}, {list_traces(), integer(1,3)},
-            length_deep(epl_ets_metric:split_traces_by(Traces, ElemIndex)) ==
+            length_deep(epl_ets_metric:split_tuple_list_by(Traces, ElemIndex)) ==
                 length(Traces)).
 
 prop_sorted_by_ms() ->
@@ -131,5 +131,5 @@ are_traces_paired([{_, Func, Call, _} | Rest]) ->
 
 ensure_traces_even(Traces, 0) ->
     Traces;
-ensure_traces_even([First | Rest], _) ->
+ensure_traces_even([_First | Rest], _) ->
     Rest.

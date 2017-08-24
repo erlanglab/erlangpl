@@ -22,7 +22,11 @@ class ETS extends Component {
     graph: boolean,
     showTab: boolean,
     clickedNode: any,
-    vizStyle: object
+    view: Array<string>,
+    tabTraceId: boolean,
+    definitions: object,
+    vizStyle: object,
+    loader: boolean
   };
 
   vizceral: any;
@@ -37,7 +41,11 @@ class ETS extends Component {
       graph: false,
       showTab: false,
       clickedNode: false,
-      vizStyle: {}
+      view: [],
+      tabTraceId: false,
+      definitions: this.vizceralDefinitions(),
+      vizStyle: {},
+      loader: true
     };
   }
 
@@ -57,6 +65,92 @@ class ETS extends Component {
     window.removeEventListener('resize', this.resize);
   }
 
+  componentWillReceiveProps({ view }) {
+    if (view.length === 2 && !this.state.tabTraceId) {
+      this.setState({ view: [view[0]], loader: false });
+    } else {
+      this.setState({ view: view, loader: false });
+    }
+  }
+
+  handleTabClick = ({ tabId, tabTraceId }) => {
+    this.setState(state => ({
+      view: [state.clickedNode, tabId],
+      tabTraceId: tabTraceId
+    }));
+  };
+
+  enableNodeTracing = node => {
+    if (node) {
+      send('epl_ets_EPL', JSON.stringify({ enable: true, node: node }));
+    }
+  };
+
+  enableTabTracing = (node, tab) => {
+    if (node && tab) {
+      send(
+        'epl_ets_EPL',
+        JSON.stringify({
+          enable: true,
+          node: node,
+          table: tab
+        })
+      );
+    }
+  };
+
+  disableTracing = node => {
+    if (node) {
+      send('epl_ets_EPL', JSON.stringify({ enable: false, node: node }));
+    }
+  };
+
+  vizceralDefinitions = () => {
+    return {
+      detailedNode: {
+        volume: {
+          default: {
+            top: {
+              header: 'ETS Count',
+              data: 'etsMetrics.all',
+              format: '0'
+            },
+            bottom: {
+              header: 'ETS memory usage',
+              data: 'etsMetrics.memUsage',
+              format: '0.00%'
+            },
+            donut: {
+              data: 'etsMetrics.pieChart'
+            }
+          },
+          focused: {
+            top: {
+              header: 'Insert',
+              data: 'etsMetrics.insert',
+              format: '0'
+            },
+            bottom: {
+              header: 'Lookup',
+              data: 'etsMetrics.lookup',
+              format: '0'
+            },
+            donut: {
+              data: 'etsMetrics.pieChart'
+            }
+          },
+          entry: {
+            top: {
+              header: 'ETS Count',
+              data: 'etsMetrics.all',
+              format: '0'
+            }
+          }
+        }
+      }
+    };
+  };
+
   handleViewChange = (data: any) => {
     const sidePanelLevel = 3;
     let anim;
@@ -74,23 +168,35 @@ class ETS extends Component {
       //close
       anim = { end: 0, start: 1 };
     }
-
-    if (view.length === 1) {
-      send('epl_ets_EPL', view[0]);
-      this.setState({
-        clickedNode: view[0],
-        showTab: true,
-        vizStyle: { display: 'none' }
-      });
-    } else {
-      if (this.state.clickedNode) {
-        send('epl_ets_EPL', this.state.clickedNode);
-      }
-      this.setState({
-        clickedNode: false,
-        showTab: false,
-        vizStyle: {}
-      });
+    switch (view.length) {
+      case 0:
+        this.disableTracing(this.state.clickedNode);
+        this.setState({
+          clickedNode: false,
+          showTab: false,
+          vizStyle: {}
+        });
+        break;
+      case 1:
+        this.disableTracing(view[0]);
+        this.enableNodeTracing(view[0]);
+        this.setState({
+          clickedNode: view[0],
+          showTab: true,
+          vizStyle: { display: 'none' }
+        });
+        break;
+      case 2:
+        this.disableTracing(view[0]);
+        this.enableTabTracing(view[0], this.state.tabTraceId);
+        this.setState({
+          clickedNode: view[0],
+          showTab: false,
+          vizStyle: {}
+        });
+        break;
+      default:
+        break;
     }
 
     this.setState({
@@ -111,7 +217,7 @@ class ETS extends Component {
           // NOTE: to hide side panel simply pass null/undefined or false
           // instead of component as sidePanel property
           sidePanel={false}
-          loading={false}
+          loading={this.state.loader}
           className="Traffic-container"
           loaderText="Gathering ETS cluster data"
         >
@@ -121,6 +227,7 @@ class ETS extends Component {
                   tabs: this.props.data.etsNodeTabs,
                   node: this.state.clickedNode
                 }}
+                tableClicked={this.handleTabClick}
               />
             : null}
           <div
@@ -133,40 +240,13 @@ class ETS extends Component {
             <Vizceral
               ref={node => (this.vizceral = node)}
               traffic={this.props.data}
-              view={this.props.view}
+              view={this.state.view}
               viewChanged={this.handleViewChange}
               showLabels={true}
               match={this.props.search}
               allowDraggingOfNodes={true}
               targetFramerate={25}
-              definitions={{
-                detailedNode: {
-                  volume: {
-                    default: {
-                      top: {
-                        header: 'ETS Count',
-                        data: 'etsMetrics.all',
-                        format: '0'
-                      },
-                      bottom: {
-                        header: 'ETS memory usage',
-                        data: 'etsMetrics.memUsage',
-                        format: '0.00%'
-                      },
-                      donut: {
-                        data: 'etsMetrics.pieChart'
-                      }
-                    },
-                    entry: {
-                      top: {
-                        header: 'ETS Count',
-                        data: 'etsMetrics.all',
-                        format: '0'
-                      }
-                    }
-                  }
-                }
-              }}
+              definitions={this.state.definitions}
             />
           </div>
         </PluginWrapper>

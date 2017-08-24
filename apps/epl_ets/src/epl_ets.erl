@@ -91,10 +91,9 @@ handle_info({data, {Node, _Timestamp}, Proplist},
             State = #state{subscribers = Subs, vizceral = VizEntity,
                           nodes = SubsNodes}) ->
     NewSubsNodes = register_node_activity(Node, SubsNodes),
-    NewViz = epl_ets_viz_map:update_cluster(Node, VizEntity),
-    NewViz2 = epl_ets_tab_map:update_node(Node, Proplist, NewViz),
-    distribute_viz(NewViz2, Subs),
-    NewState = State#state{vizceral = NewViz2, nodes = NewSubsNodes},
+    NewViz = update_viz(Node, VizEntity, Proplist),
+    distribute_viz(NewViz, Subs),
+    NewState = State#state{vizceral = NewViz, nodes = NewSubsNodes},
     {noreply, NewState};
 handle_info(check_nodes_state, State = #state{vizceral = VizEntity,
                                                 nodes = SubsNodes}) ->
@@ -113,9 +112,16 @@ code_change(_OldVsn, State, _Extra) ->
 %%====================================================================
 %% Internals
 %%====================================================================
+
+update_viz(Node, VizEntity, Proplist) ->
+    ETSCallTrace = proplists:get_value(ets_func, Proplist),
+    ETSTrafficCounters = proplists:get_value(ets_traffic, Proplist),
+    NewViz = epl_ets_viz_map:update_cluster(Node, VizEntity),
+    NewViz2 = epl_ets_tab_map:update_node(Node, ETSCallTrace, NewViz),
+    epl_ets_viz_map:update_details(Node, ETSTrafficCounters, NewViz2).
     
 distribute_viz(Viz, Subs) ->
-    JSON = epl_json:encode(Viz, <<"ets-node-info">>),
+    JSON = epl_json:encode(Viz, <<"ets-info">>),
     [Pid ! {data, JSON} || Pid <- Subs].
 
 register_node_activity(Node, Nodes) ->

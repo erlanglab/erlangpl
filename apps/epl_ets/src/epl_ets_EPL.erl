@@ -16,8 +16,6 @@
          websocket_info/3,
          websocket_terminate/3]).
 
--record(state, {ets_call_traced_nodes = []}).
-
 %%====================================================================
 %% cowboy_websocket_handler callbacks
 %%====================================================================
@@ -27,15 +25,12 @@ init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
 websocket_init(_TransportName, Req, _Opts) ->
-    {ok, Req, #state{}}.
+    {ok, Req, undefined}.
 
-websocket_handle({text, NodeBin}, Req, 
-                 State = #state{ets_call_traced_nodes = TNodes}) ->
-    Node = erlang:binary_to_existing_atom(NodeBin, latin1),
-    NewTNodes = handle_ets_call_tracing(Node, TNodes,
-                                        lists:member(Node, TNodes)),
-    NewState = State#state{ets_call_traced_nodes = NewTNodes},
-    {ok, Req, NewState};
+websocket_handle({text, MsgBin}, Req, State) ->
+    Msg = epl_json:decode(MsgBin),
+    dispatch_request(Msg),
+    {ok, Req, State};
 websocket_handle(Data, _Req, _State) ->
     exit({not_implemented, Data}).
 
@@ -44,21 +39,61 @@ websocket_info({data, Data}, Req, State) ->
 websocket_info(Info, _Req, _State) ->
     exit({not_implemented, Info}).
 
-websocket_terminate(_Reason, _Req, #state{ets_call_traced_nodes = TNodes}) ->
+websocket_terminate(_Reason, _Req, _State) ->
     epl_ets:unsubscribe(),
-    [disable_ets_call_tracing(N, whereis(N)) || N <- TNodes],
+    [disable_ets_call_tracing(N, whereis(N)) || N <- nodes()],
     ok.
 
 %%====================================================================
 %% Internals
 %%====================================================================
 
-handle_ets_call_tracing(Node, Nodes, true) ->
-    ok = disable_ets_call_tracing(Node, whereis(Node)),
-    lists:delete(Node, Nodes);
-handle_ets_call_tracing(Node, Nodes, false) ->
-    ok = enable_ets_call_tracing(Node, whereis(Node)),
-    [Node | Nodes].
+dispatch_request(#{<<"enable">> := true, <<"node">> := NodeBin,
+                   <<"table">> := Tab}) ->
+    Node = binary_to_existing_atom(NodeBin, latin1),
+    TabId = tab_to_tab_id(Tab),
+    ok = trace_ets_table(Node, TabId);
+dispatch_request(#{<<"enable">> := true, <<"node">> := NodeBin}) ->
+    Node = binary_to_existing_atom(NodeBin, latin1),
+    ok = enable_ets_call_tracing(Node, whereis(Node));
+dispatch_request(#{<<"enable">> := false, <<"node">> := NodeBin}) ->
+    Node = binary_to_existing_atom(NodeBin, latin1),
+    ok = disable_ets_call_tracing(Node, whereis(Node)).
+
+tab_to_tab_id(Tab) ->
+    try
+        binary_to_integer(Tab)
+    catch
+        error:badarg ->
+            tab_to_reference(Tab)
+    end.
+
+tab_to_reference(Tab) ->
+    try
+        T = list_to_binary(Tab),
+        binary_to_term(T)
+    catch
+        error:badarg ->
+            convert_binary_to_tab_name(Tab)
+    end.
+
+convert_binary_to_tab_name(Tab) ->
+    try
+        binary_to_existing_atom(Tab, latin1)
+    catch
+        error:badarg ->
+            undefined
+    end.
+
+trace_ets_table(_Node, undefined) ->
+    ok;
+trace_ets_table(Node, TabId) ->
+    ok = enable_ets_table_call_tracing(Node, TabId, whereis(Node)).
+
+enable_ets_table_call_tracing(_Node, _TabId, undefined) ->
+    ok;
+enable_ets_table_call_tracing(Node, TabId, _) ->
+    epl_tracer:enable_ets_table_call_tracing(Node, TabId).
 
 enable_ets_call_tracing(_Node, undefined) ->
     ok;

@@ -21,7 +21,7 @@ class TableView extends React.Component {
       sortDirection: SortDirection.ASC,
       selectLabel: 'Select columns to show',
       selectOptions: [
-        { value: 'name', label: 'name' },
+        { value: 'id', label: 'ID' },
         { value: 'memory', label: 'Memory' },
         { value: 'size', label: 'Size' },
         { value: 'type', label: 'Type' },
@@ -36,7 +36,6 @@ class TableView extends React.Component {
         { value: 'protection', label: 'Protection' }
       ],
       selectedOptions: [
-        { value: 'name', label: 'Name' },
         { value: 'memory', label: 'Memory' },
         { value: 'size', label: 'Size' },
         { value: 'type', label: 'Type' },
@@ -82,7 +81,12 @@ class TableView extends React.Component {
       return node.name === newName;
     }, this.props.table.node);
     if (tabData[0].length < 1) return null;
-    const list = tabData[0].tabs.map(function({ info, call_stats, ...a }) {
+    const list = tabData[0].tabs.map(function({
+      info,
+      call_stats,
+      tab_id,
+      tab_trace_id
+    }) {
       let callStatsLookup = {
         lookupMax: 0,
         lookupCount: 0
@@ -111,9 +115,13 @@ class TableView extends React.Component {
         ...callStatsInsert,
         ...callStatsLookup
       };
-      return { ...a, ...info, ...callStatsObj };
+      return {
+        tab_id,
+        tab_trace_id,
+        ...info,
+        ...callStatsObj
+      };
     });
-
     const listSorted = this.state.sortBy ? this.sort(list) : list;
     const rowGetter = ({ index }) => listSorted[index];
     return (
@@ -148,6 +156,12 @@ class TableView extends React.Component {
               rowCount={list.length}
               sortBy={this.state.sortBy}
               sortDirection={this.state.sortDirection}
+              onRowDoubleClick={({ rowData }) => {
+                this.props.tableClicked({
+                  tabId: rowData.tab_id,
+                  tabTraceId: rowData.tab_trace_id
+                });
+              }}
               rowClassName={({ index }) => {
                 if (index !== -1) {
                   return 'ets-table-row';
@@ -159,12 +173,19 @@ class TableView extends React.Component {
                 this.setState({ sortBy, sortDirection });
               }}
             >
-              {this.isSelected('name') &&
+              <Column
+                width={150}
+                label="Name"
+                cellRenderer={({ cellData }) => cellData}
+                dataKey="name"
+                disableSort={true}
+              />
+              {this.isSelected('id') &&
                 <Column
                   width={150}
-                  label="Name"
+                  label="ID"
                   cellRenderer={({ cellData }) => cellData}
-                  dataKey="name"
+                  dataKey="tab_id"
                   disableSort={true}
                 />}
               {this.isSelected('memory') &&

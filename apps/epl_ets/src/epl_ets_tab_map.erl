@@ -15,20 +15,18 @@
 %%====================================================================
 
 %% @doc Updates the node ETS table section in Vizceral map.
--spec update_node(Node :: atom(), Proplist :: list(), Viz :: map()) -> 
-                                 map().
-update_node(Node, Proplist, Viz) ->
-    ETSTabsMetric = get_ets_metric(Node, Proplist),
+-spec update_node(Node :: atom(), ETSCallTrace :: list(), Viz :: map()) -> map().
+update_node(Node, ETSCallTrace, Viz) ->
+    ETSTabsMetric = get_ets_metric(Node, ETSCallTrace),
     create_ets_tab_map(Node, ETSTabsMetric, Viz).
 
 %%====================================================================
 %% Internals
 %%====================================================================
 
-get_ets_metric(Node, Proplist) ->
+get_ets_metric(Node, ETSCallTrace) ->
     Tabs = epl_ets_metric:get_node_ets_tabs(Node),
     TabsInfo = epl_ets_metric:get_ets_tabs_info(Node, Tabs),
-    ETSCallTrace = proplists:get_value(ets_func, Proplist),
     TabsCallStats = epl_ets_metric:get_ets_call_stats(ETSCallTrace),
     [merge_metrics(Tab, [TabsInfo, TabsCallStats]) || Tab <- Tabs].
 
@@ -38,7 +36,8 @@ merge_metrics(Tab, Metrics) ->
                 end, #{}, Metrics).
 
 get_metric_val(Tab, {Type, Metric}) ->
-    #{<<"name">> => namify(Tab),
+    #{<<"tab_id">> => namify(Tab),
+      <<"tab_trace_id">> => make_trace_tab_id(Tab),
       namify(Type) => proplists:get_value(Tab, Metric)}.
 
 create_ets_tab_map(Node, ETSTabsMetric, Viz) ->
@@ -58,3 +57,9 @@ pull_tab(_Name, _Entity, false) ->
 
 namify(Name) ->
     epl_viz_map:namify(Name).
+
+make_trace_tab_id(Tab) when is_reference(Tab) ->
+    RefBin = term_to_binary(Tab),
+    binary_to_list(RefBin);
+make_trace_tab_id(Tab) ->
+    namify(Tab).

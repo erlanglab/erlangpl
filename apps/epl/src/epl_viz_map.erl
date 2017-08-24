@@ -169,7 +169,8 @@ namify(Name) when is_binary(Name) ->
     Name1 = binary:replace(binarify(Name), <<"@">>, <<"_at_">>),
     Name2 = binary:replace(binarify(Name1), <<"<">>, <<"">>),
     Name3 = binary:replace(binarify(Name2), <<">">>, <<"">>),
-    binary:replace(binarify(Name3), <<".">>, <<"_">>, [global]);
+    Name4 = binary:replace(binarify(Name3), <<"#">>, <<"">>),
+    binary:replace(binarify(Name4), <<".">>, <<"_">>, [global]);
 namify(Name) ->
     namify(binarify(Name)).
 
