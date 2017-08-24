@@ -10,11 +10,14 @@ import {
 import 'react-virtualized/styles.css';
 import './Table.css';
 
+// $FlowFixMe
 import Select from 'react-select';
+// $FlowFixMe
 import 'react-select/dist/react-select.css';
 
 class TableView extends React.Component {
-  constructor(props) {
+  state: any;
+  constructor(props: any) {
     super(props);
     this.state = {
       sortBy: '',
@@ -49,7 +52,7 @@ class TableView extends React.Component {
     };
   }
 
-  isSelected(val) {
+  isSelected(val: string) {
     let listOfObjects = this.state.selectedOptions.filter(({ value }) => {
       return value === val;
     });
@@ -59,15 +62,15 @@ class TableView extends React.Component {
     return false;
   }
 
-  propComparatorASC(prop) {
-    return (a, b) => a[prop] - b[prop];
+  propComparatorASC(prop: string) {
+    return (a: any, b: any) => a[prop] - b[prop];
   }
 
-  propComparatorDESC(prop) {
-    return (a, b) => b[prop] - a[prop];
+  propComparatorDESC(prop: string) {
+    return (a: any, b: any) => b[prop] - a[prop];
   }
 
-  sort(listOfObjects) {
+  sort(listOfObjects: Array<*>) {
     if (this.state.sortDirection === SortDirection.ASC) {
       return listOfObjects.sort(this.propComparatorASC(this.state.sortBy));
     } else {
@@ -126,7 +129,7 @@ class TableView extends React.Component {
     const rowGetter = ({ index }) => listSorted[index];
     return (
       <AutoSizer>
-        {({ width, height }) =>
+        {({ width, height }) => (
           <div>
             <div>
               <h4 className="selection">
@@ -280,7 +283,8 @@ class TableView extends React.Component {
                   cellRenderer={({ cellData }) => cellData}
                 />}
             </Table>
-          </div>}
+          </div>
+        )}
       </AutoSizer>
     );
   }

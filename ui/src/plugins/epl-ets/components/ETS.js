@@ -24,8 +24,8 @@ class ETS extends Component {
     clickedNode: any,
     view: Array<string>,
     tabTraceId: boolean,
-    definitions: object,
-    vizStyle: object,
+    definitions: any,
+    vizStyle: any,
     loader: boolean
   };
 
