@@ -10,9 +10,7 @@ import {
 import 'react-virtualized/styles.css';
 import './Table.css';
 
-// $FlowFixMe
 import Select from 'react-select';
-// $FlowFixMe
 import 'react-select/dist/react-select.css';
 
 class TableView extends React.Component {
