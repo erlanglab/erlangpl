@@ -6,6 +6,45 @@
 
 The Erlang Performance Lab tool (erlangpl for short) can be started using escript or as a regular Erlang release.
 
+### Quick start guide
+
+#### 1. Download the prebuilt `erlangpl` script from [here](https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz) or type in the shell command:
+```
+wget https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz
+```
+#### 2. Untar downloaded archive using any GUI program or type in the shell command:
+```
+tar -zxvf erlangpl.tar.gz
+```
+
+#### 3. Run the script
+```
+./erlangpl -n NODE_NAME -c COOKIE
+```
+
+To make `erlangpl` work a few conditions must be met:
+
+* The node to be monitored must be run in the distributed mode
+(using `-name` or `-sname` flag). Click
+[here](http://erlang.org/doc/reference_manual/distributed.html#id88377) to learn
+more.
+* Both the node's and the erlangpl's cookies must match. You can set the node's
+cookie by starting it with `-setcookie` flag. Keep in mind that when you do not
+set a cookie for the node it will be automatically set using `$HOME/.erlang.cookie`.
+See the [official Erlang documentation](http://erlang.org/doc/reference_manual/distributed.html#id88604)
+to learn more.
+* The `erlangpl` script must run on OTP 19.3 or higher.
+
+##### Example 
+If the node you want to monitor is `a@127.0.0.1` and has a cookie set to
+`test` (`erl -name a@127.0.0.1 -setcookie test`) then you should run the script
+as follows:
+```
+./erlangpl -n a@127.0.0.1 -c test
+```
+
+#### 4. Visit http://localhost:37575
+
 ### Download prebuilt script
 
 The easiest way to get started is to download a prebuilt `erlangpl` script
