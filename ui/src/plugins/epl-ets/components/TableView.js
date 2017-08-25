@@ -18,7 +18,7 @@ class TableView extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      sortBy: '',
+      sortBy: 'name',
       sortDirection: SortDirection.ASC,
       selectLabel: 'Select columns to show',
       selectOptions: [
@@ -61,10 +61,26 @@ class TableView extends React.Component {
   }
 
   propComparatorASC(prop: string) {
+    if (prop === 'name') {
+      return function(a: string, b: string) {
+        var nameA = a[prop].toLowerCase(),
+          nameB = b[prop].toLowerCase();
+        if (nameA < nameB) return -1;
+        return 1;
+      };
+    }
     return (a: any, b: any) => a[prop] - b[prop];
   }
 
   propComparatorDESC(prop: string) {
+    if (prop === 'name') {
+      return function(a: string, b: string) {
+        var nameA = a[prop].toLowerCase(),
+          nameB = b[prop].toLowerCase();
+        if (nameA > nameB) return -1;
+        return 1;
+      };
+    }
     return (a: any, b: any) => b[prop] - a[prop];
   }
 
@@ -127,7 +143,7 @@ class TableView extends React.Component {
     const rowGetter = ({ index }) => listSorted[index];
     return (
       <AutoSizer>
-        {({ width, height }) => (
+        {({ width, height }) =>
           <div>
             <div>
               <h4 className="selection">
@@ -179,7 +195,7 @@ class TableView extends React.Component {
                 label="Name"
                 cellRenderer={({ cellData }) => cellData}
                 dataKey="name"
-                disableSort={true}
+                disableSort={false}
               />
               {this.isSelected('id') &&
                 <Column
@@ -281,8 +297,7 @@ class TableView extends React.Component {
                   cellRenderer={({ cellData }) => cellData}
                 />}
             </Table>
-          </div>
-        )}
+          </div>}
       </AutoSizer>
     );
   }
