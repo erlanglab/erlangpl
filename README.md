@@ -8,9 +8,9 @@ The Erlang Performance Lab tool (erlangpl for short) can be started using escrip
 
 ### Quick start guide
 
-#### 1. Download the prebuilt `erlangpl` script from [here](https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz) or type in the shell command:
+#### 1. Download the prebuilt `erlangpl` script from [here](https://github.com/erlanglab/erlangpl/releases/download/0.9.0/erlangpl.tar.gz) or type in the shell command:
 ```
-wget https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz
+wget https://github.com/erlanglab/erlangpl/releases/download/0.9.0/erlangpl.tar.gz
 ```
 #### 2. Untar downloaded archive using any GUI program or type in the shell command:
 ```
@@ -48,7 +48,7 @@ as follows:
 ### Download prebuilt script
 
 The easiest way to get started is to download a prebuilt `erlangpl` script
-([download link](https://github.com/erlanglab/erlangpl/releases/download/0.8.1/erlangpl.tar.gz)).
+([download link](https://github.com/erlanglab/erlangpl/releases/download/0.9.0/erlangpl.tar.gz)).
 
 ### Build it manually
 
