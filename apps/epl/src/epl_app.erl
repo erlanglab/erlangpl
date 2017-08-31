@@ -348,7 +348,7 @@ set_log_level(Verbose) when is_integer(Verbose) ->
     true = ets:insert(epl_priv, {log_level, LogLevel}).
 
 start_distributed(Args) ->
-    application:set_env(kernel, dist_auto_connect, never),
+    %% application:set_env(kernel, dist_auto_connect, never),
 
     %% By default we start as -name erlangpl@127.0.0.1
     %% if --sname or --name flag was passed, we start accordingly
