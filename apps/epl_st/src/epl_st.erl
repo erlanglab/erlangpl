@@ -9,6 +9,8 @@
 
 -behaviour(gen_server).
 
+-define(LIVENESS_TIMEOUT, 1000).
+
 %% API
 -export([start_link/0,
          subscribe/0,
@@ -101,8 +103,13 @@ generate_sup_tree(undefined) ->
     #{};
 generate_sup_tree(MasterPid) ->
     {SupPid, _SupName} = command(fun application_master:get_child/1, [MasterPid]),
-    Children = command(fun supervisor:which_children/1, [SupPid]),
-    sup_node(SupPid, generate_children(Children)).
+    case catch sys:get_status(SupPid, ?LIVENESS_TIMEOUT) of
+        {'EXIT', {timeout, _}} ->
+            #{};
+        _ ->
+            Children = command(fun supervisor:which_children/1, [SupPid]),
+            sup_node(SupPid, generate_children(Children))
+    end.
 
 generate_children(Children) ->
     lists:filtermap(
