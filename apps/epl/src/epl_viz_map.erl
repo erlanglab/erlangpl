@@ -19,6 +19,7 @@
          push_focused/4,
          push_focused_connection/5,
          push_focused_connection/6,
+         clear_focused_nodes_inside_region/2,
          binarify/1,
          namify/1]).
 
@@ -78,11 +79,12 @@ push_node(Renderer, Name, Additional, Entity) ->
 -spec pull_node(Name :: name(), Entity :: map()) -> {map(), list()}.
 pull_node(Name, Entity) ->
     #{nodes := Nodes} = Entity,
-    {[Node], Rest} = lists:partition(
+    {Node, Rest} = lists:partition(
                        fun(A) ->
                                maps:get(name, A) == namify(Name)
                        end, Nodes),
-    {Node, Rest}.
+    VerifiedNode = verify_if_pulled_node_exists(Node),
+    {VerifiedNode, Rest}.
 
 %% @doc Pushes additional `Info' into cluster nodes section in `Vizceral' map.
 -spec push_additional_node_info(Info :: map(), Name :: atom(),
@@ -144,6 +146,16 @@ push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
     NewR = push_connection(Source, Target, {N,W,D}, A, Region),
     push_region(RegionName, NewR, NewV).
 
+%% @doc Clears all focused nodes from `RegionName` node.
+-spec clear_focused_nodes_inside_region(RegionName :: name(), Viz :: map()) ->
+  map().
+clear_focused_nodes_inside_region(RegionName, Viz) ->
+    {VizNode, NewViz = #{nodes := VizNodes}} =
+        epl_viz_map:pull_region(RegionName, Viz),
+    VizNodeCleared = maps:merge(VizNode, #{nodes => []}),
+    VizNodeCleared2 = maps:merge(VizNodeCleared, #{connections => []}),
+    maps:merge(NewViz, #{nodes => [VizNodeCleared2 | VizNodes]}).
+
 %%----------------------- Names -----------------------
 %% @doc Transforms `Name' to binary.
 -spec binarify(Name :: name()) -> binary().
@@ -186,3 +198,6 @@ entity(Renderer, Name, Nodes, Additional) ->
       nodes => Nodes
      },
     maps:merge(Map, Additional).
+
+verify_if_pulled_node_exists([]) -> [];
+verify_if_pulled_node_exists([Node]) -> Node.

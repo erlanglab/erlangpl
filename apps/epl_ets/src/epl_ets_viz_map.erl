@@ -27,13 +27,13 @@ update_cluster(Node, Viz = #{nodes := VizNodes}) ->
 %% @doc Updates the Vizceral map's ETS details section.
 -spec update_details(Node :: node(), [] | list(), Viz :: map()) -> map().
 update_details(Node, [], Viz) ->
-    VizCleaned = clean_ets_traffic_from_viz(Node, Viz),
-    push_ets_tables(undefined, Node, [], VizCleaned);
+    VizCleared = epl_viz_map:clear_focused_nodes_inside_region(Node, Viz),
+    push_ets_tables(undefined, Node, [], VizCleared);
 update_details(Node, ETSTrafficCounters, Viz) ->
-    VizCleaned = clean_ets_traffic_from_viz(Node, Viz),
+    VizCleared = epl_viz_map:clear_focused_nodes_inside_region(Node, Viz),
     {tab_traffic, ETSTraffic} =
         epl_ets_metric:get_ets_tab_traffic(ETSTrafficCounters),
-    push_tab_traffic(ETSTraffic, Node, VizCleaned).
+    push_tab_traffic(ETSTraffic, Node, VizCleared).
 
 %% @doc Removes outdated nodes from Vizceral map's cluster section.
 -spec remove_outdated(Nodes :: [#{atom() => integer()}], Viz :: map()) -> map().
@@ -108,13 +108,6 @@ ensure_traffic_metrics_are_num(undefined, undefined) ->
     {0, 0};
 ensure_traffic_metrics_are_num(Insert, Lookup) ->
     {Insert, Lookup}.
-
-clean_ets_traffic_from_viz(Node, Viz) ->
-    {VizNode, NewViz = #{nodes := VizNodes}} = epl_viz_map:pull_region(Node,
-                                                                       Viz),
-    VizNodeCleaned = maps:merge(VizNode, #{nodes => []}),
-    VizNodeCleaned2 = maps:merge(VizNodeCleaned, #{connections => []}),
-    maps:merge(NewViz, #{nodes => [VizNodeCleaned2 | VizNodes]}).
 
 get_node_ets_basic_info(Node) ->
     ETSCount = epl_ets_metric:get_node_ets_num(Node),
