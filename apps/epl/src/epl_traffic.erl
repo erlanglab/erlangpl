@@ -91,7 +91,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 verify_subscribe_reply(Reply) ->
-    lists:all(fun(X) -> X =:= ok end, Reply).
+    lists:all(fun(R) -> R =:= ok end, Reply).
 
 verify_if_node_is_default(Node) ->
     verify_if_node_is_default(Node, epl:get_default_node()).
@@ -135,19 +135,9 @@ maybe_merge_focused_nodes_and_conns(#{name := Node}, Viz, OldViz) ->
 
 merge_focused_nodes_and_conns(_Node, Viz, []) ->
     Viz;
-merge_focused_nodes_and_conns(Node, Viz, #{nodes := OldFocusedNodes,
-                                           connections := OldFocusedConns}) ->
-    {Region, Viz2 = #{nodes := Regions}} = epl_viz_map:pull_region(Node, Viz),
-    RegionNodes = finally_merge_focused_nodes(Region, OldFocusedNodes),
-    RegionNodesAndConns = finally_merge_focused_conns(RegionNodes,
-                                                      OldFocusedConns),
-    finally_merge_focused_nodes_and_conns(Viz2, RegionNodesAndConns, Regions).
-
-finally_merge_focused_nodes(Region, OldFocusedNodes) ->
-    maps:merge(Region, #{nodes => OldFocusedNodes}).
-
-finally_merge_focused_conns(Region, OldFocusedConns) ->
-    maps:merge(Region, #{connections => OldFocusedConns}).
+merge_focused_nodes_and_conns(Node, Viz, Region) ->
+    {_, Viz2 = #{nodes := Regions}} = epl_viz_map:pull_region(Node, Viz),
+    finally_merge_focused_nodes_and_conns(Viz2, Region, Regions).
 
 finally_merge_focused_nodes_and_conns(Viz, UpdatedRegion, Regions) ->
     maps:merge(Viz, #{nodes => [UpdatedRegion | Regions]}).
