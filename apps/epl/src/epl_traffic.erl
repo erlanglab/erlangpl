@@ -111,7 +111,7 @@ handle_incoming_node_info({true, Node}, Proplist, OldTraffic,
                                               epl_viz_map:new(Node)),
     Viz2 = merge_existing_focused_nodes_and_conns(Viz1, OldViz),
     %% We're starting from observed node which is our graph entry point
-    Viz3 = get_message_passing_counters(Node, Proplist, Viz2, OldMsgPass),
+    Viz3 = update_message_passing_counters(Node, Proplist, Viz2, OldMsgPass),
     %% push an update to all subscribed WebSockets
     JSON = epl_json:encode(Viz3, <<"traffic-info">>),
 
@@ -120,7 +120,7 @@ handle_incoming_node_info({true, Node}, Proplist, OldTraffic,
 handle_incoming_node_info({false, Node}, Proplist, OldTraffic,
                           OldMsgPass, OldViz, _Subs) ->
     %% We're starting from observed node which is our graph entry point
-    Viz1 = get_message_passing_counters(Node, Proplist, OldViz, OldMsgPass),
+    Viz1 = update_message_passing_counters(Node, Proplist, OldViz, OldMsgPass),
     {OldTraffic, Viz1}.
 
 merge_existing_focused_nodes_and_conns(Viz, undefined) ->
@@ -131,20 +131,20 @@ merge_existing_focused_nodes_and_conns(Viz = #{nodes := Nodes}, OldViz) ->
                 end, Viz, Nodes).
 maybe_merge_focused_nodes_and_conns(#{name := Node}, Viz, OldViz) ->
     {Region, _} = epl_viz_map:pull_region(Node, OldViz),
-    merge_focused_nodes_and_conns(Node, Viz, Region).
+    finally_merge_focused_nodes_and_conns(Node, Viz, Region).
 
-merge_focused_nodes_and_conns(_Node, Viz, []) ->
+finally_merge_focused_nodes_and_conns(_Node, Viz, []) ->
     Viz;
-merge_focused_nodes_and_conns(Node, Viz, Region) ->
+finally_merge_focused_nodes_and_conns(Node, Viz, Region) ->
     {_, Viz2 = #{nodes := Regions}} = epl_viz_map:pull_region(Node, Viz),
-    finally_merge_focused_nodes_and_conns(Viz2, Region, Regions).
+    finally_merge_regions(Viz2, Region, Regions).
 
-finally_merge_focused_nodes_and_conns(Viz, UpdatedRegion, Regions) ->
+finally_merge_regions(Viz, UpdatedRegion, Regions) ->
     maps:merge(Viz, #{nodes => [UpdatedRegion | Regions]}).
 
-get_message_passing_counters(Node, Proplist, Vizceral, OldMsgPass) ->
+update_message_passing_counters(Node, Proplist, Vizceral, OldMsgPass) ->
     VizceralCleared =
-        epl_viz_map:clear_focused_nodes_inside_region(Node, Vizceral),
+        epl_viz_map:clear_focused_nodes_and_conns_inside_region(Node, Vizceral),
     lists:foldl(
       fun({send, Send}, V) ->
               %% Examples of send trace:

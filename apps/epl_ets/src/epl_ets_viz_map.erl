@@ -27,10 +27,12 @@ update_cluster(Node, Viz = #{nodes := VizNodes}) ->
 %% @doc Updates the Vizceral map's ETS details section.
 -spec update_details(Node :: node(), [] | list(), Viz :: map()) -> map().
 update_details(Node, [], Viz) ->
-    VizCleared = epl_viz_map:clear_focused_nodes_inside_region(Node, Viz),
+    VizCleared = epl_viz_map:clear_focused_nodes_and_conns_inside_region(Node,
+                                                                         Viz),
     push_ets_tables(undefined, Node, [], VizCleared);
 update_details(Node, ETSTrafficCounters, Viz) ->
-    VizCleared = epl_viz_map:clear_focused_nodes_inside_region(Node, Viz),
+    VizCleared = epl_viz_map:clear_focused_nodes_and_conns_inside_region(Node,
+                                                                         Viz),
     {tab_traffic, ETSTraffic} =
         epl_ets_metric:get_ets_tab_traffic(ETSTrafficCounters),
     push_tab_traffic(ETSTraffic, Node, VizCleared).

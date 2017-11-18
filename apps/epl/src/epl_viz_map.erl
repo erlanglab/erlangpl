@@ -19,7 +19,7 @@
          push_focused/4,
          push_focused_connection/5,
          push_focused_connection/6,
-         clear_focused_nodes_inside_region/2,
+         clear_focused_nodes_and_conns_inside_region/2,
          binarify/1,
          namify/1]).
 
@@ -146,10 +146,10 @@ push_focused_connection(Source, Target, RegionName, {N, W, D}, A, Vizceral) ->
     NewR = push_connection(Source, Target, {N,W,D}, A, Region),
     push_region(RegionName, NewR, NewV).
 
-%% @doc Clears all focused nodes from `RegionName` node.
--spec clear_focused_nodes_inside_region(RegionName :: name(), Viz :: map()) ->
+%% @doc Clears all focused nodes and connections from `RegionName` node.
+-spec clear_focused_nodes_and_conns_inside_region(RegionName :: name(), Viz :: map()) ->
   map().
-clear_focused_nodes_inside_region(RegionName, Viz) ->
+clear_focused_nodes_and_conns_inside_region(RegionName, Viz) ->
     {VizNode, NewViz = #{nodes := VizNodes}} =
         epl_viz_map:pull_region(RegionName, Viz),
     VizNodeCleared = maps:merge(VizNode, #{nodes => []}),
