@@ -92,6 +92,9 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 
+is_supervisor(Pid) ->
+    element(1, proc_lib:initial_call(Pid)) == supervisor.
+
 generate_sup_tree({_Name, Pid, worker, _Mods}) ->
     worker_node(Pid);
 generate_sup_tree({_Name, Pid, supervisor, _Mods}) ->
@@ -101,7 +104,11 @@ generate_sup_tree(undefined) ->
     #{};
 generate_sup_tree(MasterPid) ->
     {SupPid, _SupName} = command(fun application_master:get_child/1, [MasterPid]),
-    Children = command(fun supervisor:which_children/1, [SupPid]),
+    IsSupervisor = is_supervisor(SupPid),
+    Children = if
+        IsSupervisor -> command(fun supervisor:which_children/1, [SupPid]);
+        true         -> []
+    end,
     sup_node(SupPid, generate_children(Children)).
 
 generate_children(Children) ->
