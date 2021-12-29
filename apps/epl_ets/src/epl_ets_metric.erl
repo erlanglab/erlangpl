@@ -96,8 +96,11 @@ calculate_memory_percent(MemoryData) ->
 
 get_ets_info(Node, Tab) ->
     {ok, Info}  = epl:command(Node, fun ets:info/1, [Tab]),
-    InfoMap = proplist_to_map(Info),
-    {Tab, InfoMap}.
+    if
+        Info == undefined -> {Tab, #{}};
+        true              -> InfoMap = proplist_to_map(Info),
+                             {Tab, InfoMap}
+    end.
 
 transform_traces_by_pid(Traces) ->
     TracesByPid = split_traces_by_pid(Traces),
@@ -210,6 +213,9 @@ namify_val(Val) ->
 
 namify(Name) ->
     epl_viz_map:namify(Name).
+
+
+proplist_to_map({'EXIT', _reason}) -> #{};
 
 proplist_to_map(Proplist) ->
     lists:foldl(fun({Prop, Val}, Map) -> maps:put(namify(Prop), namify_val(Val), 
